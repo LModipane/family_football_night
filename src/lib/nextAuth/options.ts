@@ -1,21 +1,17 @@
-// Import necessary types and modules for NextAuth.js configuration
 import { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import { db } from '@/lib/db';
+import { profileTable } from '@/lib/db/schema';
 
-// Retrieve Google Client ID and Secret from environment variables
-// These are essential for Google OAuth to function correctly.
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-// Ensure that the environment variables are set, otherwise throw an error
 // This prevents the application from running with incomplete authentication configuration.
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
 	throw new Error('Google Client ID and Secret must be set in environment variables');
 }
 
-// Main configuration object for NextAuth.js
 export const authOptions: AuthOptions = {
-	// Configure authentication providers
 	providers: [
 		// Google OAuth provider
 		GoogleProvider({
@@ -23,7 +19,6 @@ export const authOptions: AuthOptions = {
 			clientSecret: GOOGLE_CLIENT_SECRET,
 		}),
 	],
-	// Configure session management
 	session: {
 		// Use JSON Web Tokens (JWT) for session management.
 		// This is a stateless session strategy, suitable for scalable applications.
@@ -32,16 +27,33 @@ export const authOptions: AuthOptions = {
 	// Callbacks are functions that are called at various points in the authentication flow.
 	callbacks: {
 		// The signIn callback is called whenever a user attempts to sign in.
-		// It can be used to control if a user is allowed to sign in or not.
 		async signIn({ user }) {
-			console.log('User: ', user);
-			// Returning true allows the user to sign in.
-			// You could add custom logic here, e.g., checking if the user is authorized.
-			return true;
+			try {
+				// Check if the user already exists in the profile table.
+				const existingProfile = await db.query.profileTable.findFirst({
+					where: (profileTable, { eq }) => eq(profileTable.userId, user.id!),
+				});
+				// User already exists in the profile table, allow sign-in.
+				if (existingProfile) return true;
+
+				if (!user.id || !user.name || !user.email) throw new Error('User ID or name is missing');
+
+				await db.insert(profileTable).values({
+					userId: user.id,
+					name: user.name,
+					email: user.email,
+					image: user.image || null,
+				});
+
+				// Returning true allows the user to sign in.
+				return true;
+			} catch (error) {
+				console.error('Error Failed to insert user into profile table, during sign-in:', error);
+				// Returning false denies the sign-in attempt.
+				return false;
+			}
 		},
 	},
-	// Custom logger for NextAuth.js events.
-	// This helps in debugging and monitoring authentication processes.
 	logger: {
 		error(code, error) {
 			console.error('Next Auth Error: ', code, error);
@@ -53,8 +65,5 @@ export const authOptions: AuthOptions = {
 			console.debug('Next Auth Debug: ', code);
 		},
 	},
-	// The secret used to sign and encrypt the session cookie.
-	// It is crucial for security and should be a long, random string.
-	// Retrieved from environment variables.
 	secret: process.env.NEXTAUTH_SECRET,
 };

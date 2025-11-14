@@ -5,5 +5,5 @@ export const profileTable = pgTable("profile", {
     userId: varchar("user_id", { length: 255 }).notNull().unique(),
     name: varchar("name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull(),
-    image: varchar("image", { length: 512 }),
+    imageUrl: varchar("image_url", { length: 512 }),
 });

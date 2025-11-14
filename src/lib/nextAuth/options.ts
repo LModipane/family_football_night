@@ -42,7 +42,7 @@ export const authOptions: AuthOptions = {
 					userId: user.id,
 					name: user.name,
 					email: user.email,
-					image: user.image || null,
+					imageUrl: user.image || null,
 				});
 
 				// Returning true allows the user to sign in.

@@ -46,6 +46,7 @@ export const authOptions: AuthOptions = {
 				});
 
 				// Returning true allows the user to sign in.
+
 				return true;
 			} catch (error) {
 				console.error('Error Failed to insert user into profile table, during sign-in:', error);

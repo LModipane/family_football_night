@@ -3,7 +3,7 @@ import { Match, SummaryItem } from '@/types';
 export default async function getFixtures() {
 	try {
 		const response = await fetch(
-			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=${10}&eventStatusIds=1,2&entityTagIds=${'7cd3e304-f089-436f-85e0-135114525b9e'}&startDate=1723327200&orderAscending=true&region=za&platform=indaleko-web`,
+			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=${20}&eventStatusIds=1,2&entityTagIds=${'7cd3e304-f089-436f-85e0-135114525b9e'}&startDate=1723327200&orderAscending=true&region=za&platform=indaleko-web`,
 			{
 				headers: {
 					'accept': 'application/json',

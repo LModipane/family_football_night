@@ -1,0 +1,1 @@
+export {default as getFixtures} from './get_fixtures';

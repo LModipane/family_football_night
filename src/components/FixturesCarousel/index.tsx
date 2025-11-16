@@ -1,4 +1,6 @@
+import Image from 'next/image';
 import { Match } from '@/types';
+
 import {
 	Carousel,
 	CarouselContent,
@@ -6,35 +8,62 @@ import {
 	CarouselNext,
 	CarouselPrevious,
 } from '@/components/ui/carousel';
+import { formatDate, trancateName } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 type Props = {
 	fixtures: Match[];
 };
 
-function FixturesCarousel ({ fixtures }: Props) {
+function FixturesCarousel({ fixtures }: Props) {
 	return fixtures.length === 0 ? (
 		<p>No fixtures available</p>
 	) : (
-		<Carousel>
+		<Carousel className="w-full rounded-md p-2">
 			<CarouselContent>
-				{fixtures.map(fixture => (
-					<CarouselItem key={fixture.id} className="mx-2">
-						<h3 className="text-lg font-bold mb-2">
-							{fixture.homeTeamName} vs {fixture.awayTeamName}
-						</h3>
-						<p className="text-sm">
-							Date: {new Date(fixture.date).toLocaleDateString()} Time:{' '}
-							{new Date(fixture.date).toLocaleTimeString()}
-						</p>
+				{fixtures.map(match => (
+					<CarouselItem key={match.id} className="flex flex-col justify-center items-center">
+						<div className="flex flex-row justify-center items-center">
+							<div className="flex flex-col justify-center items-center mb-2 h-full">
+								<Avatar className="w-13 h-13">
+									<AvatarImage
+										src={match.homeTeamBadgeUrl}
+										className="w-full h-full"
+										alt={`Home Team, ${match.homeTeamName}`}
+									/>
+									<AvatarFallback className="text-black">home</AvatarFallback>
+								</Avatar>
+								<h3 className="uppercase">{trancateName(match.homeTeamName)}</h3>
+							</div>
+							<div className="flex flex-col justify-center items-center mx-3">
+								<p className="text-sm -mb-3">{formatDate(match.date)}</p>
+								<div className="flex justify-center items-center mx-4 my-3 mb-10">
+									<h3 className="text-4xl font-bold">{match.homeTeamScore}</h3>
+									<h4 className="mx-3">vs</h4>
+									<h3 className="text-4xl font-bold">{match.awayTeamScore}</h3>
+								</div>
+							</div>
+							<div className="flex flex-col justify-center items-center mb-2 h-full">
+								<Avatar className="w-13 h-13">
+									<AvatarImage
+										src={match.awayTeamBadgeUrl}
+										className="w-full h-full"
+										alt={`Away Team, ${match.awayTeamName}`}
+									/>
+									<AvatarFallback className="text-black">Away</AvatarFallback>
+								</Avatar>
+								<h3 className="uppercase">{trancateName(match.awayTeamName)}</h3>
+							</div>
+						</div>
 					</CarouselItem>
 				))}
 			</CarouselContent>
-			<CarouselPrevious className="bg-gray-700 text-white p-2 rounded-full mr-2">
-				&lt;
-			</CarouselPrevious>
-			<CarouselNext className="bg-gray-700 text-white p-2 rounded-full">&gt;</CarouselNext>
+			<div className="relative h-10 mt-4 flex justify-center items-center rounded-md px-2 py-2">
+				<CarouselNext className="bg-gray-700 text-white px-2 py-1 rounded-md mr-14" />
+				<CarouselPrevious className="bg-gray-700 text-white px-2 py-1 rounded-md ml-14" />
+			</div>
 		</Carousel>
 	);
-};
+}
 
 export default FixturesCarousel;

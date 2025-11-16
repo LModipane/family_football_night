@@ -7,7 +7,7 @@ export default async function Home() {
 
 	return (
 		<main className="h-full w-full flex">
-			<div className="bg-purple-900 h-full w-[45%] sm:w-[25%] text-white p-10 sm:block hidden">
+			<div className="bg-purple-900 h-full max-w-[30%] p-2 text-white sm:block hidden border-2 border-gray-300">
 				<FixturesCarousel fixtures={fixtures} />
 			</div>
 			<div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div>

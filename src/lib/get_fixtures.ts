@@ -36,7 +36,7 @@ export default async function getFixtures() {
 		}));
 		return fixtures;
 	} catch (error) {
-		console.log('Failed to fetch fixtures', error);
-		return null;
+		console.error('Failed to fetch fixtures', error);
+		return [];
 	}
 }

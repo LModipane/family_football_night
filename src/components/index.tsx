@@ -1,0 +1,1 @@
+export {default as FixturesCarousel} from './FixturesCarousel';

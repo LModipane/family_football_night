@@ -24,6 +24,7 @@ export default async function getFixtures() {
 		);
 		const data = await response.json() as { Summary: SummaryItem[] };
 		const fixtures: Match[] = data.Summary.map((item: SummaryItem) => ({
+			id: item.eventId,
 			date: item.eventDateEnd,
 			matchStatus: item.status.name,
 			homeTeamName: item.teams.home.name,

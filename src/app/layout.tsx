@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextAuth/options';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { SignUpModel } from '@/components/models';
 import { AuthProvider } from '@/components/Providers';
+import { PredictionModel, SignUpModel } from '@/components/models';
 
 import './globals.css';
 
@@ -44,6 +44,7 @@ function ModelProvider() {
 	return (
 		<>
 			<SignUpModel />
+			<PredictionModel />
 		</>
 	);
 }

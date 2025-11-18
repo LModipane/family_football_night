@@ -12,10 +12,12 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
+import { useModel } from '@/hooks';
 
 const SignUpModel = () => {
 	const { status } = useSession();
-	const isModelOpen = status !== 'authenticated';
+	const { type } = useModel();
+	const isModelOpen = status !== 'authenticated' && type === null;
 	return (
 		<Dialog open={isModelOpen}>
 			<DialogContent className="">

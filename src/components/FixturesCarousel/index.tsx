@@ -1,25 +1,40 @@
-import Image from 'next/image';
+'use client';
+
 import { Match } from '@/types';
+import { useEffect, useState } from 'react';
+import { formatDate, trancateName } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 import {
 	Carousel,
-	CarouselContent,
-	CarouselItem,
+	CarouselApi,
 	CarouselNext,
+	CarouselItem,
+	CarouselContent,
 	CarouselPrevious,
 } from '@/components/ui/carousel';
-import { formatDate, trancateName } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { usePredictionContext } from '@/hooks';
 
 type Props = {
 	fixtures: Match[];
 };
 
 function FixturesCarousel({ fixtures }: Props) {
+	const [carouselAPI, setCarouselAPI] = useState<CarouselApi | null>(null);
+	const { setCarouselIndex } = usePredictionContext();
+
+	useEffect(() => {
+		if (!carouselAPI) return;
+
+		carouselAPI.on('select', () => {
+			setCarouselIndex(carouselAPI.selectedScrollSnap());
+		});
+	}, [carouselAPI, setCarouselIndex]);
+
 	return fixtures.length === 0 ? (
 		<p>No fixtures available</p>
 	) : (
-		<Carousel className="w-full rounded-md p-2">
+		<Carousel setApi={setCarouselAPI} className="w-full rounded-md p-2">
 			<CarouselContent>
 				{fixtures.map(match => (
 					<CarouselItem key={match.id} className="flex flex-col justify-center items-center">

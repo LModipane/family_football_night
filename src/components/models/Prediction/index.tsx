@@ -1,10 +1,10 @@
 'use client';
 
 // import { toast } from "sonner";
-import { useState } from 'react';
 import { useModel } from '@/hooks';
-import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { formatDate, trancateName } from '@/lib/utils';
+import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselApi, CarouselItem, CarouselContent } from '@/components/ui/carousel';
 
@@ -22,8 +22,10 @@ const PredictionModel = () => {
 	const {
 		type,
 		onClose,
-		data: { fixtures },
+		data: { fixtures, carouselIndex, setCarouselIndex },
 	} = useModel();
+
+	// const { carouselIndex, setCarouselIndex } = usePredictionContext();
 
 	const isModelOpen = type === 'Prediction'; // Replace with actual logic to determine if the model should be open
 
@@ -46,6 +48,14 @@ const PredictionModel = () => {
 		}
 	};
 
+	useEffect(() => {
+		if (!carouselApi || !setCarouselIndex) return;
+
+		carouselApi.on('select', () => {
+			setCarouselIndex(carouselApi.selectedScrollSnap());
+		});
+	}, [carouselApi, setCarouselIndex]);
+
 	return (
 		<Dialog open={isModelOpen} onOpenChange={() => onClose()}>
 			<DialogContent className="text-black w-screen">
@@ -67,12 +77,10 @@ const PredictionModel = () => {
 									<ArrowRight className="h-5 w-5" />
 								</button>
 							</div>
-							<Carousel setApi={setCarouselApi}>
+							<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
 								<CarouselContent className="mx-1 flex gap-x-3 ">
 									{fixtures.map(match => (
-										<CarouselItem
-											key={match.id}
-											className="h-[300px] p-3">
+										<CarouselItem key={match.id} className="h-[300px] p-3">
 											<form className="h-full w-full flex flex-col" onSubmit={submitPrediction}>
 												<div className="flex h-full w-full justify-center items-center">
 													<div className="flex flex-col items-center">

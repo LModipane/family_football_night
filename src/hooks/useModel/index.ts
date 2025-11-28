@@ -3,8 +3,10 @@ import { create } from 'zustand';
 
 type Model = 'Prediction' | null;
 type ModelData = {
-	fixtures?: Match[]
-}
+	fixtures?: Match[];
+	carouselIndex?: number | null;
+	setCarouselIndex?: React.Dispatch<React.SetStateAction<number | null>>;
+};
 
 type ModelStore = {
 	type: Model;

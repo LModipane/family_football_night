@@ -1,7 +1,7 @@
 'use client';
 
 import { Match } from '@/types';
-import { useModel } from '@/hooks';
+import { useModel, usePredictionContext } from '@/hooks';
 import { useSession } from 'next-auth/react';
 
 type Props = {
@@ -11,10 +11,11 @@ type Props = {
 const CreatePredictionModelButton = ({ fixtures }: Props) => {
 	const { onOpen } = useModel();
 	const { status } = useSession();
+	const { carouselIndex, setCarouselIndex } = usePredictionContext();
 
 	const openModel = () => {
 		if (status !== 'authenticated') return;
-		onOpen('Prediction', { fixtures });
+		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex });
 	};
 
 	return (

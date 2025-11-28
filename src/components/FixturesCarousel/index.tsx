@@ -21,7 +21,7 @@ type Props = {
 
 function FixturesCarousel({ fixtures }: Props) {
 	const [carouselAPI, setCarouselAPI] = useState<CarouselApi | null>(null);
-	const { setCarouselIndex } = usePredictionContext();
+	const { setCarouselIndex, carouselIndex } = usePredictionContext();
 
 	useEffect(() => {
 		if (!carouselAPI) return;
@@ -34,7 +34,10 @@ function FixturesCarousel({ fixtures }: Props) {
 	return fixtures.length === 0 ? (
 		<p>No fixtures available</p>
 	) : (
-		<Carousel setApi={setCarouselAPI} className="w-full rounded-md p-2">
+		<Carousel
+			setApi={setCarouselAPI}
+			className="w-full rounded-md p-2"
+			opts={{ startIndex: carouselIndex ?? 0 }}>
 			<CarouselContent>
 				{fixtures.map(match => (
 					<CarouselItem key={match.id} className="flex flex-col justify-center items-center">

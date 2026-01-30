@@ -1,4 +1,4 @@
-import { JSX, SVGProps } from 'react';
+// import { JSX, SVGProps } from 'react';
 import { getServerSession } from 'next-auth';
 import { Button } from '@/components/ui/button';
 import { authOptions } from '@/lib/nextAuth/options';
@@ -20,7 +20,7 @@ export default async function LandingPage() {
 							<h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
 								Family Football Night
 							</h1>
-							<p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+							<p className="mx-auto max-w-175 text-gray-500 md:text-xl dark:text-gray-400">
 								The ultimate football prediction game for the whole family. Compete, brag, and see
 								who knows football best.
 							</p>
@@ -33,7 +33,7 @@ export default async function LandingPage() {
 						<div className="flex flex-col items-center justify-center space-y-4 text-center">
 							<div className="space-y-2">
 								<h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">How It Works</h2>
-								<p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+								<p className="max-w-225 text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
 									It&apos;s simple. Predict the outcome of upcoming matches, earn points for correct
 									predictions, and climb the family leaderboard.
 								</p>
@@ -73,7 +73,7 @@ export default async function LandingPage() {
 							<h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
 								More Than Just a Game
 							</h2>
-							<p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
+							<p className="max-w-150 text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
 								Family Football Night is about bringing your family together through the beautiful
 								game. It&apos;s about friendly rivalries, shared moments, and creating lasting
 								memories.
@@ -103,20 +103,20 @@ export default async function LandingPage() {
 	);
 }
 
-function MountainIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
-	return (
-		<svg
-			{...props}
-			xmlns="http://www.w3.org/2000/svg"
-			width="24"
-			height="24"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			strokeWidth="2"
-			strokeLinecap="round"
-			strokeLinejoin="round">
-			<path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-		</svg>
-	);
-}
+// function MountainIcon(props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>) {
+// 	return (
+// 		<svg
+// 			{...props}
+// 			xmlns="http://www.w3.org/2000/svg"
+// 			width="24"
+// 			height="24"
+// 			viewBox="0 0 24 24"
+// 			fill="none"
+// 			stroke="currentColor"
+// 			strokeWidth="2"
+// 			strokeLinecap="round"
+// 			strokeLinejoin="round">
+// 			<path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+// 		</svg>
+// 	);
+// }

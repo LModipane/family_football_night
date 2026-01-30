@@ -16,8 +16,8 @@ import { useModel } from '@/hooks';
 
 const SignUpModel = () => {
 	const { status } = useSession();
-	const { type } = useModel();
-	const isModelOpen = status !== 'authenticated' && type === null;
+	const { type, isOpen } = useModel();
+	const isModelOpen = status !== 'authenticated' && type === "SIGN-IN" && isOpen;
 	return (
 		<Dialog open={isModelOpen}>
 			<DialogContent className="">

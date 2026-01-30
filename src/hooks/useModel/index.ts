@@ -1,8 +1,9 @@
 import { Match } from '@/types';
 import { create } from 'zustand';
 
-type Model = 'Prediction' | null;
+type Model = 'Prediction' | "SIGN-IN" | null;
 type ModelData = {
+	profileId?: string;
 	fixtures?: Match[];
 	carouselIndex?: number | null;
 	setCarouselIndex?: React.Dispatch<React.SetStateAction<number | null>>;
@@ -10,7 +11,8 @@ type ModelData = {
 
 type ModelStore = {
 	type: Model;
-	data: ModelData,
+	data: ModelData;
+	isOpen: boolean;
 	onClose: () => void;
 	onOpen: (type: Model, data: ModelData) => void;
 };
@@ -18,8 +20,9 @@ type ModelStore = {
 const useModel = create<ModelStore>(set => ({
 	data: {},
 	type: null,
-	onOpen: (type: Model, data: ModelData) => set({ type, data }),
-	onClose: () => set({ type: null, data: {} }),
+	isOpen: false,
+	onOpen: (type: Model, data: ModelData) => set({ type, data, isOpen: true }),
+	onClose: () => set({ type: null, data: {}, isOpen: false }),
 }));
 
 export default useModel;

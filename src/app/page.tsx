@@ -1,7 +1,19 @@
+import { db } from '@/lib/db';
 import { getFixtures } from '@/lib';
-import { CreatePredictionModelButton, FixturesCarousel, PredictionContextProvider } from '@/components';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/nextAuth/options';
+
+import {
+	FixturesCarousel,
+	PredictionContextProvider,
+	CreatePredictionModelButton,
+} from '@/components';
+import { redirect, RedirectType } from 'next/navigation';
 
 export default async function Home() {
+	const session = await getServerSession(authOptions);
+	if (!session) redirect('/Landing', RedirectType.replace);
+
 	const fixtures = await getFixtures();
 	if (!fixtures) throw new Error('Failed to load fixtures');
 
@@ -10,7 +22,7 @@ export default async function Home() {
 			<div className="bg-purple-900 h-full max-w-[30%] p-2 text-white sm:block hidden border-2 border-gray-300">
 				<PredictionContextProvider fixtures={fixtures}>
 					<FixturesCarousel fixtures={fixtures} />
-					<CreatePredictionModelButton fixtures={fixtures} />
+					<CreatePredictionModelButton fixtures={fixtures} profileId={'ID'} />
 				</PredictionContextProvider>
 			</div>
 			<div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div>

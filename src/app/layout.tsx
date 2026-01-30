@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextAuth/options';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from '@/components/Providers';
-import { PredictionModel, SignUpModel } from '@/components/models';
+import { PredictionFormModel, SignUpModel } from '@/components/models';
 
 import './globals.css';
 
@@ -31,7 +31,8 @@ export default async function RootLayout({
 	return (
 		<AuthProvider session={session}>
 			<html lang="en">
-				<body className={`${geistSans.variable} ${geistMono.variable} antialiased w-screen h-screen bg-gray-100`}>
+				<body
+					className={`${geistSans.variable} ${geistMono.variable} antialiased w-screen h-screen bg-gray-100`}>
 					<ModelProvider />
 					{children}
 				</body>
@@ -44,7 +45,7 @@ function ModelProvider() {
 	return (
 		<>
 			<SignUpModel />
-			<PredictionModel />
+			<PredictionFormModel />
 		</>
 	);
 }

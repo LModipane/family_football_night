@@ -1,6 +1,7 @@
 'use client';
 
 // import { toast } from "sonner";
+import axios from 'axios';
 import { useModel } from '@/hooks';
 import { useState, useEffect } from 'react';
 import { formatDate, trancateName } from '@/lib/utils';
@@ -16,13 +17,15 @@ import {
 	DialogDescription,
 } from '@/components/ui/dialog';
 
-const PredictionModel = () => {
+const PredictionFormModel = () => {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+	const [homeTeamScore, setHomeTeamScore] = useState<number | null>(null);
+	const [awayTeamScore, setAwayTeamScore] = useState<number | null>(null);
 
 	const {
 		type,
 		onClose,
-		data: { fixtures, carouselIndex, setCarouselIndex },
+		data: { fixtures, carouselIndex, setCarouselIndex, profileId },
 	} = useModel();
 
 	// const { carouselIndex, setCarouselIndex } = usePredictionContext();
@@ -42,6 +45,7 @@ const PredictionModel = () => {
 	const submitPrediction = async () => {
 		try {
 			console.log('Submitting Prediction');
+			await axios.post('/api/create-prediction', { homeTeamScore, awayTeamScore, profileId });
 		} catch (error) {
 			console.error('Failed to submit Prediction: ', error);
 			// toast.error("Opps, failed to Submit Prediction!!!")
@@ -95,16 +99,20 @@ const PredictionModel = () => {
 														<div className="flex justify-center items-center mx-4 my-3 mb-10">
 															<input
 																type="number"
-																className="w-16 h-16 border-2 border-gray-500 rounded-xl focus:border-blue-500 text-center text-black text-3xl"
 																placeholder={`${0}`}
+																value={homeTeamScore ?? 0}
+																onChange={event => setHomeTeamScore(Math.abs(+event.target.value))}
+																className="w-16 h-16 border-2 border-gray-500 rounded-xl focus:border-blue-500 text-center text-black text-3xl"
 															/>
 															<h4 className="mx-3">
-																<Asterisk className="h-6 w-6" />
+																<Asterisk className="h-5 w-5" />
 															</h4>
 															<input
 																type="number"
-																className="w-16 h-16 border-2 border-gray-500 rounded-xl focus:border-blue-500 text-center text-black text-3xl"
 																placeholder={`${0}`}
+																value={awayTeamScore ?? 0}
+																onChange={event => setAwayTeamScore(Math.abs(+event.target.value))}
+																className="w-16 h-16 border-2 border-gray-500 rounded-xl focus:border-blue-500 text-center text-black text-3xl"
 															/>
 														</div>
 													</div>
@@ -134,4 +142,4 @@ const PredictionModel = () => {
 	);
 };
 
-export default PredictionModel;
+export default PredictionFormModel;

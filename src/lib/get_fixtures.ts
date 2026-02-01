@@ -3,7 +3,7 @@ import { Match, SummaryItem } from '@/types';
 export default async function getFixtures() {
 	try {
 		const response = await fetch(
-			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=${20}&eventStatusIds=1,2&entityTagIds=${'7cd3e304-f089-436f-85e0-135114525b9e'}&startDate=1723327200&orderAscending=true&region=za&platform=indaleko-web`,
+			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=${20}&eventStatusIds=1,2&entityTagIds=${'c0ca5665-d9d9-42dc-ad86-a7f48a4da2c6'}&startDate=1723327200&orderAscending=true&region=za&platform=indaleko-web`,
 			{
 				headers: {
 					'accept': 'application/json',
@@ -22,15 +22,13 @@ export default async function getFixtures() {
 				credentials: 'include',
 			},
 		);
-		const data = await response.json() as { Summary: SummaryItem[] };
+		const data = (await response.json()) as { Summary: SummaryItem[] };
 		const fixtures: Match[] = data.Summary.map((item: SummaryItem) => ({
 			id: item.eventId,
 			date: item.eventDateEnd,
 			matchStatus: item.status.name,
 			homeTeamName: item.teams.home.name,
 			awayTeamName: item.teams.away.name,
-			homeTeamScore: item.score.total.home,
-			awayTeamScore: item.score.total.away,
 			isKnockoutStage: item.isKnockoutFixture,
 			awayTeamBadgeUrl: `https://images.supersport.com${item.teams.away.icon}`,
 			homeTeamBadgeUrl: `https://images.supersport.com${item.teams.home.icon}`,

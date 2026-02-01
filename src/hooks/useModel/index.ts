@@ -1,9 +1,8 @@
 import { Match } from '@/types';
 import { create } from 'zustand';
 
-type Model = 'Prediction' | "SIGN-IN" | null;
+type Model = 'Prediction' | 'SIGN-IN' | null;
 type ModelData = {
-	profileId?: string;
 	fixtures?: Match[];
 	carouselIndex?: number | null;
 	setCarouselIndex?: React.Dispatch<React.SetStateAction<number | null>>;

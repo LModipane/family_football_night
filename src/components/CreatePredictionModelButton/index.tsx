@@ -15,7 +15,7 @@ const CreatePredictionModelButton = ({ fixtures }: Props) => {
 
 	const openModel = () => {
 		if (status !== 'authenticated') return;
-		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex });
+		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex,  });
 	};
 
 	return (

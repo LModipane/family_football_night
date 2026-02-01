@@ -1,6 +1,6 @@
-// import { db } from '@/lib/db';
+import { db } from '../db';
 import { AuthOptions } from 'next-auth';
-// import { profileTable } from '@/lib/db/schema';
+import { profileTable } from '../db/schema';
 import GoogleProvider from 'next-auth/providers/google';
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)
@@ -19,12 +19,39 @@ export const authOptions: AuthOptions = {
 	callbacks: {
 		async signIn({ user }) {
 			try {
-				console.log('User signing in:', user);
+				const existingProfile = await db.query.profileTable.findFirst({
+					where: (table, { eq, or }) =>
+						or(eq(table.userId, user.id), eq(table.email, user.email ?? 'NA')),
+				});
+				if (existingProfile) return true
+				
+				if (!user.email || !user.name || !user.id) return false
+				
+				await db.insert(profileTable).values({
+					userId: user.id,
+					name: user.name,
+					email: user.email,
+					imageUrl: user.image ?? null
+				})
+
 				return true;
 			} catch (error) {
 				console.error('Error in signIn callback:', error);
 				return false;
 			}
+		},
+		async session({ session }) {
+			const existingProfile = await db.query.profileTable.findFirst({
+				where: (table, { eq, or }) =>
+					or(
+						eq(table.userId, session.user.id ?? 'NA'),
+						eq(table.email, session.user.email ?? 'NA'),
+					),
+			});
+
+			if (existingProfile) session.user.id = existingProfile.userId
+			
+			return session;
 		},
 	},
 	jwt: {

@@ -16,6 +16,7 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
+import { Match } from '@/types';
 
 const PredictionFormModel = () => {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
@@ -25,7 +26,7 @@ const PredictionFormModel = () => {
 	const {
 		type,
 		onClose,
-		data: { fixtures, carouselIndex, setCarouselIndex, profileId },
+		data: { fixtures, carouselIndex, setCarouselIndex },
 	} = useModel();
 
 	// const { carouselIndex, setCarouselIndex } = usePredictionContext();
@@ -42,10 +43,11 @@ const PredictionFormModel = () => {
 		carouselApi.scrollPrev();
 	};
 
-	const submitPrediction = async () => {
+	const submitPrediction = async (event: React.SubmitEvent, match: Match) => {
+		event.preventDefault();
+
 		try {
-			console.log('Submitting Prediction');
-			await axios.post('/api/create-prediction', { homeTeamScore, awayTeamScore, profileId });
+			await axios.post('/api/create-prediction', { homeTeamScore, awayTeamScore, ...match });
 		} catch (error) {
 			console.error('Failed to submit Prediction: ', error);
 			// toast.error("Opps, failed to Submit Prediction!!!")
@@ -84,8 +86,10 @@ const PredictionFormModel = () => {
 							<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
 								<CarouselContent className="mx-1 flex gap-x-3 ">
 									{fixtures.map(match => (
-										<CarouselItem key={match.id} className="h-[300px] p-3">
-											<form className="h-full w-full flex flex-col" onSubmit={submitPrediction}>
+										<CarouselItem key={match.id} className="h-75 p-3">
+											<form
+												className="h-full w-full flex flex-col"
+												onSubmit={event => submitPrediction(event, match)}>
 												<div className="flex h-full w-full justify-center items-center">
 													<div className="flex flex-col items-center">
 														<Avatar className="w-28 h-28">
@@ -98,19 +102,22 @@ const PredictionFormModel = () => {
 														<p className="text-sm -mb-3">{formatDate(match.date)}</p>
 														<div className="flex justify-center items-center mx-4 my-3 mb-10">
 															<input
+																required
 																type="number"
 																placeholder={`${0}`}
-																value={homeTeamScore ?? 0}
-																onChange={event => setHomeTeamScore(Math.abs(+event.target.value))}
+																onChange={event => {
+																	if (event.target.value === '') return setHomeTeamScore(null);
+																	setHomeTeamScore(Math.abs(+event.target.value));
+																}}
 																className="w-16 h-16 border-2 border-gray-500 rounded-xl focus:border-blue-500 text-center text-black text-3xl"
 															/>
 															<h4 className="mx-3">
 																<Asterisk className="h-5 w-5" />
 															</h4>
 															<input
+																required
 																type="number"
 																placeholder={`${0}`}
-																value={awayTeamScore ?? 0}
 																onChange={event => setAwayTeamScore(Math.abs(+event.target.value))}
 																className="w-16 h-16 border-2 border-gray-500 rounded-xl focus:border-blue-500 text-center text-black text-3xl"
 															/>

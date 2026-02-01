@@ -1,15 +1,13 @@
 // import { JSX, SVGProps } from 'react';
+import { SignInButton } from '@/components';
 import { getServerSession } from 'next-auth';
 import { Button } from '@/components/ui/button';
 import { authOptions } from '@/lib/nextAuth/options';
 import { redirect, RedirectType } from 'next/navigation';
-import { SignInButton } from '@/components';
 
 export default async function LandingPage() {
 	const session = await getServerSession(authOptions);
 	if (session) redirect('/', RedirectType.replace);
-
-	console.log('No active session, rendering landing page.', session);
 
 	return (
 		<div className="flex flex-col min-h-dvh">

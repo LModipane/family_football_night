@@ -7,8 +7,6 @@ export type Match = {
 	isKnockoutStage: boolean;
 	awayTeamBadgeUrl: string;
 	homeTeamBadgeUrl: string;
-	homeTeamScore: number;
-	awayTeamScore: number;
 };
 
 export type SummaryItem = {
@@ -20,5 +18,4 @@ export type SummaryItem = {
 		home: { name: string; icon: string };
 		away: { name: string; icon: string };
 	};
-	score: { total: { home: number; away: number } };
 };

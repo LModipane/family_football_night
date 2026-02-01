@@ -1,13 +1,15 @@
 'use client';
 
-// import { toast } from "sonner";
 import axios from 'axios';
+import { toast } from 'sonner';
+import { Match } from '@/types';
 import { useModel } from '@/hooks';
 import { useState, useEffect } from 'react';
 import { formatDate, trancateName } from '@/lib/utils';
 import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselApi, CarouselItem, CarouselContent } from '@/components/ui/carousel';
+import { useRouter } from 'next/navigation';
 
 import {
 	Dialog,
@@ -16,9 +18,10 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
-import { Match } from '@/types';
 
 const PredictionFormModel = () => {
+	const router = useRouter();
+
 	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 	const [homeTeamScore, setHomeTeamScore] = useState<number | null>(null);
 	const [awayTeamScore, setAwayTeamScore] = useState<number | null>(null);
@@ -48,9 +51,12 @@ const PredictionFormModel = () => {
 
 		try {
 			await axios.post('/api/create-prediction', { homeTeamScore, awayTeamScore, ...match });
+			toast.success('Successfully submitted Prediction');
 		} catch (error) {
 			console.error('Failed to submit Prediction: ', error);
-			// toast.error("Opps, failed to Submit Prediction!!!")
+			toast.error('Opps, failed to Submit Prediction!!!');
+		} finally {
+			router.refresh();
 		}
 	};
 
@@ -96,7 +102,7 @@ const PredictionFormModel = () => {
 															<AvatarImage src={match.homeTeamBadgeUrl} className="w-full h-full" />
 															<AvatarFallback />
 														</Avatar>
-														<h3>{trancateName(match.homeTeamName)}</h3>
+														<h3>{match.homeTeamName}</h3>
 													</div>
 													<div className="flex flex-col justify-center items-center mx-1">
 														<p className="text-sm -mb-3">{formatDate(match.date)}</p>
@@ -128,7 +134,7 @@ const PredictionFormModel = () => {
 															<AvatarImage src={match.awayTeamBadgeUrl} className="w-full h-full" />
 															<AvatarFallback />
 														</Avatar>
-														<h3>{trancateName(match.awayTeamName)}</h3>
+														<h3>{match.awayTeamName}</h3>
 													</div>
 												</div>
 												<div className="flex justify-end">

@@ -1,3 +1,11 @@
+import { InferInsertModel } from 'drizzle-orm';
+import { profileTable, predictionTable } from '@/lib/db/schema';
+
+type Profile = InferInsertModel<typeof profileTable>;
+type Prediction = InferInsertModel<typeof predictionTable>;
+
+export type PredictionWithProfile = { profile: Profile } & Prediction;
+
 export type Match = {
 	id: number;
 	date: string;
@@ -19,3 +27,4 @@ export type SummaryItem = {
 		away: { name: string; icon: string };
 	};
 };
+

@@ -53,13 +53,9 @@ function FixturesCarousel({ fixtures }: Props) {
 								</Avatar>
 								<h3 className="uppercase">{trancateName(match.homeTeamName)}</h3>
 							</div>
-							<div className="flex flex-col justify-center items-center mx-3">
+							<div className="flex flex-col justify-center items-center gap-3 mx-3">
 								<p className="text-sm -mb-3">{formatDate(match.date)}</p>
-								<div className="flex justify-center items-center mx-4 my-3 mb-10">
-									<h3 className="text-4xl font-bold">{match.homeTeamScore}</h3>
-									<h4 className="mx-3">vs</h4>
-									<h3 className="text-4xl font-bold">{match.awayTeamScore}</h3>
-								</div>
+								<h4 className="mx-3">vs</h4>
 							</div>
 							<div className="flex flex-col justify-center items-center mb-2 h-full">
 								<Avatar className="w-13 h-13">

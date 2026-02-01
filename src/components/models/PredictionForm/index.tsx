@@ -4,12 +4,12 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { Match } from '@/types';
 import { useModel } from '@/hooks';
+import { formatDate } from '@/lib/utils';
 import { useState, useEffect } from 'react';
-import { formatDate, trancateName } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Carousel, CarouselApi, CarouselItem, CarouselContent } from '@/components/ui/carousel';
-import { useRouter } from 'next/navigation';
 
 import {
 	Dialog,

@@ -12,7 +12,8 @@ export async function POST(req: Request) {
 
 		const predictions = await db.query.predictionTable.findMany({
 			where: (table, { eq }) => eq(table.status, 'unsettled'),
-		});
+        });
+        if(predictions.length === 0) return
 
 		await Promise.allSettled(
 			predictions.map(async prediction => await calculateResult(prediction)),

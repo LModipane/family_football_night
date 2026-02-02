@@ -1,4 +1,4 @@
-export async function POST() {
+export async function GET() {
     try {
         console.log("Hello From Create Result Server Route!!!")
         return new Response("Success", {status: 201})

@@ -4,6 +4,7 @@ export async function POST(req: Request) {
         if (!authHeader) return new Response("Opps, Unauthenticated", { status: 401 })
         
         const token = authHeader.replace('Bearer ', '');
+        if(token !== process.env.CRON_JOB_SECRETE)
 		console.log('Hello From Create Result Server Route!!!', token);
 		return new Response('Success', { status: 201 });
 	} catch (error) {

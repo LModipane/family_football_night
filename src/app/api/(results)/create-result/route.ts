@@ -1,14 +1,88 @@
+import { db } from '@/lib/db';
+import { Prediction } from '@/types';
+
 export async function POST(req: Request) {
 	try {
-        const authHeader = req.headers.get('authorization');
-        if (!authHeader) return new Response("Opps, Unauthenticated", { status: 401 })
-        
-        const token = authHeader.replace('Bearer ', '');
-        if(token !== process.env.CRON_JOB_SECRETE)
-		console.log('Hello From Create Result Server Route!!!', token);
-		return new Response('Success', { status: 201 });
+		// const authHeader = req.headers.get('authorization');
+		// if (!authHeader) return new Response('Opps, Unauthenticated', { status: 401 });
+
+		// const token = authHeader.replace('Bearer ', '');
+		// if (token !== process.env.CRON_JOB_SECRETE)
+		// 	return new Response('Unauthenticated', { status: 403 });
+
+		const predictions = await db.query.predictionTable.findMany({
+			where: (table, { eq }) => eq(table.status, 'unsettled'),
+		});
+
+		await Promise.allSettled(
+			predictions.map(async prediction => await calculateResult(prediction)),
+		);
+
+		return new Response('Successfully create Match Results', { status: 201 });
 	} catch (error) {
 		console.error('Failled to create Match Result: ', error);
 		return new Response('Opps, failed to Post match Result', { status: 500 });
 	}
 }
+
+const calculateResult = async (prediction: Prediction) => {
+	try {
+		const res = await fetch(
+			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=25&eventStatusIds=3&entityTagIds=${`c0ca5665-d9d9-42dc-ad86-a7f48a4da2c6`}&orderAscending=false&region=za&platform=indaleko-web`,
+		);
+		const data = await res.json();
+		const matchResult = data.Summary.find(
+			(match: { eventId: string }) => match.eventId === prediction.matchEventId,
+		);
+
+		const awayTeamScoreResult = matchResult?.score.total.away as number;
+		const homeTeamScoreResult = matchResult?.score.total.home as number;
+		// const isKnockout = false; //prediction.isKnockoutEvent ;
+
+		if (
+			isPerfectPrediction(
+				awayTeamScoreResult,
+				homeTeamScoreResult,
+				prediction.awayTeamScore,
+				prediction.homeTeamScore,
+			)
+		) {
+			console.log('create perfect prediction result');
+		} else if (
+			isCorrectResult(
+				awayTeamScoreResult,
+				homeTeamScoreResult,
+				prediction.awayTeamScore,
+				prediction.homeTeamScore,
+			)
+		) {
+			console.log('Create Correct Result');
+		} else {
+			console.log('Create Incorrect prediction result');
+		}
+	} catch (error) {
+		console.error(`Failed to calculate for prediction ${prediction.id}: `, error);
+	}
+};
+
+const isPerfectPrediction = (
+	awayTeamResult: number,
+	homeTeamResult: number,
+	awayTeamPrediction: number,
+	homeTeamPrediction: number,
+) => {
+	return awayTeamPrediction === awayTeamResult && homeTeamPrediction === homeTeamResult;
+};
+
+const isCorrectResult = (
+	awayTeamResult: number,
+	homeTeamResult: number,
+	awayTeamPrediction: number,
+	homeTeamPrediction: number,
+) => {
+	return (
+		(awayTeamResult > homeTeamResult && awayTeamPrediction > homeTeamPrediction) ||
+		(homeTeamResult > awayTeamResult && homeTeamPrediction > awayTeamPrediction) ||
+		(homeTeamResult === awayTeamResult && homeTeamPrediction === awayTeamPrediction)
+	);
+};

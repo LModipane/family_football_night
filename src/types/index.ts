@@ -2,7 +2,7 @@ import { InferInsertModel } from 'drizzle-orm';
 import { profileTable, predictionTable } from '@/lib/db/schema';
 
 type Profile = InferInsertModel<typeof profileTable>;
-type Prediction = InferInsertModel<typeof predictionTable>;
+export type Prediction = InferInsertModel<typeof predictionTable>;
 
 export type PredictionWithProfile = { profile: Profile } & Prediction;
 

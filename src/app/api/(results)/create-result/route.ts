@@ -1,7 +1,10 @@
 export async function POST(req: Request) {
 	try {
-		const authHeader = req.headers.get('authorization');
-		console.log('Hello From Create Result Server Route!!!', authHeader);
+        const authHeader = req.headers.get('authorization');
+        if (!authHeader) return new Response("Opps, Unauthenticated", { status: 401 })
+        
+        const token = authHeader.replace('Bearer ', '');
+		console.log('Hello From Create Result Server Route!!!', token);
 		return new Response('Success', { status: 201 });
 	} catch (error) {
 		console.error('Failled to create Match Result: ', error);

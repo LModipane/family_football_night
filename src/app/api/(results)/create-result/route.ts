@@ -3,12 +3,12 @@ import { Prediction } from '@/types';
 
 export async function POST(req: Request) {
 	try {
-		// const authHeader = req.headers.get('authorization');
-		// if (!authHeader) return new Response('Opps, Unauthenticated', { status: 401 });
+		const authHeader = req.headers.get('authorization');
+		if (!authHeader) return new Response('Opps, Unauthenticated', { status: 401 });
 
-		// const token = authHeader.replace('Bearer ', '');
-		// if (token !== process.env.CRON_JOB_SECRETE)
-		// 	return new Response('Unauthenticated', { status: 403 });
+		const token = authHeader.replace('Bearer ', '');
+		if (token !== process.env.CRON_JOB_SECRETE)
+			return new Response('Unauthenticated', { status: 403 });
 
 		const predictions = await db.query.predictionTable.findMany({
 			where: (table, { eq }) => eq(table.status, 'unsettled'),

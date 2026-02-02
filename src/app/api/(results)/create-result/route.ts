@@ -1,5 +1,7 @@
-export async function POST() {
+export async function POST(req: Request) {
     try {
+        const authHeader = req.headers.get('authorization');
+        console.log("Auth Heeader:",authHeader)
         console.log("Hello From Create Result Server Route!!!")
         return new Response("Success", {status: 201})
     } catch (error) {

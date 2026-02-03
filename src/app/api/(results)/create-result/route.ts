@@ -1,5 +1,7 @@
 import { db } from '@/lib/db';
 import { Prediction } from '@/types';
+import { eq, and } from 'drizzle-orm';
+import { matchResultTable, predictionTable } from '@/lib/db/schema';
 
 export async function POST(req: Request) {
 	try {
@@ -12,8 +14,8 @@ export async function POST(req: Request) {
 
 		const predictions = await db.query.predictionTable.findMany({
 			where: (table, { eq }) => eq(table.status, 'unsettled'),
-        });
-        if(predictions.length === 0) return
+		});
+		if (predictions.length === 0) return new Response('No unsettled Prediction', { status: 200 });
 
 		await Promise.allSettled(
 			predictions.map(async prediction => await calculateResult(prediction)),
@@ -48,7 +50,38 @@ const calculateResult = async (prediction: Prediction) => {
 				prediction.homeTeamScore,
 			)
 		) {
-			console.log('create perfect prediction result');
+			const existingResult = await db
+				.select({ id: matchResultTable.id })
+				.from(matchResultTable)
+				.where(
+					and(
+						eq(matchResultTable.profileId, prediction.profileId),
+						eq(matchResultTable.matchEventId, prediction.matchEventId),
+					),
+				)
+				.limit(1);
+
+			if (existingResult.length === 0) {
+				await db.insert(matchResultTable).values({
+					point: 2,
+					homeTeamScoreResult,
+					awayTeamScoreResult,
+					profileId: prediction.profileId,
+					matchEventId: prediction.matchEventId,
+					homeTeamBadgeUrl: prediction.homeTeamBadgeUrl,
+					awayTeamBadgeUrl: prediction.awayTeamBadgeUrl,
+					homeTeamScorePrediction: prediction.homeTeamScore,
+					awayTeamScorePrediction: prediction.awayTeamScore,
+				});
+			}
+
+			await db
+				.update(predictionTable)
+				.set({
+					status: 'settled',
+					updateAt: new Date(),
+				})
+				.where(eq(predictionTable.id, prediction.id!));
 		} else if (
 			isCorrectResult(
 				awayTeamScoreResult,
@@ -57,9 +90,71 @@ const calculateResult = async (prediction: Prediction) => {
 				prediction.homeTeamScore,
 			)
 		) {
-			console.log('Create Correct Result');
+			const existingResult = await db
+				.select({ id: matchResultTable.id })
+				.from(matchResultTable)
+				.where(
+					and(
+						eq(matchResultTable.profileId, prediction.profileId),
+						eq(matchResultTable.matchEventId, prediction.matchEventId),
+					),
+				)
+				.limit(1);
+
+			if (existingResult.length === 0) {
+				await db.insert(matchResultTable).values({
+					point: 1,
+					homeTeamScoreResult,
+					awayTeamScoreResult,
+					profileId: prediction.profileId,
+					matchEventId: prediction.matchEventId,
+					homeTeamBadgeUrl: prediction.homeTeamBadgeUrl,
+					awayTeamBadgeUrl: prediction.awayTeamBadgeUrl,
+					homeTeamScorePrediction: prediction.homeTeamScore,
+					awayTeamScorePrediction: prediction.awayTeamScore,
+				});
+			}
+
+			await db
+				.update(predictionTable)
+				.set({
+					status: 'settled',
+					updateAt: new Date(),
+				})
+				.where(eq(predictionTable.id, prediction.id!));
 		} else {
-			console.log('Create Incorrect prediction result');
+			const existingResult = await db
+				.select({ id: matchResultTable.id })
+				.from(matchResultTable)
+				.where(
+					and(
+						eq(matchResultTable.profileId, prediction.profileId),
+						eq(matchResultTable.matchEventId, prediction.matchEventId),
+					),
+				)
+				.limit(1);
+
+			if (existingResult.length === 0) {
+				await db.insert(matchResultTable).values({
+					point: 0,
+					homeTeamScoreResult,
+					awayTeamScoreResult,
+					profileId: prediction.profileId,
+					matchEventId: prediction.matchEventId,
+					homeTeamBadgeUrl: prediction.homeTeamBadgeUrl,
+					awayTeamBadgeUrl: prediction.awayTeamBadgeUrl,
+					homeTeamScorePrediction: prediction.homeTeamScore,
+					awayTeamScorePrediction: prediction.awayTeamScore,
+				});
+			}
+
+			await db
+				.update(predictionTable)
+				.set({
+					status: 'settled',
+					updateAt: new Date(),
+				})
+				.where(eq(predictionTable.id, prediction.id!));
 		}
 	} catch (error) {
 		console.error(`Failed to calculate for prediction ${prediction.id}: `, error);

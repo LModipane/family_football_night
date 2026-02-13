@@ -1,13 +1,15 @@
 import { db } from '@/lib/db';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 import { getFixtures } from '@/lib';
 import { sql, desc, eq } from 'drizzle-orm';
 import { getServerSession } from 'next-auth';
-import { MatchResult, PredictionWithProfile, LeaderBoard } from '@/types';
 import { authOptions } from '@/lib/nextAuth/options';
 import { redirect, RedirectType } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { matchResultTable, profileTable } from '@/lib/db/schema';
+import { EllipsisVertical, Plus, Minus, Diff } from 'lucide-react';
+import { MatchResult, PredictionWithProfile, LeaderBoard } from '@/types';
 
 import {
 	Accordion,
@@ -15,7 +17,6 @@ import {
 	AccordionTrigger,
 	AccordionContent,
 } from '@/components/ui/accordion';
-
 import {
 	PredictionCard,
 	FixturesCarousel,
@@ -149,10 +150,87 @@ const LeaderPlace = async ({ player }: LeaderPlaceProps) => {
 					</div>
 				</AccordionTrigger>
 				<AccordionContent>
-					<div className="bg-blue-800 dark:bg-blue-950 p-4 w-[90%] mx-auto">helloworld</div>
+					<div className="bg-blue-800 dark:bg-blue-950 p-4 w-[90%] mx-auto">
+						{player.results && player.results.length !== 0 ? (
+							player.results.map((result, index) => (
+								<ResultCard key={result.id} result={result} index={index} />
+							))
+						) : (
+							<div className="text-center text-white">No results yet.</div>
+						)}
+					</div>
 				</AccordionContent>
 			</AccordionItem>
 		</Accordion>
+	);
+};
+
+type ResultCardProps = {
+	result: MatchResult;
+	index: number;
+};
+
+const ResultCard = ({ result, index }: ResultCardProps) => {
+	const fouls = 0
+	return (
+		<div className="h-10 border-b-2 border-slate-400 w-full flex items-center">
+			<div className="border-x-2 border-slate-400 w-[10.5%] h-10 flex justify-center items-center">
+				<span>{++index}</span>
+			</div>
+			<div className="border-r-2 border-slate-400 w-[17.25%] h-10 flex justify-between items-center px-1">
+				<div className="relative min-w-4 min-h-4">
+					<Image src={result.homeTeamBadgeUrl} alt="home-team-logo" fill className="object-fit" />
+				</div>
+				<div className="flex justify-center items-center">
+					<EllipsisVertical className="h-3 w-3" />
+				</div>
+				<div className="relative min-w-4 min-h-4">
+					<Image src={result.awayTeamBadgeUrl} alt="home-team-logo" fill className="object-fit" />
+				</div>
+			</div>
+			<div className="border-r-2 border-slate-400 w-[17.25%] h-10 flex justify-center items-center">
+				<span className="text-lg">{result.homeTeamScoreResult}</span>
+				<div className="flex justify-center items-center">
+					<EllipsisVertical className="h-3 w-3" />
+				</div>
+				<span className="text-lg">{result.awayTeamScoreResult}</span>
+			</div>
+			<div className="border-r-2 border-slate-400 w-[18.5%] h-10 flex justify-center items-center">
+				<span className="text-lg">{result.homeTeamScorePrediction}</span>
+				<div className="flex justify-center items-center">
+					<EllipsisVertical className="h-3 w-3" />
+				</div>
+				<span className="text-lg">{result.awayTeamScorePrediction}</span>
+			</div>
+			<div
+				className={cn(
+					'border-r-2 border-slate-400 w-[17%] h-10 flex justify-center items-center',
+					fouls < 0 ? 'text-red-500' : 'text-gray-500',
+				)}>
+				{fouls > 0 ? (
+					<span>NA</span>
+				) : fouls < 0 ? (
+					<Minus className="h-4 w-4" />
+				) : (
+					<Diff className="h-4 w-4" />
+				)}
+				{fouls <= 0 ? <span className="text-lg">{Math.abs(fouls)}</span> : <></>}
+			</div>
+			<div
+				className={cn(
+					'border-r-2 border-slate-400 w-14 h-10 flex justify-center items-center ',
+					result.point! > 0
+						? 'text-green-500'
+						: result.point! < 0
+							? 'text-red-500'
+							: 'text-gray-500',
+				)}>
+				{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
+				{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
+				{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
+				<span className="text-lg">{Math.abs(result.point!)}</span>
+			</div>
+		</div>
 	);
 };
 

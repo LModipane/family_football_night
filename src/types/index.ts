@@ -1,10 +1,18 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { profileTable, predictionTable } from '@/lib/db/schema';
+import { profileTable, predictionTable, matchResultTable } from '@/lib/db/schema';
 
 type Profile = InferInsertModel<typeof profileTable>;
 export type Prediction = InferInsertModel<typeof predictionTable>;
+export type MatchResult = InferInsertModel<typeof matchResultTable>;
 
 export type PredictionWithProfile = { profile: Profile } & Prediction;
+export type LeaderBoard = {
+	profileId: string;
+	name: string;
+	imageUrl: string | null;
+	score: number;
+	results: MatchResult[] | null;
+}[];
 
 export type Match = {
 	id: number;
@@ -27,4 +35,3 @@ export type SummaryItem = {
 		away: { name: string; icon: string };
 	};
 };
-

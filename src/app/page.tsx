@@ -33,6 +33,7 @@ export default async function Home() {
 
 	const predictions: PredictionWithProfile[] = await db.query.predictionTable.findMany({
 		with: { profile: true },
+		where: (table, { eq }) => eq(table.status, 'unsettled'),
 	});
 
 	const totalScore = sql<number>`sum(${matchResultTable.point})`;
@@ -171,7 +172,7 @@ type ResultCardProps = {
 };
 
 const ResultCard = ({ result, index }: ResultCardProps) => {
-	const fouls = 0
+	const fouls = 0;
 	return (
 		<div className="h-10 border-b-2 border-slate-400 w-full flex items-center">
 			<div className="border-x-2 border-slate-400 w-[10.5%] h-10 flex justify-center items-center">

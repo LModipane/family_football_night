@@ -65,7 +65,7 @@ export default async function Home() {
 
 	return (
 		<main className="h-full w-full flex">
-			<div className="bg-purple-900 h-full max-w-[45%] p-2 text-white sm:flex sm:flex-col hidden border-2 border-gray-300">
+			<div className="bg-purple-900 h-full max-w-[35%] p-2 text-white sm:flex sm:flex-col hidden border-2 border-gray-300">
 				<PredictionContextProvider fixtures={fixtures}>
 					<FixturesCarousel fixtures={fixtures} />
 					<CreatePredictionModelButton fixtures={fixtures} />
@@ -145,7 +145,7 @@ const LeaderPlace = async ({ player }: LeaderPlaceProps) => {
 							</div>
 							<h2 className="my-auto text-start text-xs w-33.75 truncate">{player.name}</h2>
 						</div>
-						<div className="border-r-2 border-white px-1 text-2xl">{player.score}</div>
+						<div className="border-r-2 border-white px-1 text-2xl mr-4">{player.score}</div>
 					</div>
 				</AccordionTrigger>
 				<AccordionContent>

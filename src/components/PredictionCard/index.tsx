@@ -13,7 +13,7 @@ const PredictionCard = ({ profile, homeTeamScore, awayTeamScore, homeTeamName, a
           <AvatarImage src={profile.imageUrl || undefined} alt={profile.name || "User Avatar"} />
           <AvatarFallback>{profile.name ? profile.name[0] : 'U'}</AvatarFallback>
         </Avatar>
-        <span className="font-medium text-xs truncate w-15">{profile.name}</span>
+        <span className="font-medium text-xs truncate w-30">{profile.name}</span>
       </div>
 
       {/* Match Details Section */}

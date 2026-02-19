@@ -31,6 +31,8 @@ function FixturesCarousel({ fixtures }: Props) {
 		});
 	}, [carouselAPI, setCarouselIndex]);
 
+	console.log('Selected Carousel Index:', carouselIndex);
+
 	return fixtures.length === 0 ? (
 		<p>No fixtures available</p>
 	) : (

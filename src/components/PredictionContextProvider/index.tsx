@@ -1,17 +1,15 @@
 'use client';
 
 import { Match } from '@/types';
-import { createContext, useState, useMemo } from 'react';
+import { createContext, useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 
-type PredictionStore =
-	| {
-			selectedMatch: Match | null;
-			carouselIndex: number | null;
-			setCarouselIndex: React.Dispatch<React.SetStateAction<number | null>>;
-	  }
-	| undefined;
+type PredictionStore = {
+	carouselIndex: number;
+	selectedMatchEventId: number | null;
+	setCarouselIndex: Dispatch<SetStateAction<number>>;
+};
 
-export const PredictionContext = createContext<PredictionStore>(undefined);
+export const PredictionContext = createContext<PredictionStore | undefined>(undefined);
 
 const PredictionContextProvider = ({
 	children,
@@ -20,15 +18,14 @@ const PredictionContextProvider = ({
 	children: React.ReactNode;
 	fixtures: Match[];
 }) => {
-	const [carouselIndex, setCarouselIndex] = useState<number | null>(null);
-	const selectedMatch = useMemo(() => {
-		if (!carouselIndex) return null;
+	const [carouselIndex, setCarouselIndex] = useState<number>(0);
 
-		return fixtures[carouselIndex];
+	const selectedMatchEventId = useMemo(() => {
+		return fixtures[carouselIndex].id;
 	}, [carouselIndex, fixtures]);
 
 	return (
-		<PredictionContext.Provider value={{ selectedMatch, carouselIndex, setCarouselIndex }}>
+		<PredictionContext.Provider value={{ selectedMatchEventId, carouselIndex, setCarouselIndex }}>
 			{children}
 		</PredictionContext.Provider>
 	);

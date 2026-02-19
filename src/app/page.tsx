@@ -19,19 +19,19 @@ import {
 } from '@/components/ui/accordion';
 
 import {
-	PredictionCard,
 	FixturesCarousel,
+	FilteredPredictionCards,
 	PredictionContextProvider,
 	CreatePredictionModelButton,
 } from '@/components';
 
 import {
 	Table,
+	TableRow,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
-	TableRow,
 } from '@/components/ui/table';
 
 export const revalidate = 0;
@@ -86,11 +86,7 @@ export default async function Home() {
 
 					{/* Prediction Cards: */}
 					{predictions && predictions.length !== 0 ? (
-						<ScrollArea className="flex flex-col gap-2 flex-1 pr-4 overflow-scroll no-scrollbar">
-							{predictions.map(prediction => (
-								<PredictionCard key={prediction.id} {...prediction} />
-							))}
-						</ScrollArea>
+						<FilteredPredictionCards predictions={predictions} />
 					) : (
 						<div className="">Be the first to predict</div>
 					)}

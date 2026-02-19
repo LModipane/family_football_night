@@ -1,11 +1,12 @@
 import { Match } from '@/types';
 import { create } from 'zustand';
+import type { Dispatch, SetStateAction } from 'react';
 
 type Model = 'Prediction' | 'SIGN-IN' | null;
 type ModelData = {
 	fixtures?: Match[];
 	carouselIndex?: number | null;
-	setCarouselIndex?: React.Dispatch<React.SetStateAction<number | null>>;
+	setCarouselIndex?: Dispatch<SetStateAction<number>>;
 };
 
 type ModelStore = {

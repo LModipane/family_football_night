@@ -79,7 +79,7 @@ export default async function Home() {
 
 	return (
 		<main className="h-full w-full flex">
-			<div className="bg-purple-900 h-full max-w-[35%] p-2 text-white sm:flex sm:flex-col hidden border-2 border-gray-300">
+			<section className="bg-purple-900 h-full max-w-[35%] p-2 text-white flex flex-col gap-4">
 				<PredictionContextProvider fixtures={fixtures}>
 					<FixturesCarousel fixtures={fixtures} />
 					<CreatePredictionModelButton fixtures={fixtures} />
@@ -95,11 +95,12 @@ export default async function Home() {
 						<div className="">Be the first to predict</div>
 					)}
 				</PredictionContextProvider>
-			</div>
+			</section>
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
-			<div className="bg-blue-950 h-full w-full text-white p-10 hidden md:block">
+			<section className="bg-blue-950 h-full w-full text-white flex flex-col gap-4 justify-start items-center">
+				<div className="w-full h-15 bg-green-800 p-2">Group Header</div>
 				<LeaderTable leaderboard={leaderboard} />
-			</div>
+			</section>
 		</main>
 	);
 }
@@ -110,7 +111,7 @@ type Props = {
 
 const LeaderTable = ({ leaderboard }: Props) => {
 	return (
-		<div className="relative flex flex-col w-full h-full p-4">
+		<div className="relative flex flex-col w-full h-full p-4 px-10 ">
 			<div className="absolute -right-3 z-10 mr-4 -top-2">
 				<h2 className="font-extrabold text-white text-[17px] uppercase stroke-colour">
 					Leaderboard
@@ -181,7 +182,7 @@ type FollowingPlaceProps = {
 
 const FollowingPlace = async ({ player, index }: FollowingPlaceProps) => {
 	return (
-		<Accordion type="single" collapsible className="w-[90%] mx-auto">
+		<Accordion type="single" collapsible className="w-[95%] mx-auto">
 			<AccordionItem value="Following Place" className="w-full">
 				<AccordionTrigger className="relative bg-blue-800 justify-center items-center">
 					<div className="absolute top-0 left-0 flex items-center justify-center w-5 h-5 p-2 bg-pink-700">

@@ -282,19 +282,19 @@ const ResultTable = ({ results }: ResultTableProps) => {
 							<span className="text-lg">{result.awayTeamScorePrediction}</span>
 						</TableCell>
 						{/* <TableCell
-												className={cn(
-													'w-[17%] h-10 flex justify-center items-center',
-													fouls < 0 ? 'text-slate-500' : 'text-gray-500',
-												)}>
-												{fouls > 0 ? (
-													<span>NA</span>
-												) : fouls < 0 ? (
-													<Minus className="h-4 w-4" />
-												) : (
-													<Diff className="h-4 w-4" />
-												)}
-												{fouls <= 0 ? <span className="text-lg">{Math.abs(fouls)}</span> : <></>}
-											</TableCell> */}
+								className={cn(
+									'w-[17%] h-10 flex justify-center items-center',
+									fouls < 0 ? 'text-slate-500' : 'text-gray-500',
+								)}>
+								{fouls > 0 ? (
+									<span>NA</span>
+								) : fouls < 0 ? (
+									<Minus className="h-4 w-4" />
+								) : (
+									<Diff className="h-4 w-4" />
+								)}
+								{fouls <= 0 ? <span className="text-lg">{Math.abs(fouls)}</span> : <></>}
+							</TableCell> */}
 						<TableCell
 							className={cn(
 								'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',

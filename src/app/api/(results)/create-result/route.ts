@@ -3,12 +3,11 @@ import { eq } from 'drizzle-orm';
 import { Prediction } from '@/types';
 import { matchResultTable, predictionTable } from '@/lib/db/schema';
 
-const CRON_SECRET = process.env.CRON_JOB_SECRETE!;
 const ENTITY_TAG_ID = 'c0ca5665-d9d9-42dc-ad86-a7f48a4da2c6';
 
 export async function POST(req: Request) {
 	try {
-		if (!isAuthorized(req)) return new Response('Unauthenticated', { status: 401 });
+		if (!isCronJobAuthorized(req)) return new Response('Unauthenticated', { status: 401 });
 
 		const predictions = await db.query.predictionTable.findMany({
 			where: (table, { eq }) => eq(table.status, 'unsettled'),
@@ -100,12 +99,12 @@ function calculatePoints(
 /*                                 UTILITIES                                  */
 /* -------------------------------------------------------------------------- */
 
-function isAuthorized(req: Request): boolean {
+function isCronJobAuthorized(req: Request): boolean {
 	const authHeader = req.headers.get('authorization');
 	if (!authHeader) return false;
 
 	const token = authHeader.replace('Bearer ', '');
-	return token === CRON_SECRET;
+	return token === process.env.CRON_JOB_SECRET!;
 }
 
 type MatchSummaryResponse = {

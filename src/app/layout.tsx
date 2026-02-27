@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextAuth/options';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from '@/components/Providers';
-import { PredictionFormModel, SignUpModel } from '@/components/models';
+import { PredictionFormModel, SignUpModel, GroupFormModel } from '@/components/models';
 
 import './globals.css';
 
@@ -47,6 +47,7 @@ function ModelProvider() {
 	return (
 		<>
 			<SignUpModel />
+			<GroupFormModel />
 			<PredictionFormModel />
 		</>
 	);

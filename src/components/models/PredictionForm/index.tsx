@@ -29,12 +29,13 @@ const PredictionFormModel = () => {
 	const {
 		type,
 		onClose,
-		data: { fixtures, carouselIndex, setCarouselIndex },
+		isOpen,
+		data: { fixtures, carouselIndex, setCarouselIndex, },
 	} = useModel();
 
 	// const { carouselIndex, setCarouselIndex } = usePredictionContext();
 
-	const isModelOpen = type === 'Prediction'; // Replace with actual logic to determine if the model should be open
+	const isModelOpen = type === 'Prediction' && isOpen; // Replace with actual logic to determine if the model should be open
 
 	const nextForm = () => {
 		if (!carouselApi) return;

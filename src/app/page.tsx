@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/accordion';
 
 import {
+	GroupHeader,
 	FixturesCarousel,
 	FilteredPredictionCards,
 	PredictionContextProvider,
@@ -33,12 +34,18 @@ import {
 	TableHead,
 	TableHeader,
 } from '@/components/ui/table';
+import { group } from 'node:console';
 
 export const revalidate = 0;
 
 export default async function Home() {
 	const session = await getServerSession(authOptions);
 	if (!session) redirect('/Landing', RedirectType.replace);
+
+	const profile = await db.query.profileTable.findFirst({
+		where: (table, { eq }) => eq(table.userId, session.user.id!),
+	});
+	if (!profile) throw new Error('Profile not found');
 
 	const fixtures = await getFixtures();
 	if (!fixtures) throw new Error('Failed to load fixtures');
@@ -77,6 +84,20 @@ export default async function Home() {
 		.groupBy(matchResultTable.profileId, profileTable.name, profileTable.imageUrl)
 		.orderBy(desc(totalScore));
 
+	const userGroups = await db.query.groupProfileTable.findMany({
+		where: (table, { eq }) => eq(table.profileId, profile.id),
+		with: {
+			group: true,
+		},
+		columns: {
+			id: false,
+			groupId: false,
+			createAt: false,
+			updateAt: false,
+			profileId: false,
+		},
+	});
+
 	return (
 		<main className="h-full w-full flex flex-col-reverse sm:flex-row overflow-scroll">
 			<section className="bg-purple-900 h-full sm:max-w-[35%] flex-1 p-2 text-white flex flex-col gap-4">
@@ -94,7 +115,14 @@ export default async function Home() {
 			</section>
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
 			<section className="bg-blue-950 h-full w-full text-white flex flex-col gap-4 justify-start items-center">
-				<div className="w-full h-15 bg-green-800 p-2">Group Header</div>
+				{userGroups && userGroups.length > 0 ? (
+					<GroupHeader
+						name={userGroups[0].group.name}
+						imageUrl={userGroups[0].group.imageUrl}
+					/>
+				) : (
+					<div>No Groups Found!!!`</div>
+				)}
 				<LeaderTable leaderboard={leaderboard} />
 			</section>
 		</main>

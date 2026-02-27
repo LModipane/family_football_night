@@ -1,5 +1,14 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, uuid, varchar, integer, timestamp, pgEnum, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	uuid,
+	varchar,
+	integer,
+	timestamp,
+	pgEnum,
+	index,
+	uniqueIndex,
+} from 'drizzle-orm/pg-core';
 
 export const profileTable = pgTable('profile', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -10,6 +19,53 @@ export const profileTable = pgTable('profile', {
 	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 });
+
+export const profileRelations = relations(profileTable, ({ many }) => ({
+	groups: many(groupProfileTable),
+}));
+
+export const groupTable = pgTable('group', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	name: varchar('name', { length: 255 }).notNull(),
+	imageUrl: varchar('image_url', { length: 512 }),
+	leagueTagId: uuid("league_tag_id").notNull(),
+	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
+	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
+});
+
+export const groupRelations = relations(groupTable, ({ many }) => ({
+	members: many(groupProfileTable),
+}));
+
+export const groupMemberRoleEnum = pgEnum('member_role', ['admin', 'moderator', 'player']);
+
+export const groupProfileTable = pgTable(
+	'group_profile',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		groupId: uuid('group_id')
+			.notNull()
+			.references(() => groupTable.id, { onDelete: 'cascade' }),
+		profileId: uuid('profile_id')
+			.notNull()
+			.references(() => profileTable.id, { onDelete: 'cascade' }),
+		role: groupMemberRoleEnum('group_role').default('player').notNull(),
+		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
+		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
+	},
+	table => [uniqueIndex('uniq_group_profile').on(table.groupId, table.profileId)],
+);
+
+export const groupProfileRelations = relations(groupProfileTable, ({ one }) => ({
+	profile: one(profileTable, {
+		fields: [groupProfileTable.profileId],
+		references: [profileTable.id],
+	}),
+	group: one(groupTable, {
+		fields: [groupProfileTable.groupId],
+		references: [groupTable.id],
+	}),
+}));
 
 export const predictionStatusEnum = pgEnum('prediction_status', ['settled', 'unsettled', 'review']);
 
@@ -29,14 +85,11 @@ export const predictionTable = pgTable(
 		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 	},
-	table => ({
-		matchIdx: index('prediction_match_idx').on(table.matchEventId),
-		statusIdx: index('prediction_status_idx').on(table.status),
-		uniqPrediction: uniqueIndex('uniq_prediction_profile_match').on(
-			table.profileId,
-			table.matchEventId,
-		),
-	}),
+	table => [
+		index('prediction_match_idx').on(table.matchEventId),
+		index('prediction_status_idx').on(table.status),
+		uniqueIndex('uniq_prediction_profile_match').on(table.profileId, table.matchEventId),
+	],
 );
 
 export const predictionRelations = relations(predictionTable, ({ one }) => ({
@@ -62,17 +115,12 @@ export const matchResultTable = pgTable(
 		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 	},
-	table => ({
-		/**
-		 * 🔐 Idempotency guarantee
-		 * Cron can run multiple times safely
-		 */
-		matchIdx: index('match_result_match_idx').on(table.matchEventId),
-		profileIdx: index('match_result_profile_idx').on(table.profileId),
-		uniqResult: uniqueIndex('uniq_result_profile_match').on(table.profileId, table.matchEventId),
-	}),
+	table => [
+		index('match_result_match_idx').on(table.matchEventId),
+		index('match_result_profile_idx').on(table.profileId),
+		uniqueIndex('uniq_result_profile_match').on(table.profileId, table.matchEventId),
+	],
 );
-
 
 export const matchResultRelation = relations(matchResultTable, ({ one }) => ({
 	profile: one(profileTable, {

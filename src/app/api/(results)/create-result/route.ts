@@ -7,24 +7,17 @@ const ENTITY_TAG_ID = 'c0ca5665-d9d9-42dc-ad86-a7f48a4da2c6';
 
 export async function POST(req: Request) {
 	try {
-		if (!isCronJobAuthorized(req)){ 
-			console.error(
-				'is Vallid Token:',
-				req.headers.get('authorization')?.replace('Bearer ', '').trim() === process.env.CRON_JOB_SECRET,
-			);
-			console.log("Cron Job Secret:", process.env.CRON_JOB_SECRET)
-			return new Response('Unauthenticated!!!', { status: 401 });
-		}
+		if (!isCronJobAuthorized(req)) return new Response('Unauthenticated!!!', { status: 401 });
 
 		const predictions = await db.query.predictionTable.findMany({
 			where: (table, { eq }) => eq(table.status, 'unsettled'),
 		});
-		if (!predictions.length) return new Response('No unsettled predictions', { status: 200 });
+		if (!predictions || predictions.length === 0)
+			return new Response('No unsettled predictions', { status: 200 });
 
 		const data = await fetchMatchSummary(ENTITY_TAG_ID);
 
 		await Promise.allSettled(predictions.map(prediction => settlePrediction(prediction, data)));
-
 		return new Response('Match results processed successfully', { status: 201 });
 	} catch (error) {
 		console.error('Failed to create match results:', error);
@@ -93,7 +86,7 @@ function calculatePoints(
 	homePrediction: number,
 ): number {
 	if (awayPrediction === awayResult && homePrediction === homeResult) return 2; // perfect
-	
+
 	const correctOutcome =
 		(awayResult > homeResult && awayPrediction > homePrediction) ||
 		(homeResult > awayResult && homePrediction > awayPrediction) ||
@@ -110,7 +103,7 @@ function isCronJobAuthorized(req: Request): boolean {
 	const authHeader = req.headers.get('authorization');
 	if (!authHeader) return false;
 
-	const token = authHeader.replace('Bearer ', '');
+	const token = authHeader.replace('Bearer ', '').trim();
 	return token === process.env.CRON_JOB_SECRET!;
 }
 
@@ -134,7 +127,3 @@ async function fetchMatchSummary(league: string): Promise<MatchSummaryResponse> 
 
 	return res.json();
 }
-
-//5a3014a8443660929d2eb5c4219445670121a72d71da175606f0d3a7e8486072
-//5a3014a8443660929d2eb5c4219445670121a72d71da175606f0d3a7e8486072
-//5a3014a8443660929d2eb5c4219445670121a72d71da175606f0d3a7e8486072

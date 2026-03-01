@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 		if (!isCronJobAuthorized(req)){ 
 			console.error(
 				'is Vallid Token:',
-				req.headers.get('authorization')?.replace('Bearer ', '') === process.env.CRON_JOB_SECRET,
+				req.headers.get('authorization')?.replace('Bearer ', '').trim() === process.env.CRON_JOB_SECRET,
 			);
 			return new Response('Unauthenticated!!!', { status: 401 });
 		}
@@ -133,3 +133,6 @@ async function fetchMatchSummary(league: string): Promise<MatchSummaryResponse> 
 
 	return res.json();
 }
+
+//5a3014a8443660929d2eb5c4219445670121a72d71da175606f0d3a7e8486072
+//5a3014a8443660929d2eb5c4219445670121a72d71da175606f0d3a7e8486072

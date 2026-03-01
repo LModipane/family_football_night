@@ -8,7 +8,7 @@ const ENTITY_TAG_ID = 'c0ca5665-d9d9-42dc-ad86-a7f48a4da2c6';
 export async function POST(req: Request) {
 	try {
 		if (!isCronJobAuthorized(req)){ 
-			console.log("Not Authenticated!!")
+			console.log('Auth header:', req.headers.get('authorization'));
 			return new Response('Unauthenticated!!!', { status: 401 });
 		}
 
@@ -104,11 +104,9 @@ function calculatePoints(
 
 function isCronJobAuthorized(req: Request): boolean {
 	const authHeader = req.headers.get('authorization');
-	console.log("Auth Header:", authHeader)
 	if (!authHeader) return false;
 
 	const token = authHeader.replace('Bearer ', '');
-	console.log('is Token valid', token === process.env.CRON_JOB_SECRET);
 	return token === process.env.CRON_JOB_SECRET!;
 }
 

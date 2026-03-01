@@ -7,7 +7,10 @@ const ENTITY_TAG_ID = 'c0ca5665-d9d9-42dc-ad86-a7f48a4da2c6';
 
 export async function POST(req: Request) {
 	try {
-		if (!isCronJobAuthorized(req)) return new Response('Unauthenticated!!!', { status: 401 });
+		if (!isCronJobAuthorized(req)){ 
+			console.log("Not Authenticated!!")
+			return new Response('Unauthenticated!!!', { status: 401 });
+		}
 
 		const predictions = await db.query.predictionTable.findMany({
 			where: (table, { eq }) => eq(table.status, 'unsettled'),

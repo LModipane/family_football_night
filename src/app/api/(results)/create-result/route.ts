@@ -101,9 +101,11 @@ function calculatePoints(
 
 function isCronJobAuthorized(req: Request): boolean {
 	const authHeader = req.headers.get('authorization');
+	console.log("Auth Header:", authHeader)
 	if (!authHeader) return false;
 
 	const token = authHeader.replace('Bearer ', '');
+	console.log('is Token valid', token === process.env.CRON_JOB_SECRET);
 	return token === process.env.CRON_JOB_SECRET!;
 }
 

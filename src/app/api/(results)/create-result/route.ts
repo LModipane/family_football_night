@@ -8,7 +8,10 @@ const ENTITY_TAG_ID = 'c0ca5665-d9d9-42dc-ad86-a7f48a4da2c6';
 export async function POST(req: Request) {
 	try {
 		if (!isCronJobAuthorized(req)){ 
-			console.error('Token:', req.headers.get('authorization')?.replace('Bearer ', ''));
+			console.error(
+				'is Vallid Token:',
+				req.headers.get('authorization')?.replace('Bearer ', '') === process.env.CRON_JOB_SECRET,
+			);
 			return new Response('Unauthenticated!!!', { status: 401 });
 		}
 

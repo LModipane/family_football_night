@@ -1,7 +1,9 @@
 import { db } from '@/lib/db';
+import { getServerSession } from 'next-auth';
 import { predictionTable } from '@/lib/db/schema';
 import { authOptions } from '@/lib/nextAuth/options';
-import { getServerSession } from 'next-auth';
+import { createPredictionSchema } from '@/types/formSchema';
+import { ZodError } from 'zod';
 
 export async function POST(req: Request) {
 	try {
@@ -13,29 +15,20 @@ export async function POST(req: Request) {
 		});
 		if (!profile) return new Response('Opps, Unauthorised to Post Prediction', { status: 400 });
 
-		const {
-			homeTeamScore,
-			awayTeamScore,
-			id: matchEventId,
-			homeTeamName,
-			awayTeamName,
-			awayTeamBadgeUrl,
-			homeTeamBadgeUrl,
-		} = await req.json();
+		const body = await req.json();
+		const parsedData = createPredictionSchema.parse(body);
 
 		await db.insert(predictionTable).values({
-			awayTeamName,
-			homeTeamName,
-			matchEventId,
-			awayTeamScore,
-			homeTeamScore,
-			awayTeamBadgeUrl,
-			homeTeamBadgeUrl,
+			...parsedData,
 			profileId: profile.id,
 		});
 
-		return new Response('Success', { status: 200 });
+		return new Response('Success Created Predictions', { status: 200 });
 	} catch (error) {
+		if (error instanceof ZodError) {
+			console.log('Bad Request Data', error);
+			return new Response('Opps, Bad Request', { status: 400 });
+		}
 		console.log('Failed To Create Prediction!!!:', error);
 		return new Response('Opps, Failed to Post Prediction', { status: 500 });
 	}

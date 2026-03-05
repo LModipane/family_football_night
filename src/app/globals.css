@@ -13,6 +13,17 @@
 	scrollbar-width: none; /* Firefox */
 }
 
+.no-toggle::-webkit-outer-spin-button,
+.no-toggle::-webkit-inner-spin-button {
+    -webkit-appearance: none; /* For Chrome, Safari, Edge, Opera */
+    margin: 0;               /* Removes the margin in older Chrome versions */
+}
+
+.no-toggle {
+    -moz-appearance: textfield; /* For Firefox */
+}
+
+
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);

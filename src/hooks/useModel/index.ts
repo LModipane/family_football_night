@@ -1,12 +1,14 @@
-import { Match } from '@/types';
+import { MatchEvent } from '@/types';
 import { create } from 'zustand';
 import type { Dispatch, SetStateAction } from 'react';
 
 type Model = 'Prediction' | 'SIGN-IN' | 'GroupForm' | null;
 type ModelData = {
-	fixtures?: Match[];
+	groupId?: string;
+	fixtures?: MatchEvent[];
 	carouselIndex?: number | null;
 	setCarouselIndex?: Dispatch<SetStateAction<number>>;
+	leagueTagId?: string;
 };
 
 type ModelStore = {

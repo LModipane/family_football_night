@@ -1,6 +1,6 @@
 'use client';
 
-import { Match } from '@/types';
+import { MatchEvent } from '@/types';
 import { useEffect, useState } from 'react';
 import { formatDate, trancateName } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -16,7 +16,7 @@ import {
 import { usePredictionContext } from '@/hooks';
 
 type Props = {
-	fixtures: Match[];
+	fixtures: MatchEvent[];
 };
 
 function FixturesCarousel({ fixtures }: Props) {
@@ -30,8 +30,6 @@ function FixturesCarousel({ fixtures }: Props) {
 			setCarouselIndex(carouselAPI.selectedScrollSnap());
 		});
 	}, [carouselAPI, setCarouselIndex]);
-
-	console.log('Selected Carousel Index:', carouselIndex);
 
 	return fixtures.length === 0 ? (
 		<p>No fixtures available</p>
@@ -56,7 +54,7 @@ function FixturesCarousel({ fixtures }: Props) {
 								<h3 className="uppercase">{trancateName(match.homeTeamName)}</h3>
 							</div>
 							<div className="flex flex-col justify-center items-center gap-3 mx-3">
-								<p className="text-sm -mb-3">{formatDate(match.date)}</p>
+								<p className="text-sm -mb-3">{formatDate(match.kickOff.toDateString())}</p>
 								<h4 className="mx-3">vs</h4>
 							</div>
 							<div className="flex flex-col justify-center items-center mb-2 h-full">

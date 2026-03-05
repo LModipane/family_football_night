@@ -1,6 +1,6 @@
 'use client';
 
-import { Match } from '@/types';
+import { MatchEvent } from '@/types';
 import { createContext, useState, useMemo, type Dispatch, type SetStateAction } from 'react';
 
 type PredictionStore = {
@@ -16,12 +16,12 @@ const PredictionContextProvider = ({
 	fixtures,
 }: {
 	children: React.ReactNode;
-	fixtures: Match[];
+	fixtures: MatchEvent[];
 }) => {
 	const [carouselIndex, setCarouselIndex] = useState<number>(0);
 
 	const selectedMatchEventId = useMemo(() => {
-		return fixtures[carouselIndex].id;
+		return +fixtures[carouselIndex].id;
 	}, [carouselIndex, fixtures]);
 
 	return (

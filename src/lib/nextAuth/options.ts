@@ -1,7 +1,8 @@
 import { db } from '../db';
 import { AuthOptions } from 'next-auth';
-import { profileTable } from '../db/schema';
 import GoogleProvider from 'next-auth/providers/google';
+import { profileTable, groupTable, groupProfileTable } from '../db/schema';
+import { DEFAULT_LEAGUE_TAG_ID } from '@/contants';
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)
 	throw new Error('Google OAuth environment variables are not set');
@@ -23,16 +24,33 @@ export const authOptions: AuthOptions = {
 					where: (table, { eq, or }) =>
 						or(eq(table.userId, user.id), eq(table.email, user.email ?? 'NA')),
 				});
-				if (existingProfile) return true
-				
-				if (!user.email || !user.name || !user.id) return false
-				
-				await db.insert(profileTable).values({
-					userId: user.id,
-					name: user.name,
-					email: user.email,
-					imageUrl: user.image ?? null
-				})
+				if (existingProfile) return true;
+
+				if (!user.email || !user.name || !user.id) return false;
+
+				const profile = await db
+					.insert(profileTable)
+					.values({
+						userId: user.id,
+						name: user.name,
+						email: user.email,
+						imageUrl: user.image ?? null,
+					})
+					.returning({ id: profileTable.id });
+
+				const group = await db
+					.insert(groupTable)
+					.values({
+						name: 'untitle Group',
+						leagueTagId: DEFAULT_LEAGUE_TAG_ID,
+					})
+					.returning({ id: groupTable.id });
+
+				await db.insert(groupProfileTable).values({
+					groupId: group[0].id,
+					profileId: profile[0].id,
+					role: 'admin',
+				});
 
 				return true;
 			} catch (error) {
@@ -49,8 +67,8 @@ export const authOptions: AuthOptions = {
 					),
 			});
 
-			if (existingProfile) session.user.id = existingProfile.userId
-			
+			if (existingProfile) session.user.id = existingProfile.userId;
+
 			return session;
 		},
 	},

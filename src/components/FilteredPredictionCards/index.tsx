@@ -1,19 +1,21 @@
 'use client';
 
 import Image from 'next/image';
-import { PredictionWithProfile } from '@/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { PredictionWithProfileMatchEvent, type Prediction } from '@/types';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import usePredictionContext from '@/hooks/usePredictionContext';
 
-const FilteredPredictionCards = ({ predictions }: { predictions: PredictionWithProfile[] }) => {
+const FilteredPredictionCards = ({
+	predictions,
+}: {
+	predictions: PredictionWithProfileMatchEvent[];
+}) => {
 	const { selectedMatchEventId } = usePredictionContext();
-    console.log('Selected Match Event ID:', selectedMatchEventId);
-    
 	const filteredPredictions = selectedMatchEventId
 		? predictions.filter(prediction => prediction.matchEventId === `${selectedMatchEventId}`)
-        : predictions;
-    
+		: predictions;
+
 	return (
 		<ScrollArea className="flex flex-col gap-2 flex-1 pr-4 overflow-scroll no-scrollbar">
 			{filteredPredictions.map(prediction => (
@@ -29,11 +31,8 @@ const PredictionCard = ({
 	profile,
 	homeTeamScore,
 	awayTeamScore,
-	homeTeamName,
-	awayTeamName,
-	homeTeamBadgeUrl,
-	awayTeamBadgeUrl,
-}: PredictionWithProfile) => {
+	matchEvent,
+}: PredictionWithProfileMatchEvent) => {
 	return (
 		<div className="flex items-center justify-between p-4 text-white">
 			{/* Profile Section */}
@@ -49,8 +48,8 @@ const PredictionCard = ({
 			<div className="flex items-center gap-1">
 				{/* Home Team Badge */}
 				<Image
-					src={homeTeamBadgeUrl}
-					alt={`${homeTeamName} badge`}
+					src={matchEvent.homeTeamBadgeUrl}
+					alt={`${matchEvent.homeTeamName} badge`}
 					width={32}
 					height={32}
 					className="rounded-full"
@@ -65,8 +64,8 @@ const PredictionCard = ({
 
 				{/* Away Team Badge */}
 				<Image
-					src={awayTeamBadgeUrl}
-					alt={`${awayTeamName} badge`}
+					src={matchEvent.awayTeamBadgeUrl}
+					alt={`${matchEvent.awayTeamName} badge`}
 					width={32}
 					height={32}
 					className="rounded-full"

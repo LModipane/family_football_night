@@ -1,21 +1,23 @@
 'use client';
 
-import { Match } from '@/types';
+import { MatchEvent } from '@/types';
 import { useModel, usePredictionContext } from '@/hooks';
 import { useSession } from 'next-auth/react';
 
 type Props = {
-	fixtures: Match[];
+	groupId: string;
+	leagueTagId: string;
+	fixtures: MatchEvent[];
 };
 
-const CreatePredictionModelButton = ({ fixtures }: Props) => {
+const CreatePredictionModelButton = ({ fixtures, groupId, leagueTagId }: Props) => {
 	const { onOpen } = useModel();
 	const { status } = useSession();
 	const { carouselIndex, setCarouselIndex } = usePredictionContext();
 
 	const openModel = () => {
 		if (status !== 'authenticated') return;
-		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex,  });
+		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex, groupId, leagueTagId });
 	};
 
 	return (

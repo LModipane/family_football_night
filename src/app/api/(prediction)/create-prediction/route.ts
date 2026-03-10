@@ -16,12 +16,15 @@ export async function POST(req: Request) {
 		if (!profile) return new Response('Opps, Unauthorised to Post Prediction', { status: 400 });
 
 		const body = await req.json();
+		console.log('body:', body);
 		const parsedData = createPredictionSchema.parse(body);
 
-		await db.insert(predictionTable).values({
-			...parsedData,
-			profileId: profile.id,
-		});
+		await db
+			.insert(predictionTable)
+			.values({
+				...parsedData,
+				profileId: profile.id,
+			})
 
 		return new Response('Success Created Predictions', { status: 200 });
 	} catch (error) {

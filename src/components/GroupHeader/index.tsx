@@ -1,14 +1,16 @@
 'use client';
 import Image from 'next/image';
-import { Plus } from 'lucide-react';
+import { Plus, UserPlus } from 'lucide-react';
 import { useModel } from '@/hooks';
 
 type Prop = {
 	name: string;
+	groupId: string;
+	inviteCode: string;
 	imageUrl: string | null;
 };
 
-const GroupHeader = ({ name, imageUrl }: Prop) => {
+const GroupHeader = ({ name, imageUrl, inviteCode, groupId }: Prop) => {
 	const { onOpen } = useModel();
 	return (
 		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50">
@@ -20,7 +22,12 @@ const GroupHeader = ({ name, imageUrl }: Prop) => {
 				) : null}
 				<h2 className="text-white text-xl font-bold">{name}</h2>
 			</div>
-			<div className="">
+			<div className="flex">
+				<button
+					className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer"
+					onClick={() => onOpen('Invite-Member', { inviteCode, groupId })}>
+					<UserPlus className="w-7 h-7" />
+				</button>
 				<button
 					className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer"
 					onClick={() => onOpen('GroupForm', {})}>

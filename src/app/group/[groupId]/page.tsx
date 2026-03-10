@@ -41,11 +41,18 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 	if (!profile) return redirect('/landing', RedirectType.replace);
 
 	const { groupId } = await params;
+
 	const group = await db.query.groupTable.findFirst({
 		where: (table, { eq }) => eq(table.id, groupId),
-		with: { members: true },
 	});
 	if (!group) throw new Error('Group Is Not Found');
+
+	const isMember = await db.query.groupProfileTable.findFirst({
+		where: (table, { eq, and }) =>
+			and(eq(table.profileId, profile.id!), eq(table.groupId, groupId)),
+	});
+	if (!isMember)
+		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
 
 	const targetLeague = group.leagueTagId;
 
@@ -135,7 +142,12 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 			</section>
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
 			<section className="bg-blue-950 h-full w-full text-white flex flex-col gap-4 justify-start items-center">
-				<GroupHeader name={group.name} imageUrl={group.imageUrl} />
+				<GroupHeader
+					name={group.name}
+					groupId={group.id}
+					imageUrl={group.imageUrl}
+					inviteCode={group.inviteCode}
+				/>
 				<LeaderTable leaderboard={leaderboard} />
 			</section>
 		</main>
@@ -166,7 +178,7 @@ const LeaderTable = ({ leaderboard }: Props) => {
 				</ScrollArea>
 			) : (
 				<div className="flex justify-center items-center w-full h-full">
-					<h2 className="text-white text-lg">No predictions yet. Be the first to predict!</h2>
+					<h2 className="text-white text-lg">No score yet. Be the first to get on the board!</h2>
 				</div>
 			)}
 		</div>

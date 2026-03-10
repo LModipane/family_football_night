@@ -28,9 +28,10 @@ export const profileRelations = relations(profileTable, ({ many }) => ({
 
 export const groupTable = pgTable('group', {
 	id: uuid('id').primaryKey().defaultRandom(),
-	name: varchar('name', { length: 255 }).notNull(),
-	imageUrl: varchar('image_url', { length: 512 }),
 	leagueTagId: uuid('league_tag_id').notNull(),
+	imageUrl: varchar('image_url', { length: 512 }),
+	name: varchar('name', { length: 255 }).notNull(),
+	inviteCode: uuid('invite_code').notNull().defaultRandom(),
 	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 });

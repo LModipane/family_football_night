@@ -27,6 +27,7 @@ export default async function getFixtures(leagueTagId: string) {
 		const data = (await response.json()) as { Summary: SummaryItem[] };
 		const fixtures: MatchEvent[] = data.Summary.map((item: SummaryItem) => ({
 			id: String(item.eventId),
+			leagueTagId,
 			matchStatus: item.status.name,
 			homeTeamName: item.teams.home.name,
 			awayTeamName: item.teams.away.name,

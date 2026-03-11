@@ -44,6 +44,7 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 
 	const group = await db.query.groupTable.findFirst({
 		where: (table, { eq }) => eq(table.id, groupId),
+		with: { leagues: true },
 	});
 	if (!group) throw new Error('Group Is Not Found');
 
@@ -54,7 +55,7 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 	if (!isMember)
 		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
 
-	const targetLeague = group.leagueTagId;
+	const targetLeague = group.leagues[0].leagueId;
 
 	const fixtures = await getFixtures(targetLeague);
 	if (!fixtures) throw new Error('Failed to load fixtures');

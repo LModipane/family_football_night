@@ -2,7 +2,6 @@ import { db } from '../db';
 import { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { profileTable, groupTable, groupProfileTable } from '../db/schema';
-import { DEFAULT_LEAGUE_TAG_ID } from '@/contants';
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)
 	throw new Error('Google OAuth environment variables are not set');
@@ -42,7 +41,6 @@ export const authOptions: AuthOptions = {
 					.insert(groupTable)
 					.values({
 						name: 'untitle Group',
-						leagueTagId: DEFAULT_LEAGUE_TAG_ID,
 					})
 					.returning({ id: groupTable.id });
 

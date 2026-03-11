@@ -1,18 +1,31 @@
 import { db } from '@/lib/db';
 import { ZodError } from 'zod';
-import { groupProfileTable, groupTable } from '@/lib/db/schema';
+import { groupLeagueTable, groupProfileTable, groupTable } from '@/lib/db/schema';
 import { createGroupSchema } from '@/types/formSchema';
 import { isUserAuthenticated } from '@/lib/nextAuth/is_user_authenticated';
 
 export async function POST(req: Request) {
 	try {
+		// check if request is authentic 
 		const profile = await isUserAuthenticated();
 		if (!profile) return new Response('Unauthenticated', { status: 401 });
 
+		// parse request body
 		const body = await req.json();
 		const parsedData = createGroupSchema.parse(body);
+
+		// create group entry then return group id
 		const res = await db.insert(groupTable).values(parsedData).returning({ id: groupTable.id });
-		await db.insert(groupProfileTable).values({ profileId: profile.id!, groupId: res[0].id, role: "admin" }).returning();
+		// add user as admin to new group
+		await db
+			.insert(groupProfileTable)
+			.values({ profileId: profile.id!, groupId: res[0].id, role: 'admin' });
+		// add selected leagues 
+		await db
+			.insert(groupLeagueTable)
+			.values({ groupId: res[0].id, leagueId: body.leagueTagId });
+		
+		//send successful post request
 		return new Response('Group created successfully', { status: 201 });
 	} catch (error) {
 		if (error instanceof ZodError) {

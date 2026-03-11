@@ -1,13 +1,14 @@
 import { relations } from 'drizzle-orm';
+
 import {
-	pgTable,
 	uuid,
-	varchar,
-	integer,
-	timestamp,
-	pgEnum,
 	index,
+	pgEnum,
+	pgTable,
+	integer,
+	varchar,
 	boolean,
+	timestamp,
 	uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
@@ -26,9 +27,47 @@ export const profileRelations = relations(profileTable, ({ many }) => ({
 	predictions: many(predictionTable),
 }));
 
+export const leagueCategoryEnum = pgEnum('league_category', [
+	'local',
+	'european',
+	'african',
+	'international',
+]);
+
+export const leagueTable = pgTable('leauge', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	iconUrl: varchar('icon_url', { length: 512 }),
+	isOffSeason: boolean('is_off_season').default(false),
+	name: varchar('name', { length: 255 }).notNull().unique(),
+	category: leagueCategoryEnum('category').default('international').notNull(),
+	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
+	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
+});
+
+export const leagueRelations = relations(leagueTable, ({ many }) => ({
+	events: many(matchEventTable),
+	groups: many(groupLeagueTable),
+}));
+
+export const groupLeagueTable = pgTable('group_league', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	groupId: uuid('group_id')
+		.notNull()
+		.references(() => groupTable.id, { onDelete: 'cascade' }),
+	leagueId: uuid('league_id')
+		.notNull()
+		.references(() => leagueTable.id, { onDelete: 'cascade' }),
+	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
+	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
+});
+
+export const groupLeagueRelation = relations(groupLeagueTable, ({ one }) => ({
+	groups: one(groupTable, { fields: [groupLeagueTable.groupId], references: [groupTable.id] }),
+	leagues: one(leagueTable, { fields: [groupLeagueTable.leagueId], references: [leagueTable.id] }),
+}));
+
 export const groupTable = pgTable('group', {
 	id: uuid('id').primaryKey().defaultRandom(),
-	leagueTagId: uuid('league_tag_id').notNull(),
 	imageUrl: varchar('image_url', { length: 512 }),
 	name: varchar('name', { length: 255 }).notNull(),
 	inviteCode: uuid('invite_code').notNull().defaultRandom(),
@@ -37,6 +76,7 @@ export const groupTable = pgTable('group', {
 });
 
 export const groupRelations = relations(groupTable, ({ many }) => ({
+	leagues: many(groupLeagueTable),
 	members: many(groupProfileTable),
 	predictions: many(predictionTable),
 }));
@@ -73,6 +113,9 @@ export const groupProfileRelations = relations(groupProfileTable, ({ one }) => (
 
 export const matchEventTable = pgTable('match_event', {
 	id: varchar('id').primaryKey(),
+	leagueTagId: uuid('league_tag_id')
+		.notNull()
+		.references(() => leagueTable.id, { onDelete: 'cascade' }),
 	kickOff: timestamp('kick_off', { mode: 'date' }).notNull(),
 	isKnockoutStage: boolean('is_knockout_stage').default(false),
 	homeTeamName: varchar('home_team_name', { length: 128 }).notNull(),
@@ -82,6 +125,13 @@ export const matchEventTable = pgTable('match_event', {
 	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 });
+
+export const matchEventRelation = relations(matchEventTable, ({ one }) => ({
+	league: one(leagueTable, {
+		fields: [matchEventTable.leagueTagId],
+		references: [leagueTable.id],
+	}),
+}));
 
 export const predictionStatusEnum = pgEnum('prediction_status', ['settled', 'unsettled', 'review']);
 

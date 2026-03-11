@@ -1,12 +1,10 @@
-export const DEFAULT_LEAGUE_TAG_ID = '882fc52f-14b7-4e7c-a259-5ff5d18bde67';
-
 export const TOURNOMINATE_SELECTIONS: {
 	category: string;
 	options: { name: string; iconUrl: string; tagId: string }[];
 }[] = [
 	// Local Events
 	{
-		category: 'Local Leagues',
+		category: 'local',
 		options: [
 			{
 				name: 'betway PSL',
@@ -38,7 +36,7 @@ export const TOURNOMINATE_SELECTIONS: {
 	},
 	// Europenan events
 	{
-		category: 'European Leagues',
+		category: 'european',
 
 		options: [
 			{
@@ -90,7 +88,7 @@ export const TOURNOMINATE_SELECTIONS: {
 	},
 	// African Events
 	{
-		category: 'African Leagues',
+		category: 'african',
 		options: [
 			{
 				name: 'CAF Champions League',
@@ -122,7 +120,7 @@ export const TOURNOMINATE_SELECTIONS: {
 	},
 	// International events
 	{
-		category: 'international Leagues',
+		category: 'international',
 		options: [
 			{
 				name: 'FIFA World Cup',

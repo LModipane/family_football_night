@@ -33,6 +33,7 @@ import {
 	TableHead,
 	TableHeader,
 } from '@/components/ui/table';
+import { includes } from 'zod';
 
 export const revalidate = 0;
 
@@ -42,11 +43,20 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 
 	const { groupId } = await params;
 
-	const group = await db.query.groupTable.findFirst({
+	const currentGroup = await db.query.groupTable.findFirst({
 		where: (table, { eq }) => eq(table.id, groupId),
 		with: { leagues: true },
 	});
-	if (!group) throw new Error('Group Is Not Found');
+	if (!currentGroup) throw new Error('Group Is Not Found');
+
+	const otherGroups = await db.query.groupProfileTable
+		.findMany({
+			where: (table, { eq, not, and }) =>
+				and(eq(table.profileId, profile.id!), not(eq(table.groupId, groupId))),
+			with: { group: { columns: { name: true, id: true, imageUrl: true } } },
+			columns: { role: false, profileId: false, groupId: false },
+		})
+		.then(res => res.map(item => item.group));
 
 	const isMember = await db.query.groupProfileTable.findFirst({
 		where: (table, { eq, and }) =>
@@ -55,7 +65,7 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 	if (!isMember)
 		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
 
-	const targetLeague = group.leagues[0].leagueId;
+	const targetLeague = currentGroup.leagues[0].leagueId;
 
 	const fixtures = await getFixtures(targetLeague);
 	if (!fixtures) throw new Error('Failed to load fixtures');
@@ -144,10 +154,11 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
 			<section className="bg-blue-950 h-full w-full text-white flex flex-col gap-4 justify-start items-center">
 				<GroupHeader
-					name={group.name}
-					groupId={group.id}
-					imageUrl={group.imageUrl}
-					inviteCode={group.inviteCode}
+					name={currentGroup.name}
+					groupId={currentGroup.id}
+					otherGroups={otherGroups} //
+					imageUrl={currentGroup.imageUrl}
+					inviteCode={currentGroup.inviteCode}
 				/>
 				<LeaderTable leaderboard={leaderboard} />
 			</section>

@@ -44,18 +44,22 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups }: Prop)
 
 export default GroupHeader;
 
-type GroupsNavProp = { otherGroups: { name: string; id: string; imageUrl: string | null }[] };
+type GroupsNavProp = {
+	otherGroups: { name: string; id: string; imageUrl: string | null }[];
+};
 
 const GroupsNav = ({ otherGroups }: GroupsNavProp) => {
+	const { onOpen } = useModel();
+
 	return (
 		<Popover>
 			<PopoverTrigger className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer">
 				<BookUser className="w-7 h-7" />
 			</PopoverTrigger>
 			<PopoverContent align="end">
-				<PopoverHeader>Other Family Groups</PopoverHeader>
+				<PopoverHeader className="text-blue-600">Other Family Groups</PopoverHeader>
 				<hr />
-				<ul className="mt-2">
+				<ul className="mt-2 py-2">
 					{otherGroups.map(group => (
 						<li key={group.id} className="flex items-center gap-2">
 							<Link href={`/group/${group.id}`} className="flex items-center gap-2">
@@ -69,6 +73,13 @@ const GroupsNav = ({ otherGroups }: GroupsNavProp) => {
 						</li>
 					))}
 				</ul>
+				<hr />
+				<button
+					className="text-green-600 font-bold text-xs py-2 cursor-pointer text-center"
+					onClick={() => onOpen('GroupForm', {})}>
+					<Plus className="w-3 h-3 inline-block mr-1" />
+					Create Group
+				</button>
 			</PopoverContent>
 		</Popover>
 	);

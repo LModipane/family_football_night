@@ -18,12 +18,12 @@ import {
 
 import {
 	Select,
-	SelectContent,
-	SelectGroup,
 	SelectItem,
-	SelectTrigger,
 	SelectValue,
+	SelectGroup,
 	SelectLabel,
+	SelectTrigger,
+	SelectContent,
 } from '@/components/ui/select';
 
 const GroupFormModel = () => {

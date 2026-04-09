@@ -1,10 +1,11 @@
 'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { useModel } from '@/hooks';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { BookUser, Plus, UserPlus, Volleyball } from 'lucide-react';
 import { Popover, PopoverContent, PopoverHeader, PopoverTrigger } from '@/components/ui/popover';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 type Prop = {
 	name: string;
@@ -63,6 +64,7 @@ type LeagueNavProp = {
 const LeagueNav = ({ leagues }: LeagueNavProp) => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
+	const { onOpen } = useModel();
 
 	const selectLeague = (leagueId: string) => {
 		// update search query to include leagueId
@@ -82,7 +84,7 @@ const LeagueNav = ({ leagues }: LeagueNavProp) => {
 				<Volleyball className="w-7 h-7" />
 			</PopoverTrigger>
 			<PopoverContent align="end">
-				<PopoverHeader className="text-blue-600">Leagues</PopoverHeader>
+				<PopoverHeader className="text-blue-600">Group Leagues</PopoverHeader>
 				<hr />
 				<ul className="mt-2 py-2 flex flex-col gap-y-2">
 					{leagues.map(league => (
@@ -102,7 +104,7 @@ const LeagueNav = ({ leagues }: LeagueNavProp) => {
 				<hr />
 				<button
 					className="text-green-600 font-bold text-xs py-2 cursor-pointer text-center"
-					onClick={() => {}}>
+					onClick={() => onOpen('AddLeagueForm', {})}>
 					<Plus className="w-3 h-3 inline-block mr-1" />
 					Add League
 				</button>

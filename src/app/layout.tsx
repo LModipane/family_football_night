@@ -9,6 +9,7 @@ import {
 	SignUpModel,
 	InviteMember,
 	GroupFormModel,
+	AddLeagueModel,
 	PredictionFormModel,
 } from '@/components/models';
 
@@ -55,6 +56,7 @@ function ModelProvider() {
 			<SignUpModel />
 			<InviteMember />
 			<GroupFormModel />
+			<AddLeagueModel />
 			<PredictionFormModel />
 		</>
 	);

@@ -176,9 +176,9 @@ export default async function Home({
 					name={currentGroup.name}
 					groupId={currentGroup.id}
 					otherGroups={otherGroups}
-					leagues={currentGroup.leagues.map(item => item.league)}
 					imageUrl={currentGroup.imageUrl}
 					inviteCode={currentGroup.inviteCode}
+					leagues={currentGroup.leagues.map(item => item.league)}
 				/>
 				<LeaderTable leaderboard={leaderboard} />
 			</section>

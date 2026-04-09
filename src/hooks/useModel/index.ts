@@ -2,7 +2,7 @@ import { MatchEvent } from '@/types';
 import { create } from 'zustand';
 import type { Dispatch, SetStateAction } from 'react';
 
-type Model = 'Prediction' | 'SIGN-IN' | 'GroupForm' | 'Invite-Member' | null;
+type Model = 'Prediction' | 'SIGN-IN' | 'GroupForm' | 'Invite-Member' | 'AddLeagueForm' | null;
 
 type ModelData = {
 	groupId?: string;

@@ -147,7 +147,7 @@ export default async function Home({
 			and(eq(predictionTable.groupId, groupId), eq(matchEventTable.leagueTagId, targetLeagueId)),
 		)
 
-		.groupBy(matchResultTable.profileId, profileTable.name)
+		.groupBy(matchResultTable.profileId, profileTable.name, profileTable.imageUrl)
 
 		.orderBy(desc(totalScore));
 

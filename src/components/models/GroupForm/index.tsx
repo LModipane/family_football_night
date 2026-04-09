@@ -1,10 +1,12 @@
 'use client';
 
 import axios from 'axios';
+import Image from 'next/image';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useModel } from '@/hooks';
 import { TOURNOMINATE_SELECTIONS } from '@/contants';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import {
 	Dialog,
@@ -13,7 +15,6 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
-import Image from 'next/image';
 
 import {
 	Select,
@@ -24,7 +25,6 @@ import {
 	SelectValue,
 	SelectLabel,
 } from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 const GroupFormModel = () => {
 	const [name, setName] = useState<string>('');
@@ -78,13 +78,16 @@ const GroupFormModel = () => {
 						<SelectTrigger className="w-full">
 							<SelectValue placeholder="Choose Group Tournominate " />
 						</SelectTrigger>
-						<SelectContent className='mt-20'>
-							<ScrollArea className='max-h-62.5 overflow-y-scroll'>
+						<SelectContent className="mt-20">
+							<ScrollArea className="max-h-62.5 overflow-y-scroll">
 								{TOURNOMINATE_SELECTIONS.map(obj => (
 									<SelectGroup key={obj.category}>
 										<SelectLabel>{obj.category}</SelectLabel>
 										{obj.options.map(option => (
-											<SelectItem key={option.tagId} value={option.tagId} className="cursor-pointer">
+											<SelectItem
+												key={option.tagId}
+												value={option.tagId}
+												className="cursor-pointer">
 												<div className="flex items-center gap-2">
 													<Image
 														src={option.iconUrl}

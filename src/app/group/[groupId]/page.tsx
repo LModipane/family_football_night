@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { getFixtures } from '@/lib';
-import { desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, sql, and } from 'drizzle-orm';
 import { redirect, RedirectType } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Diff, EllipsisVertical, Minus, Plus } from 'lucide-react';
@@ -108,7 +108,6 @@ export default async function Home({
 			name: profileTable.name,
 			imageUrl: profileTable.imageUrl,
 			score: totalScore.as('score'),
-
 			results: sql<ResultTableElement[]>`
 						json_agg(
 							json_build_object(
@@ -144,10 +143,12 @@ export default async function Home({
 
 		.innerJoin(profileTable, eq(matchResultTable.profileId, profileTable.id))
 
-		// 🎯 scope to specific group
-		.where(eq(predictionTable.groupId, groupId))
+		// 🎯 scope to specific group aand league
+		.where(
+			and(eq(predictionTable.groupId, groupId), eq(matchEventTable.leagueTagId, targetLeagueId)),
+		)
 
-		.groupBy(matchResultTable.profileId, profileTable.name, profileTable.imageUrl)
+		.groupBy(matchResultTable.profileId, profileTable.name)
 
 		.orderBy(desc(totalScore));
 

@@ -62,8 +62,8 @@ export const groupLeagueTable = pgTable('group_league', {
 });
 
 export const groupLeagueRelation = relations(groupLeagueTable, ({ one }) => ({
-	groups: one(groupTable, { fields: [groupLeagueTable.groupId], references: [groupTable.id] }),
-	leagues: one(leagueTable, { fields: [groupLeagueTable.leagueId], references: [leagueTable.id] }),
+	group: one(groupTable, { fields: [groupLeagueTable.groupId], references: [groupTable.id] }),
+	league: one(leagueTable, { fields: [groupLeagueTable.leagueId], references: [leagueTable.id] }),
 }));
 
 export const groupTable = pgTable('group', {

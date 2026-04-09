@@ -37,17 +37,38 @@ import { includes } from 'zod';
 
 export const revalidate = 0;
 
-export default async function Home({ params }: { params: Promise<{ groupId: string }> }) {
+export default async function Home({
+	params,
+	searchParams,
+}: {
+	params: Promise<{ groupId: string }>;
+	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
 	const profile = await isUserAuthenticated();
 	if (!profile) return redirect('/landing', RedirectType.replace);
 
 	const { groupId } = await params;
+	const { leagueId } = await searchParams;
 
 	const currentGroup = await db.query.groupTable.findFirst({
 		where: (table, { eq }) => eq(table.id, groupId),
-		with: { leagues: true },
+		with: {
+			leagues: {
+				with: { league: { columns: { id: true, name: true, iconUrl: true } } },
+				columns: { leagueId: true, id: false, createAt: false, groupId: false, updateAt: false },
+			},
+		},
 	});
 	if (!currentGroup) throw new Error('Group Is Not Found');
+
+	const targetLeagueId = leagueId?.toString() || currentGroup.leagues[0].leagueId;
+	if (
+		currentGroup.leagues.length === 0 ||
+		!currentGroup.leagues.some(league => league.leagueId === targetLeagueId)
+	)
+		throw new Error(
+			'No league is associated with this group or inValid league ID, Please ask for group Admin to add league!!!',
+		);
 
 	const otherGroups = await db.query.groupProfileTable
 		.findMany({
@@ -65,9 +86,7 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 	if (!isMember)
 		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
 
-	const targetLeague = currentGroup.leagues[0].leagueId;
-
-	const fixtures = await getFixtures(targetLeague);
+	const fixtures = await getFixtures(targetLeagueId);
 	if (!fixtures) throw new Error('Failed to load fixtures');
 
 	const predictions: PredictionWithProfileMatchEvent[] = await db.query.predictionTable.findMany({
@@ -140,7 +159,7 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 					<CreatePredictionModelButton
 						fixtures={fixtures}
 						groupId={groupId}
-						leagueTagId={targetLeague}
+						leagueTagId={targetLeagueId}
 					/>
 
 					{/* Prediction Cards: */}
@@ -156,7 +175,8 @@ export default async function Home({ params }: { params: Promise<{ groupId: stri
 				<GroupHeader
 					name={currentGroup.name}
 					groupId={currentGroup.id}
-					otherGroups={otherGroups} //
+					otherGroups={otherGroups}
+					leagues={currentGroup.leagues.map(item => item.league)}
 					imageUrl={currentGroup.imageUrl}
 					inviteCode={currentGroup.inviteCode}
 				/>

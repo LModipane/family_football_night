@@ -35,7 +35,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 			</div>
 			<div className="flex">
 				<GroupsNav otherGroups={otherGroups} />
-				<LeagueNav leagues={leagues} />
+				<LeagueNav leagues={leagues} groupId={groupId} />
 				<button
 					className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer"
 					onClick={() => onOpen('Invite-Member', { inviteCode, groupId })}>
@@ -54,6 +54,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 export default GroupHeader;
 
 type LeagueNavProp = {
+	groupId: string;
 	leagues: {
 		id: string;
 		name: string;
@@ -61,7 +62,7 @@ type LeagueNavProp = {
 	}[];
 };
 
-const LeagueNav = ({ leagues }: LeagueNavProp) => {
+const LeagueNav = ({ leagues, groupId }: LeagueNavProp) => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const { onOpen } = useModel();
@@ -104,7 +105,7 @@ const LeagueNav = ({ leagues }: LeagueNavProp) => {
 				<hr />
 				<button
 					className="text-green-600 font-bold text-xs py-2 cursor-pointer text-center"
-					onClick={() => onOpen('AddLeagueForm', {})}>
+					onClick={() => onOpen('AddLeagueForm', {groupId})}>
 					<Plus className="w-3 h-3 inline-block mr-1" />
 					Add League
 				</button>

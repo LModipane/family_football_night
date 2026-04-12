@@ -1,8 +1,11 @@
 'use client';
 
+import axios from 'axios';
 import Image from 'next/image';
+import { toast } from 'sonner';
 import { useState } from 'react';
 import { useModel } from '@/hooks';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { TOURNOMINATE_SELECTIONS } from '@/contants';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -16,11 +19,11 @@ import {
 } from '@/components/ui/dialog';
 
 const AddLeagueModel = () => {
-	const { type, isOpen, onClose } = useModel();
+	const router = useRouter();
+	const { type, isOpen, onClose, data: { groupId } } = useModel();
 	const [selectedLeagueIds, setSelectedLeagueIds] = useState<string[]>([]);
 
 	const isModelOpen = type === 'AddLeagueForm' && isOpen;
-
 
 	const handleCheckboxChange = (leagueId: string) => {
 		setSelectedLeagueIds(
@@ -30,10 +33,20 @@ const AddLeagueModel = () => {
 					: [...prev, leagueId], // add if not selected
 		);
 	};
-	
-	const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+
+	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log('Selected leagues:', selectedLeagueIds);
+
+		try {
+			await axios.post('/api/add-leagues', { selectedLeagueIds, groupId });
+			toast.success('Leagues added to group successfully.');
+			setSelectedLeagueIds([]);
+			router.refresh();
+			onClose();
+		} catch (error) {
+			console.error('Error adding leagues to group:', error);
+			toast.error('Failed to add leagues to group. Please try again.');
+		}
 	};
 
 	return (

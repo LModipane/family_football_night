@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useState } from 'react';
 import { useModel } from '@/hooks';
 import { Button } from '@/components/ui/button';
 import { TOURNOMINATE_SELECTIONS } from '@/contants';
@@ -16,10 +17,23 @@ import {
 
 const AddLeagueModel = () => {
 	const { type, isOpen, onClose } = useModel();
+	const [selectedLeagueIds, setSelectedLeagueIds] = useState<string[]>([]);
 
 	const isModelOpen = type === 'AddLeagueForm' && isOpen;
-	const handleAddLeague = (leagueIds: string[]) => {
-		// make api call to add league to group
+
+
+	const handleCheckboxChange = (leagueId: string) => {
+		setSelectedLeagueIds(
+			prev =>
+				prev.includes(leagueId)
+					? prev.filter(id => id !== leagueId) // remove if already selected
+					: [...prev, leagueId], // add if not selected
+		);
+	};
+	
+	const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		console.log('Selected leagues:', selectedLeagueIds);
 	};
 
 	return (
@@ -29,11 +43,11 @@ const AddLeagueModel = () => {
 					<DialogTitle>Add Leagues To Group</DialogTitle>
 					<DialogDescription>Select the leagues you want to add to the group</DialogDescription>
 				</DialogHeader>
-				{/* Add List UI to select Leagues to add to the group */}
-				<form>
+
+				<form onSubmit={handleSubmit}>
 					<ScrollArea className="h-100 w-full rounded-md border">
 						{TOURNOMINATE_SELECTIONS.map(league => (
-							<div className="bg-white rounded-2xl shadow-md p-5 space-y-4 " id={league.category}>
+							<div key={league.category} className="bg-white rounded-2xl shadow-md p-5 space-y-4">
 								<h3 className="text-lg font-semibold text-gray-800">{league.category}</h3>
 								<hr className="border-gray-200" />
 								<div className="space-y-3">
@@ -45,10 +59,12 @@ const AddLeagueModel = () => {
 											<input
 												type="checkbox"
 												id={item.tagId}
-												name={item.name}
 												value={item.tagId}
+												checked={selectedLeagueIds.includes(item.tagId)}
+												onChange={() => handleCheckboxChange(item.tagId)}
 												className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
 											/>
+
 											<div className="flex items-center gap-3">
 												<Image
 													src={item.iconUrl}
@@ -65,10 +81,9 @@ const AddLeagueModel = () => {
 							</div>
 						))}
 					</ScrollArea>
+
 					<div className="flex justify-end mt-4">
-						<Button type="submit" onClick={() => handleAddLeague([])}>
-							Add Leagues
-						</Button>
+						<Button type="submit">Add Leagues</Button>
 					</div>
 				</form>
 			</DialogContent>

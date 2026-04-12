@@ -11,6 +11,7 @@ import {
 	timestamp,
 	uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { table } from 'node:console';
 
 export const profileTable = pgTable('profile', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -49,17 +50,21 @@ export const leagueRelations = relations(leagueTable, ({ many }) => ({
 	groups: many(groupLeagueTable),
 }));
 
-export const groupLeagueTable = pgTable('group_league', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	groupId: uuid('group_id')
-		.notNull()
-		.references(() => groupTable.id, { onDelete: 'cascade' }),
-	leagueId: uuid('league_id')
-		.notNull()
-		.references(() => leagueTable.id, { onDelete: 'cascade' }),
-	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
-	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
-});
+export const groupLeagueTable = pgTable(
+	'group_league',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		groupId: uuid('group_id')
+			.notNull()
+			.references(() => groupTable.id, { onDelete: 'cascade' }),
+		leagueId: uuid('league_id')
+			.notNull()
+			.references(() => leagueTable.id, { onDelete: 'cascade' }),
+		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
+		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
+	},
+	table => [uniqueIndex('uniq_group_league').on(table.groupId, table.leagueId)],
+);
 
 export const groupLeagueRelation = relations(groupLeagueTable, ({ one }) => ({
 	group: one(groupTable, { fields: [groupLeagueTable.groupId], references: [groupTable.id] }),

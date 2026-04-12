@@ -59,7 +59,7 @@ const AddLeagueModel = () => {
 		} else {
 			form.setValue('leagueIds', [...current, leagueId]);
 		}
-		form.setValue('groupId', groupId!); // ✅ ensure groupId is always set
+		if (!form.getValues('groupId')) form.setValue('groupId', groupId!); // ✅ ensure groupId is always set
 	};
 
 	const handleSubmit = async (values: z.infer<typeof addLeagueSchema>) => {

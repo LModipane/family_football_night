@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import nextAuth from 'next-auth';
 import { redirect } from 'next/navigation';
 import { Metadata, ResolvingMetadata } from 'next';
 import { groupProfileTable } from '@/lib/db/schema';
@@ -33,10 +34,11 @@ export default async function InviteMemberPage({
 }: {
 	params: Promise<{ groupId: string; inviteCode: string }>;
 }) {
-	const profile = await isUserAuthenticated();
-	if (!profile) redirect('/landing');
-
 	const { groupId, inviteCode } = await params;
+
+	const profile = await isUserAuthenticated();
+	if (!profile)
+		return redirect(`/api/auth/signin?callbackUrl=/group/${groupId}/invite/${inviteCode}`); // Redirect end-user to default sign-in page. Note: create proper login page to redirect end-user to it instead of default one.
 
 	const isMember = await db.query.groupProfileTable.findFirst({
 		where: (profileToGroup, { eq, and }) =>

@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Field, FieldError, } from '@/components/ui/field';
+import { Field, FieldError } from '@/components/ui/field';
 import { createPredictionSchema } from '@/types/formSchema';
 import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,7 +23,6 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
-
 
 const PredictionFormModel = () => {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
@@ -136,7 +135,7 @@ const Form = ({ match, groupId, leagueTagId }: FormProps) => {
 	};
 
 	const handleError = (error: any) => {
-		console.log(error);
+		console.error(error);
 	};
 
 	return (

@@ -16,7 +16,6 @@ export async function POST(req: Request) {
 		if (!profile) return new Response('Opps, Unauthorised to Post Prediction', { status: 400 });
 
 		const body = await req.json();
-		console.log('body:', body);
 		const parsedData = createPredictionSchema.parse(body);
 
 		await db
@@ -29,10 +28,10 @@ export async function POST(req: Request) {
 		return new Response('Success Created Predictions', { status: 200 });
 	} catch (error) {
 		if (error instanceof ZodError) {
-			console.log('Bad Request Data', error);
+			console.error('Bad Request Data', error);
 			return new Response('Opps, Bad Request', { status: 400 });
 		}
-		console.log('Failed To Create Prediction!!!:', error);
+		console.error('Failed To Create Prediction!!!:', error);
 		return new Response('Opps, Failed to Post Prediction', { status: 500 });
 	}
 }

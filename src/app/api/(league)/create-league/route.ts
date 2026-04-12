@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 		await db.insert(leagueTable).values(legaues);
 		return new Response('successfully initialise Leagues', { status: 200 });
 	} catch (error) {
-		console.log('Failed to initialise leagues: ', error);
+		console.error('Failed to initialise leagues: ', error);
 		return new Response('Opps, failed to intialise Leagues', { status: 500 });
 	}
 }

@@ -59,7 +59,7 @@ const InviteMember = () => {
 			const inviteCode = res.data.inviteCode;
 			onOpen('Invite-Member', { groupId, inviteCode });
 		} catch (error: any) {
-			console.log('failed to refresh link: ', error.message);
+			console.error('failed to refresh link: ', error.message);
 			toast.error('failed to refresh link!!!');
 		} finally {
 			setIsLoading(false);

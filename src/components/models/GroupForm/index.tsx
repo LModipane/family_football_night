@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useModel } from '@/hooks';
+import { useRouter } from 'next/navigation';
 import { TOURNOMINATE_SELECTIONS } from '@/contants';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -27,6 +28,7 @@ import {
 } from '@/components/ui/select';
 
 const GroupFormModel = () => {
+	const router = useRouter();
 	const [name, setName] = useState<string>('');
 	const [leagueTagId, setLeagueTagId] = useState<string>('');
 
@@ -38,6 +40,12 @@ const GroupFormModel = () => {
 
 		try {
 			await axios.post('/api/create-group', { leagueTagId, name });
+			toast.success('Group created successfully.');
+			setName('');
+			setLeagueTagId('');
+			onClose();
+			// Optionally, you can refresh the page or update the state to show the new group
+			router.refresh(); // Uncomment if you want to refresh the page after creating a group
 		} catch (error) {
 			console.error('Failed to create Group:', error);
 			toast.error('Opps, failed to create group!!!');

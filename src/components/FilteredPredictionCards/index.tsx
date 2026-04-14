@@ -1,14 +1,26 @@
 'use client';
 
 import Image from 'next/image';
+import { EllipsisVertical, EyeOff, PenLine, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { PredictionWithProfileMatchEvent, type Prediction } from '@/types';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { PredictionWithProfileMatchEvent } from '@/types';
 import usePredictionContext from '@/hooks/usePredictionContext';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuShortcut,
+	DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 const FilteredPredictionCards = ({
 	predictions,
+	currentProfileId,
 }: {
+	currentProfileId?: string;
 	predictions: PredictionWithProfileMatchEvent[];
 }) => {
 	const { selectedMatchEventId } = usePredictionContext();
@@ -19,7 +31,7 @@ const FilteredPredictionCards = ({
 	return (
 		<ScrollArea className="flex flex-col gap-2 flex-1 pr-4 overflow-scroll no-scrollbar">
 			{filteredPredictions.map(prediction => (
-				<PredictionCard key={prediction.id} {...prediction} />
+				<PredictionCard key={prediction.id} {...prediction} currentProfileId={currentProfileId} />
 			))}
 		</ScrollArea>
 	);
@@ -27,12 +39,17 @@ const FilteredPredictionCards = ({
 
 export default FilteredPredictionCards;
 
+type PredictionCardProps = {
+	currentProfileId?: string;
+} & PredictionWithProfileMatchEvent;
+
 const PredictionCard = ({
 	profile,
 	homeTeamScore,
 	awayTeamScore,
 	matchEvent,
-}: PredictionWithProfileMatchEvent) => {
+	currentProfileId,
+}: PredictionCardProps) => {
 	return (
 		<div className="flex items-center justify-between p-4 text-white">
 			{/* Profile Section */}
@@ -70,6 +87,39 @@ const PredictionCard = ({
 					height={32}
 					className="rounded-full"
 				/>
+
+				{/* Action Menu */}
+				{currentProfileId === profile.id && (
+					<DropdownMenu>
+						<DropdownMenuTrigger className="ml-2 cursor-pointer hover:bg-purple-600 p-1 rounded">
+							<EllipsisVertical size={24} />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							align="start"
+							side="right"
+							className="bg-purple-950 text-white shadow-lg p-2 boder-1 border-purple-50 rounded-lg">
+							<DropdownMenuGroup>
+								<DropdownMenuLabel>Prediction Menu</DropdownMenuLabel>
+								<hr />
+								<div className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
+									<PenLine size={17} />
+									edit prediction
+									<DropdownMenuShortcut className='text-white'>⇧⌘P</DropdownMenuShortcut>
+								</div>
+								<div className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
+									<EyeOff size={17} />
+									hide prediction
+									<DropdownMenuShortcut className='text-white'>⇧⌘P</DropdownMenuShortcut>
+								</div>
+								<div className="hover:bg-red-900 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
+									<Trash2 size={17} />
+									remove prediction
+									<DropdownMenuShortcut className='text-white'>⇧⌘P</DropdownMenuShortcut>
+								</div>
+							</DropdownMenuGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				)}
 			</div>
 		</div>
 	);

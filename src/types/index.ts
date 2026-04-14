@@ -12,6 +12,7 @@ export type PredictionWithProfileMatchEvent = {
 	homeTeamScore: number;
 	awayTeamScore: number;
 	profile: {
+		id: string;
 		name: string;
 		imageUrl: string | null;
 	};

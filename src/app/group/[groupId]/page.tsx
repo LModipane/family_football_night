@@ -164,7 +164,7 @@ export default async function Home({
 
 					{/* Prediction Cards: */}
 					{predictions && predictions.length !== 0 ? (
-						<FilteredPredictionCards predictions={predictions} />
+						<FilteredPredictionCards predictions={predictions} currentProfileId={profile.id!} />
 					) : (
 						<div className="">Be the first to predict</div>
 					)}

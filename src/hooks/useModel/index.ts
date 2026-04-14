@@ -2,7 +2,14 @@ import { MatchEvent } from '@/types';
 import { create } from 'zustand';
 import type { Dispatch, SetStateAction } from 'react';
 
-type Model = 'Prediction' | 'SIGN-IN' | 'GroupForm' | 'Invite-Member' | 'AddLeagueForm' | null;
+type Model =
+	| 'SIGN-IN'
+	| 'GroupForm'
+	| 'Prediction'
+	| 'Invite-Member'
+	| 'AddLeagueForm'
+	| 'Edit Prediction'
+	| null;
 
 type ModelData = {
 	groupId?: string;

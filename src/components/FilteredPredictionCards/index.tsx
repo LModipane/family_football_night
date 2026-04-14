@@ -15,6 +15,7 @@ import {
 	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import { useModel } from '@/hooks';
 
 const FilteredPredictionCards = ({
 	predictions,
@@ -50,6 +51,7 @@ const PredictionCard = ({
 	matchEvent,
 	currentProfileId,
 }: PredictionCardProps) => {
+	const { onOpen } = useModel();
 	return (
 		<div className="flex items-center justify-between p-4 text-white">
 			{/* Profile Section */}
@@ -97,24 +99,27 @@ const PredictionCard = ({
 						<DropdownMenuContent
 							align="start"
 							side="right"
-							className="bg-purple-950 text-white shadow-lg p-2 boder-1 border-purple-50 rounded-lg">
+							className="bg-purple-950 text-white shadow-lg p-2 boder-1 border-gray-400 rounded-lg">
 							<DropdownMenuGroup>
 								<DropdownMenuLabel>Prediction Menu</DropdownMenuLabel>
-								<hr />
-								<div className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
+								<hr className="border-gray-400" />
+								<div
+									className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
+									// Note: Add Edit Prediction model in root layout page
+									onClick={() => onOpen('Edit Prediction', {})}>
 									<PenLine size={17} />
 									edit prediction
-									<DropdownMenuShortcut className='text-white'>⇧⌘P</DropdownMenuShortcut>
+									<DropdownMenuShortcut className="text-gray-400">Ctrl+P</DropdownMenuShortcut>
 								</div>
 								<div className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
 									<EyeOff size={17} />
 									hide prediction
-									<DropdownMenuShortcut className='text-white'>⇧⌘P</DropdownMenuShortcut>
+									<DropdownMenuShortcut className="text-gray-400">Ctrl+H</DropdownMenuShortcut>
 								</div>
 								<div className="hover:bg-red-900 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
 									<Trash2 size={17} />
 									remove prediction
-									<DropdownMenuShortcut className='text-white'>⇧⌘P</DropdownMenuShortcut>
+									<DropdownMenuShortcut className="text-gray-400">Ctrl+D</DropdownMenuShortcut>
 								</div>
 							</DropdownMenuGroup>
 						</DropdownMenuContent>

@@ -11,7 +11,6 @@ import {
 	timestamp,
 	uniqueIndex,
 } from 'drizzle-orm/pg-core';
-import { table } from 'node:console';
 
 export const profileTable = pgTable('profile', {
 	id: uuid('id').primaryKey().defaultRandom(),
@@ -46,7 +45,7 @@ export const leagueTable = pgTable('leauge', {
 });
 
 export const leagueRelations = relations(leagueTable, ({ many }) => ({
-	events: many(matchEventTable),
+	events: many(matchEventTable,),
 	groups: many(groupLeagueTable),
 }));
 

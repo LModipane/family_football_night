@@ -4,8 +4,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useModel } from '@/hooks';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { BookUser, Plus, UserPlus, Volleyball } from 'lucide-react';
+import { BookUser, EllipsisVertical, PenLine, Plus, UserPlus, Volleyball } from 'lucide-react';
 import { Popover, PopoverContent, PopoverHeader, PopoverTrigger } from '@/components/ui/popover';
+import {
+	DropdownMenu,
+	DropdownMenuLabel,
+	DropdownMenuGroup,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+	DropdownMenuShortcut,
+} from '../ui/dropdown-menu';
 
 type Prop = {
 	name: string;
@@ -36,16 +44,55 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 			<div className="flex">
 				<GroupsNav otherGroups={otherGroups} />
 				<LeagueNav leagues={leagues} groupId={groupId} />
-				<button
-					className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer"
-					onClick={() => onOpen('Invite-Member', { inviteCode, groupId })}>
-					<UserPlus className="w-7 h-7" />
-				</button>
-				<button
-					className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer"
-					onClick={() => onOpen('GroupForm', {})}>
-					<Plus className="w-7 h-7" />
-				</button>
+
+				{/* Group Header menu */}
+				<DropdownMenu>
+					<DropdownMenuTrigger>
+						<EllipsisVertical size={20} />
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" className="bg-white rounded-md shadow-lg p-2">
+						<DropdownMenuGroup>
+							<DropdownMenuLabel>Group Options</DropdownMenuLabel>
+							<hr className="border-gray-400" />
+							<div
+								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
+								// Note: Add Edit Prediction model in root layout page
+								onClick={() => onOpen('GroupForm', {})}>
+								<Plus size={17} />
+								Create Group
+								<DropdownMenuShortcut className="text-gray-400">Ctrl+G</DropdownMenuShortcut>
+							</div>
+							<div
+								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
+								// Note: Add Edit Prediction model in root layout page
+								onClick={() => onOpen('GroupForm', {})}>
+								<Plus size={17} />
+								Delete Group
+								<DropdownMenuShortcut className="text-gray-400">Ctrl+G</DropdownMenuShortcut>
+							</div>
+						</DropdownMenuGroup>
+						<DropdownMenuGroup>
+							<DropdownMenuLabel>Member Options</DropdownMenuLabel>
+							<hr className="border-gray-400" />
+							<div
+								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
+								// Note: Add Edit Prediction model in root layout page
+								onClick={() => onOpen('Invite-Member', {})}>
+								<UserPlus size={17} />
+								Invite Member
+								<DropdownMenuShortcut className="text-gray-400">Ctrl+I</DropdownMenuShortcut>
+							</div>
+							<div
+								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
+								// Note: Add Edit Prediction model in root layout page
+								onClick={() => onOpen('Invite-Member', {})}>
+								<UserPlus size={17} />
+								Remove Member
+								<DropdownMenuShortcut className="text-gray-400">Ctrl+I</DropdownMenuShortcut>
+							</div>
+						</DropdownMenuGroup>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 	);
@@ -105,7 +152,7 @@ const LeagueNav = ({ leagues, groupId }: LeagueNavProp) => {
 				<hr />
 				<button
 					className="text-green-600 font-bold text-xs py-2 cursor-pointer text-center"
-					onClick={() => onOpen('AddLeagueForm', {groupId})}>
+					onClick={() => onOpen('AddLeagueForm', { groupId })}>
 					<Plus className="w-3 h-3 inline-block mr-1" />
 					Add League
 				</button>

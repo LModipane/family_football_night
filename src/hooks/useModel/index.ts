@@ -8,8 +8,9 @@ type Model =
 	| 'Prediction'
 	| 'Invite-Member'
 	| 'AddLeagueForm'
-	| 'Edit Prediction'
 	| null;
+
+type PredectionMode = 'CREATE' | 'EDIT' | null;
 
 type ModelData = {
 	groupId?: string;
@@ -18,6 +19,13 @@ type ModelData = {
 	setCarouselIndex?: Dispatch<SetStateAction<number>>;
 	leagueTagId?: string;
 	inviteCode?: string;
+	predictionMode?: PredectionMode;
+	prevPrediction?: {
+		id: string;
+		homeTeamScore: number;
+		awayTeamScore: number;
+	};
+	match?: MatchEvent;
 };
 
 type ModelStore = {

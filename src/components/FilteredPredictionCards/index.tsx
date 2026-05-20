@@ -17,13 +17,13 @@ import {
 } from '../ui/dropdown-menu';
 import { useModel } from '@/hooks';
 
-const FilteredPredictionCards = ({
-	predictions,
-	currentProfileId,
-}: {
+type Props = {
+	groupId: string;
 	currentProfileId?: string;
 	predictions: PredictionWithProfileMatchEvent[];
-}) => {
+};
+
+const FilteredPredictionCards = ({ groupId, predictions, currentProfileId }: Props) => {
 	const { selectedMatchEventId } = usePredictionContext();
 	const filteredPredictions = selectedMatchEventId
 		? predictions.filter(prediction => prediction.matchEventId === `${selectedMatchEventId}`)
@@ -32,7 +32,12 @@ const FilteredPredictionCards = ({
 	return (
 		<ScrollArea className="flex flex-col gap-2 flex-1 pr-4 overflow-scroll no-scrollbar">
 			{filteredPredictions.map(prediction => (
-				<PredictionCard key={prediction.id} {...prediction} currentProfileId={currentProfileId} />
+				<PredictionCard
+					key={prediction.id}
+					{...prediction}
+					currentProfileId={currentProfileId}
+					groupId={groupId}
+				/>
 			))}
 		</ScrollArea>
 	);
@@ -41,14 +46,17 @@ const FilteredPredictionCards = ({
 export default FilteredPredictionCards;
 
 type PredictionCardProps = {
+	groupId: string;
 	currentProfileId?: string;
 } & PredictionWithProfileMatchEvent;
 
 const PredictionCard = ({
+	id,
 	profile,
+	groupId,
+	matchEvent,
 	homeTeamScore,
 	awayTeamScore,
-	matchEvent,
 	currentProfileId,
 }: PredictionCardProps) => {
 	const { onOpen } = useModel();
@@ -106,7 +114,19 @@ const PredictionCard = ({
 								<div
 									className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
 									// Note: Add Edit Prediction model in root layout page
-									onClick={() => onOpen('Edit Prediction', {})}>
+									onClick={() =>
+										onOpen('Prediction', {
+											predictionMode: 'EDIT',
+											match: matchEvent,
+											groupId,
+											leagueTagId: matchEvent.leagueTagId,
+											prevPrediction: {
+												id,
+												homeTeamScore,
+												awayTeamScore,
+											},
+										})
+									}>
 									<PenLine size={17} />
 									edit prediction
 									<DropdownMenuShortcut className="text-gray-400">Ctrl+P</DropdownMenuShortcut>

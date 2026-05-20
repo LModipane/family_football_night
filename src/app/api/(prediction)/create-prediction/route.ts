@@ -2,7 +2,7 @@ import { db } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { predictionTable } from '@/lib/db/schema';
 import { authOptions } from '@/lib/nextAuth/options';
-import { createPredictionSchema } from '@/types/formSchema';
+import { PredictionSchema } from '@/types/formSchema';
 import { ZodError } from 'zod';
 
 export async function POST(req: Request) {
@@ -16,14 +16,12 @@ export async function POST(req: Request) {
 		if (!profile) return new Response('Opps, Unauthorised to Post Prediction', { status: 400 });
 
 		const body = await req.json();
-		const parsedData = createPredictionSchema.parse(body);
+		const parsedData = PredictionSchema.omit({ predictionId: true }).parse(body);
 
-		await db
-			.insert(predictionTable)
-			.values({
-				...parsedData,
-				profileId: profile.id,
-			})
+		await db.insert(predictionTable).values({
+			...parsedData,
+			profileId: profile.id,
+		});
 
 		return new Response('Success Created Predictions', { status: 200 });
 	} catch (error) {

@@ -17,7 +17,7 @@ const CreatePredictionModelButton = ({ fixtures, groupId, leagueTagId }: Props) 
 
 	const openModel = () => {
 		if (status !== 'authenticated') return;
-		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex, groupId, leagueTagId });
+		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex, groupId, leagueTagId, predictionMode: 'CREATE' });
 	};
 
 	return (

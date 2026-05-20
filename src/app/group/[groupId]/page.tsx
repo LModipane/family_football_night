@@ -90,12 +90,6 @@ export default async function Home({
 
 	const predictions: PredictionWithProfileMatchEvent[] = await db.query.predictionTable.findMany({
 		with: { profile: true, matchEvent: true },
-		columns: {
-			id: true,
-			matchEventId: true,
-			awayTeamScore: true,
-			homeTeamScore: true,
-		},
 		where: (table, { eq, and }) => and(eq(table.status, 'unsettled'), eq(table.groupId, groupId)),
 	});
 
@@ -164,7 +158,11 @@ export default async function Home({
 
 					{/* Prediction Cards: */}
 					{predictions && predictions.length !== 0 ? (
-						<FilteredPredictionCards predictions={predictions} currentProfileId={profile.id!} />
+						<FilteredPredictionCards
+							groupId={groupId}
+							predictions={predictions}
+							currentProfileId={profile.id!}
+						/>
 					) : (
 						<div className="">Be the first to predict</div>
 					)}

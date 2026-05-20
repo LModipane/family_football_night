@@ -6,14 +6,14 @@ import { toast } from 'sonner';
 import { useModel } from '@/hooks';
 import { MatchEvent } from '@/types';
 import { formatDate } from '@/lib/utils';
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Field, FieldError } from '@/components/ui/field';
-import { createPredictionSchema } from '@/types/formSchema';
+import { PredictionSchema } from '@/types/formSchema';
 import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { Carousel, CarouselApi, CarouselItem, CarouselContent } from '@/components/ui/carousel';
 
 import {
@@ -25,18 +25,74 @@ import {
 } from '@/components/ui/dialog';
 
 const PredictionFormModel = () => {
-	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
-
 	const {
 		type,
 		onClose,
 		isOpen,
-		data: { fixtures, carouselIndex, setCarouselIndex, groupId, leagueTagId },
+		data: {
+			match,
+			groupId,
+			fixtures,
+			leagueTagId,
+			carouselIndex,
+			predictionMode,
+			prevPrediction,
+			setCarouselIndex,
+		},
 	} = useModel();
-
-	// const { carouselIndex, setCarouselIndex } = usePredictionContext();
-
 	const isModelOpen = type === 'Prediction' && isOpen; // Replace with actual logic to determine if the model should be open
+
+	return (
+		<Dialog open={isModelOpen} onOpenChange={() => onClose()}>
+			<DialogContent className="text-black w-screen">
+				<DialogHeader className="flex flex-col items-center">
+					<DialogTitle>Football Match Prediction Submission</DialogTitle>
+					<DialogDescription>
+						Share your match prediction by choosing the final scores for each team. Your submission
+						will be locked once the match starts, so make your best call!
+					</DialogDescription>
+				</DialogHeader>
+				{predictionMode === 'CREATE' && (
+					<CreatePredictionForm
+						setCarouselIndex={setCarouselIndex}
+						fixtures={fixtures}
+						carouselIndex={carouselIndex}
+						groupId={groupId}
+						leagueTagId={leagueTagId}
+					/>
+				)}
+				{predictionMode === 'EDIT' && groupId && leagueTagId && match ? (
+					<div className="h-75 p-3">
+						<Form
+							match={match}
+							groupId={groupId}
+							leagueTagId={leagueTagId}
+							prevPrediction={prevPrediction}
+							predictionMode={predictionMode}
+						/>
+					</div>
+				) : null}
+			</DialogContent>
+		</Dialog>
+	);
+};
+
+type CreatePredictionFormProps = {
+	setCarouselIndex: Dispatch<SetStateAction<number>> | undefined;
+	fixtures: MatchEvent[] | undefined;
+	carouselIndex: number | null | undefined;
+	groupId: string | undefined;
+	leagueTagId: string | undefined;
+};
+
+const CreatePredictionForm = ({
+	setCarouselIndex,
+	fixtures,
+	carouselIndex,
+	groupId,
+	leagueTagId,
+}: CreatePredictionFormProps) => {
+	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 
 	const nextForm = () => {
 		if (!carouselApi) return;
@@ -57,46 +113,37 @@ const PredictionFormModel = () => {
 	}, [carouselApi, setCarouselIndex]);
 
 	return (
-		<Dialog open={isModelOpen} onOpenChange={() => onClose()}>
-			<DialogContent className="text-black w-screen">
-				<DialogHeader className="flex flex-col items-center">
-					<DialogTitle>Football Match Prediction Submission</DialogTitle>
-					<DialogDescription>
-						Share your match prediction by choosing the final scores for each team. Your submission
-						will be locked once the match starts, so make your best call!
-					</DialogDescription>
-				</DialogHeader>
-				<div className="w-full overflow-hidden">
-					{fixtures && fixtures.length > 0 ? (
-						<div className="flex flex-col gap-y-3">
-							<div className="w-full flex gap-x-3 justify-end">
-								<button onClick={prevForm}>
-									<ArrowLeft className="h-5 w-5" />
-								</button>
-								<button onClick={nextForm}>
-									<ArrowRight className="h-5 w-5" />
-								</button>
-							</div>
-							<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
-								<CarouselContent className="mx-1 flex gap-x-3 ">
-									{fixtures.map(match => (
-										<CarouselItem key={match.id} className="h-75 p-3">
-											{groupId && leagueTagId ? (
-												<Form match={match} groupId={groupId} leagueTagId={leagueTagId} />
-											) : (
-												<div>Missing Group ID or League Tag Id!!!</div>
-											)}
-										</CarouselItem>
-									))}
-								</CarouselContent>
-							</Carousel>
-						</div>
-					) : (
-						<div>There is no fixtures</div>
-					)}
+		<div className="w-full overflow-hidden">
+			{fixtures && fixtures.length > 0 ? (
+				<div className="flex flex-col gap-y-3">
+					<div className="w-full flex gap-x-3 justify-end">
+						<button onClick={prevForm}>
+							<ArrowLeft className="h-5 w-5" />
+						</button>
+						<button onClick={nextForm}>
+							<ArrowRight className="h-5 w-5" />
+						</button>
+					</div>
+					<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
+						<CarouselContent className="mx-1 flex gap-x-3 ">
+							{fixtures.map(match => (
+								<CarouselItem key={match.id}>
+									{groupId && leagueTagId ? (
+										<div className="h-75 p-3">
+											<Form match={match} groupId={groupId} leagueTagId={leagueTagId} />
+										</div>
+									) : (
+										<div>Missing Group ID or League Tag Id!!!</div>
+									)}
+								</CarouselItem>
+							))}
+						</CarouselContent>
+					</Carousel>
 				</div>
-			</DialogContent>
-		</Dialog>
+			) : (
+				<div>There is no fixtures</div>
+			)}
+		</div>
 	);
 };
 
@@ -106,29 +153,41 @@ type FormProps = {
 	match: MatchEvent;
 	groupId: string;
 	leagueTagId: string;
+	prevPrediction?: {
+		id: string;
+		homeTeamScore: number;
+		awayTeamScore: number;
+	};
+	predictionMode?: 'CREATE' | 'EDIT' | null;
 };
 
-const Form = ({ match, groupId, leagueTagId }: FormProps) => {
+const Form = ({ match, groupId, leagueTagId, prevPrediction, predictionMode }: FormProps) => {
 	const router = useRouter();
 
-	const form = useForm<z.infer<typeof createPredictionSchema>>({
+	const form = useForm<z.infer<typeof PredictionSchema>>({
 		defaultValues: {
 			groupId,
 			leagueTagId,
 			matchEventId: match.id,
-			awayTeamScore: undefined,
-			homeTeamScore: undefined,
+			predictionId: prevPrediction?.id,
 		},
-		resolver: zodResolver(createPredictionSchema),
+		resolver: zodResolver(PredictionSchema),
 	});
 
-	const submitPrediction = async (value: z.infer<typeof createPredictionSchema>) => {
+	const submitPrediction = async (value: z.infer<typeof PredictionSchema>) => {
 		try {
-			await axios.post('/api/create-prediction', value);
-			toast.success('Successfully submitted Prediction');
+			if (predictionMode === 'EDIT' && prevPrediction) {
+				await axios.put(`/api/edit-prediction`, value);
+				toast.success('Successfully edited Prediction');
+				close();
+			}
+			if (predictionMode === 'CREATE') {
+				await axios.post('/api/create-prediction', value);
+				toast.success('Successfully submitted Prediction');
+			}
 		} catch (error) {
 			console.error('Failed to submit Prediction: ', error);
-			toast.error('Opps, failed to Submit Prediction!!!');
+			toast.error(`Opps, failed to ${predictionMode === 'EDIT' ? 'edit' : 'submit'} Prediction!!!`);
 		} finally {
 			router.refresh();
 		}
@@ -164,7 +223,7 @@ const Form = ({ match, groupId, leagueTagId }: FormProps) => {
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}
-										placeholder={`${field.value ?? 0}`}
+										placeholder={`${field.value ?? prevPrediction?.homeTeamScore ?? 0}`}
 										value={field.value || field.value === 0 ? field.value : ''}
 										onChange={event => {
 											if (event.target.value === '') return field.onChange(undefined);
@@ -192,7 +251,7 @@ const Form = ({ match, groupId, leagueTagId }: FormProps) => {
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}
-										placeholder={`${field.value ?? 0}`}
+										placeholder={`${field.value ?? prevPrediction?.awayTeamScore ?? 0}`}
 										value={field.value || field.value === 0 ? field.value : ''}
 										onChange={event => {
 											if (event.target.value === '') return field.onChange(undefined);
@@ -217,7 +276,7 @@ const Form = ({ match, groupId, leagueTagId }: FormProps) => {
 				</div>
 			</div>
 			<div className="flex justify-end">
-				<button>Submit</button>
+				<button>{predictionMode === 'EDIT' ? 'Edit' : 'Submit'}</button>
 			</div>
 		</form>
 	);

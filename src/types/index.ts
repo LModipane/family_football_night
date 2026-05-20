@@ -16,12 +16,7 @@ export type PredictionWithProfileMatchEvent = {
 		name: string;
 		imageUrl: string | null;
 	};
-	matchEvent: {
-		homeTeamName: string;
-		awayTeamName: string;
-		homeTeamBadgeUrl: string;
-		awayTeamBadgeUrl: string;
-	};
+	matchEvent: MatchEvent;
 };
 
 export type LeaderBoard = {

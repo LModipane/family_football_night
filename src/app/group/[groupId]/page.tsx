@@ -310,13 +310,13 @@ const ResultTable = ({ results }: ResultTableProps) => {
 					<TableHead className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center text-white ">
 						# <span className="hidden sm:block">Pos</span>
 					</TableHead>
-					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-[70px] flex justify-center items-center text-white">
+					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white">
 						Match
 					</TableHead>
-					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-[40px] flex justify-center items-center text-white">
+					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10 flex justify-center items-center text-white">
 						Result
 					</TableHead>
-					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-[70px] flex justify-center items-center text-white truncate">
+					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white truncate">
 						Prediction
 					</TableHead>
 					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center text-white">
@@ -332,7 +332,7 @@ const ResultTable = ({ results }: ResultTableProps) => {
 						<TableCell className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center">
 							<span>{++index}</span>
 						</TableCell>
-						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-[70px] flex justify-center items-center sm:gap-x-1">
+						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-17.5` flex justify-center items-center sm:gap-x-1">
 							<div className="relative min-w-6 min-h-6">
 								<Image
 									src={result.homeTeamBadgeUrl}
@@ -353,14 +353,14 @@ const ResultTable = ({ results }: ResultTableProps) => {
 								/>
 							</div>
 						</TableCell>
-						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-[40px]  flex justify-center items-center">
+						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10  flex justify-center items-center">
 							<span className="text-lg">{result.homeTeamScoreResult}</span>
 							<div className="flex justify-center items-center">
 								<EllipsisVertical className="h-3 w-3" />
 							</div>
 							<span className="text-lg">{result.awayTeamScoreResult}</span>
 						</TableCell>
-						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-[70px] flex justify-center items-center">
+						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center">
 							<span className="text-lg">{result.homeTeamScorePrediction}</span>
 							<div className="flex justify-center items-center">
 								<EllipsisVertical className="h-3 w-3" />

@@ -20,7 +20,7 @@ import {
 import {
 	GroupHeader,
 	FixturesCarousel,
-	FilteredPredictionCards,
+	PredictionCards,
 	PredictionContextProvider,
 	CreatePredictionModelButton,
 } from '@/components';
@@ -158,7 +158,7 @@ export default async function Home({
 
 					{/* Prediction Cards: */}
 					{predictions && predictions.length !== 0 ? (
-						<FilteredPredictionCards
+						<PredictionCards
 							groupId={groupId}
 							predictions={predictions}
 							currentProfileId={profile.id!}

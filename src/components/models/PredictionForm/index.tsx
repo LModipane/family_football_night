@@ -66,6 +66,19 @@ const PredictionFormModel = () => {
 						<Form
 							match={match}
 							groupId={groupId}
+							close={() => onClose()}
+							leagueTagId={leagueTagId}
+							prevPrediction={prevPrediction}
+							predictionMode={predictionMode}
+						/>
+					</div>
+				) : null}
+				{predictionMode === 'DELETE' && match && groupId && leagueTagId && prevPrediction ? (
+					<div className="h-75 p-3">
+						<Form
+							match={match}
+							groupId={groupId}
+							close={() => onClose()}
 							leagueTagId={leagueTagId}
 							prevPrediction={prevPrediction}
 							predictionMode={predictionMode}
@@ -130,7 +143,12 @@ const CreatePredictionForm = ({
 								<CarouselItem key={match.id}>
 									{groupId && leagueTagId ? (
 										<div className="h-75 p-3">
-											<Form match={match} groupId={groupId} leagueTagId={leagueTagId} />
+											<Form
+												match={match}
+												groupId={groupId}
+												predictionMode="CREATE"
+												leagueTagId={leagueTagId}
+											/>
 										</div>
 									) : (
 										<div>Missing Group ID or League Tag Id!!!</div>
@@ -158,10 +176,18 @@ type FormProps = {
 		homeTeamScore: number;
 		awayTeamScore: number;
 	};
-	predictionMode?: 'CREATE' | 'EDIT' | null;
+	predictionMode: 'CREATE' | 'EDIT' | 'DELETE' | null;
+	close?: () => void;
 };
 
-const Form = ({ match, groupId, leagueTagId, prevPrediction, predictionMode }: FormProps) => {
+const Form = ({
+	match,
+	groupId,
+	leagueTagId,
+	prevPrediction,
+	predictionMode = 'CREATE',
+	close,
+}: FormProps) => {
 	const router = useRouter();
 
 	const form = useForm<z.infer<typeof PredictionSchema>>({
@@ -170,13 +196,20 @@ const Form = ({ match, groupId, leagueTagId, prevPrediction, predictionMode }: F
 			leagueTagId,
 			matchEventId: match.id,
 			predictionId: prevPrediction?.id,
+			homeTeamScore: predictionMode === 'DELETE' ? prevPrediction?.homeTeamScore : undefined,
+			awayTeamScore: predictionMode === 'DELETE' ? prevPrediction?.awayTeamScore : undefined,
 		},
 		resolver: zodResolver(PredictionSchema),
 	});
 
 	const submitPrediction = async (value: z.infer<typeof PredictionSchema>) => {
 		try {
-			if (predictionMode === 'EDIT' && prevPrediction) {
+			if (predictionMode === 'DELETE' && prevPrediction && close) {
+				await axios.delete(`/api/delete-prediction`, { data: value });
+				toast.success('Successfully deleted Prediction');
+				close();
+			}
+			if (predictionMode === 'EDIT' && prevPrediction && close) {
 				await axios.put(`/api/edit-prediction`, value);
 				toast.success('Successfully edited Prediction');
 				close();
@@ -223,6 +256,7 @@ const Form = ({ match, groupId, leagueTagId, prevPrediction, predictionMode }: F
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}
+										readOnly={predictionMode === 'DELETE'}
 										placeholder={`${field.value ?? prevPrediction?.homeTeamScore ?? 0}`}
 										value={field.value || field.value === 0 ? field.value : ''}
 										onChange={event => {
@@ -251,8 +285,9 @@ const Form = ({ match, groupId, leagueTagId, prevPrediction, predictionMode }: F
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}
-										placeholder={`${field.value ?? prevPrediction?.awayTeamScore ?? 0}`}
+										readOnly={predictionMode === 'DELETE'}
 										value={field.value || field.value === 0 ? field.value : ''}
+										placeholder={`${field.value ?? prevPrediction?.awayTeamScore ?? 0}`}
 										onChange={event => {
 											if (event.target.value === '') return field.onChange(undefined);
 											field.onChange(+event.target.value);

@@ -23,7 +23,7 @@ type Props = {
 	predictions: PredictionWithProfileMatchEvent[];
 };
 
-const FilteredPredictionCards = ({ groupId, predictions, currentProfileId }: Props) => {
+const PredictionCards = ({ groupId, predictions, currentProfileId }: Props) => {
 	const { selectedMatchEventId } = usePredictionContext();
 	const filteredPredictions = selectedMatchEventId
 		? predictions.filter(prediction => prediction.matchEventId === `${selectedMatchEventId}`)
@@ -43,7 +43,7 @@ const FilteredPredictionCards = ({ groupId, predictions, currentProfileId }: Pro
 	);
 };
 
-export default FilteredPredictionCards;
+export default PredictionCards;
 
 type PredictionCardProps = {
 	groupId: string;
@@ -60,6 +60,7 @@ const PredictionCard = ({
 	currentProfileId,
 }: PredictionCardProps) => {
 	const { onOpen } = useModel();
+
 	return (
 		<div className="flex items-center justify-between p-4 text-white">
 			{/* Profile Section */}
@@ -136,7 +137,17 @@ const PredictionCard = ({
 									hide prediction
 									<DropdownMenuShortcut className="text-gray-400">Ctrl+H</DropdownMenuShortcut>
 								</div>
-								<div className="hover:bg-red-900 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
+								<div
+									className="hover:bg-red-900 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
+									onClick={() =>
+										onOpen('Prediction', {
+											predictionMode: 'DELETE',
+											match: matchEvent,
+											groupId,
+											leagueTagId: matchEvent.leagueTagId,
+											prevPrediction: { id, homeTeamScore, awayTeamScore },
+										})
+									}>
 									<Trash2 size={17} />
 									remove prediction
 									<DropdownMenuShortcut className="text-gray-400">Ctrl+D</DropdownMenuShortcut>

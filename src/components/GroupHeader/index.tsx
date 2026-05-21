@@ -2,10 +2,13 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 import { useModel } from '@/hooks';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { BookUser, EllipsisVertical, PenLine, Plus, UserPlus, Volleyball } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { BookUser, EllipsisVertical, PenLine, Plus, UserPlus, Loader2 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverHeader, PopoverTrigger } from '@/components/ui/popover';
+
 import {
 	DropdownMenu,
 	DropdownMenuLabel,
@@ -15,7 +18,7 @@ import {
 	DropdownMenuShortcut,
 } from '../ui/dropdown-menu';
 
-type Prop = {
+type Props = {
 	name: string;
 	groupId: string;
 	inviteCode: string;
@@ -28,8 +31,23 @@ type Prop = {
 	}[];
 };
 
-const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues }: Prop) => {
+const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues }: Props) => {
 	const { onOpen } = useModel();
+
+	const router = useRouter();
+	const searchParams = useSearchParams();
+
+	const onSelectLeague = (leagueId: string) => {
+		// update search query to include leagueId
+		const params = new URLSearchParams(searchParams);
+		if (params.get('leagueId') === leagueId) {
+			params.delete('leagueId');
+		} else {
+			params.set('leagueId', leagueId);
+		}
+
+		router.replace(`?${params.toString()}`);
+	};
 
 	return (
 		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50">
@@ -41,9 +59,37 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 				) : null}
 				<h2 className="text-white text-xl font-bold">{name}</h2>
 			</div>
+			<Select onValueChange={onSelectLeague} value={searchParams.get('leagueId') || undefined}>
+				<SelectTrigger className=" text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer border-none text-xl">
+					<SelectValue placeholder="Select a League" />
+				</SelectTrigger>
+				<SelectContent
+					position="popper"
+					className="w-68.75 h-fit max-h-50 p-2 m-1 rounded-lg shadow-lg bg-white">
+					{leagues.map(league => (
+						<SelectItem
+							value={league.id}
+							key={league.id}
+							className="flex p-2 rounded-2xl items-center gap-2 cursor-pointer text-md capitalize font-bold text-gray-600 hover:text-gray-700 hover:bg-gray-300 transition-colors">
+							{league.iconUrl ? (
+								<div className="relative w-10 h-10 rounded-full overflow-hidden">
+									<Image src={league.iconUrl} alt={league.name} fill />
+								</div>
+							) : null}
+							<span>{league.name}</span>
+						</SelectItem>
+					))}
+					<hr />
+					<button
+						className="text-green-600 font-bold text-xs py-2 cursor-pointer text-center"
+						onClick={() => onOpen('AddLeagueForm', { groupId })}>
+						<Plus className="w-3 h-3 inline-block mr-1" />
+						Add League
+					</button>
+				</SelectContent>
+			</Select>
 			<div className="flex">
 				<GroupsNav otherGroups={otherGroups} />
-				<LeagueNav leagues={leagues} groupId={groupId} />
 
 				{/* Group Header menu */}
 				<DropdownMenu>
@@ -99,67 +145,6 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 };
 
 export default GroupHeader;
-
-type LeagueNavProp = {
-	groupId: string;
-	leagues: {
-		id: string;
-		name: string;
-		iconUrl: string | null;
-	}[];
-};
-
-const LeagueNav = ({ leagues, groupId }: LeagueNavProp) => {
-	const searchParams = useSearchParams();
-	const router = useRouter();
-	const { onOpen } = useModel();
-
-	const selectLeague = (leagueId: string) => {
-		// update search query to include leagueId
-		const params = new URLSearchParams(searchParams);
-		if (params.get('leagueId') === leagueId) {
-			params.delete('leagueId');
-		} else {
-			params.set('leagueId', leagueId);
-		}
-
-		router.replace(`?${params.toString()}`);
-	};
-
-	return (
-		<Popover>
-			<PopoverTrigger className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer">
-				<Volleyball className="w-7 h-7" />
-			</PopoverTrigger>
-			<PopoverContent align="end">
-				<PopoverHeader className="text-blue-600">Group Leagues</PopoverHeader>
-				<hr />
-				<ul className="mt-2 py-2 flex flex-col gap-y-2">
-					{leagues.map(league => (
-						<li
-							key={league.id}
-							className="flex p-2 rounded-2xl items-center gap-2 cursor-pointer text-md capitalize font-bold text-gray-600 hover:text-gray-700 hover:bg-gray-300 transition-colors"
-							onClick={() => selectLeague(league.id)}>
-							{league.iconUrl ? (
-								<div className="relative w-6 h-6 rounded-full overflow-hidden">
-									<Image src={league.iconUrl} alt={league.name} fill />
-								</div>
-							) : null}
-							<span>{league.name}</span>
-						</li>
-					))}
-				</ul>
-				<hr />
-				<button
-					className="text-green-600 font-bold text-xs py-2 cursor-pointer text-center"
-					onClick={() => onOpen('AddLeagueForm', { groupId })}>
-					<Plus className="w-3 h-3 inline-block mr-1" />
-					Add League
-				</button>
-			</PopoverContent>
-		</Popover>
-	);
-};
 
 type GroupsNavProp = {
 	otherGroups: { name: string; id: string; imageUrl: string | null }[];

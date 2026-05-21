@@ -24,8 +24,4 @@ export default async function Home() {
 	if (targetGroupId || targetGroupId !== '') redirect(`/group/${targetGroupId}`, RedirectType.replace);
 	
 	throw new Error("Group Not Found")
-	
-	return (
-		<main className="h-full w-full flex flex-col-reverse sm:flex-row overflow-scroll">You can open create group Model</main>
-	);
 }

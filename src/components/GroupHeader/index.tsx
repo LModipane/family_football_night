@@ -48,20 +48,26 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 
 		router.replace(`?${params.toString()}`);
 	};
+	const currentLeague = leagues.find(league => league.id === searchParams.get('leagueId'))
 
 	return (
-		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50">
+		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50 overflow-hidden">
 			<div className="flex items-center">
 				{imageUrl ? (
 					<div className="relative w-10 h-10 rounded-full overflow-hidden mr-2">
 						<Image src={imageUrl} alt="Group Icon" className="mr-2" fill />
 					</div>
 				) : null}
-				<h2 className="text-white text-xl font-bold">{name}</h2>
+				<h2 className="text-white md:text-xl text-sm font-bold truncate ">{name}</h2>
 			</div>
 			<Select onValueChange={onSelectLeague} value={searchParams.get('leagueId') || undefined}>
 				<SelectTrigger className=" text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer border-none text-xl">
-					<SelectValue placeholder="Select a League" />
+					{currentLeague?.iconUrl ? (
+						<div className="relative w-10 h-10 rounded-full overflow-hidden">
+							<Image src={currentLeague.iconUrl} alt={currentLeague.name} fill />
+						</div>
+					) : null}
+					<span className="hidden md:block">{currentLeague?.name}</span>
 				</SelectTrigger>
 				<SelectContent
 					position="popper"

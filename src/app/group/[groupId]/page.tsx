@@ -146,7 +146,7 @@ export default async function Home({
 		.orderBy(desc(totalScore));
 
 	return (
-		<main className="h-full w-full flex flex-col-reverse sm:flex-row overflow-scroll">
+		<main className="h-full w-full flex flex-col-reverse sm:flex-row">
 			<section className="bg-purple-900 h-full sm:max-w-[35%] flex-1 p-2 text-white flex flex-col gap-4">
 				<PredictionContextProvider fixtures={fixtures}>
 					<FixturesCarousel fixtures={fixtures} />
@@ -169,7 +169,7 @@ export default async function Home({
 				</PredictionContextProvider>
 			</section>
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
-			<section className="bg-blue-950 h-full w-full text-white flex flex-col gap-4 justify-start items-center">
+			<section className="bg-blue-950 h-full min-h-1/4 max-h-1/2 md:max-h-full  w-full text-white flex flex-col gap-4 justify-start items-center">
 				<GroupHeader
 					name={currentGroup.name}
 					groupId={currentGroup.id}
@@ -190,17 +190,17 @@ type Props = {
 
 const LeaderTable = ({ leaderboard }: Props) => {
 	return (
-		<div className="relative flex flex-col w-full h-full p-2 pl-5 sm:px-10">
+		<div className="relative flex flex-col w-full h-full p-2 pl-5">
 			<div className="absolute -right-3 z-10 mr-4 -top-2">
 				<h2 className="font-extrabold text-white text-[17px] uppercase stroke-colour">
 					Leaderboard
 				</h2>
 			</div>
 			{leaderboard && leaderboard.length !== 0 ? (
-				<ScrollArea className="flex flex-col justify-center items-center w-full h-full">
+				<ScrollArea className="flex flex-col justify-center items-center w-full h-full px-4">
 					{leaderboard.map((player, index) =>
 						index === 0 ? (
-							<LeaderPlace key={player.profileId} player={player} />
+							<FirstPlace key={player.profileId} player={player} />
 						) : (
 							<FollowingPlace key={player.profileId} player={player} index={index} />
 						),
@@ -215,11 +215,11 @@ const LeaderTable = ({ leaderboard }: Props) => {
 	);
 };
 
-type LeaderPlaceProps = {
+type FirstPlaceProps = {
 	player: LeaderBoard[number];
 };
 
-const LeaderPlace = async ({ player }: LeaderPlaceProps) => {
+const FirstPlace = async ({ player }: FirstPlaceProps) => {
 	return (
 		<Accordion type="single" collapsible className="w-full">
 			<AccordionItem value="Leader Place" className="w-full">
@@ -242,7 +242,7 @@ const LeaderPlace = async ({ player }: LeaderPlaceProps) => {
 						<span className="border-r-2 border-white pr-2 text-4xl">{player.score}</span>
 					</div>
 				</AccordionTrigger>
-				<AccordionContent className="w-full sm:max-w-[90%] max-w-[98%] mx-auto text-white">
+				<AccordionContent className="w-full h-full sm:max-w-[90%] max-w-[98%] mx-auto text-white">
 					{player.results && player.results.length !== 0 ? (
 						<ResultTable results={player.results} />
 					) : (
@@ -286,7 +286,7 @@ const FollowingPlace = async ({ player, index }: FollowingPlaceProps) => {
 						</div>
 					</div>
 				</AccordionTrigger>
-				<AccordionContent className="w-full sm:max-w-[95%]  mx-auto text-white">
+				<AccordionContent className="w-full h-full mx-auto text-white">
 					{player.results && player.results.length !== 0 ? (
 						<ResultTable results={player.results} />
 					) : (
@@ -304,8 +304,8 @@ type ResultTableProps = {
 
 const ResultTable = ({ results }: ResultTableProps) => {
 	return (
-		<Table className="bg-blue-900 p-4 text-white ">
-			<TableHeader>
+		<Table className="bg-blue-900 p-4 text-white w-full h-full">
+			<TableHeader className="h-full">
 				<TableRow className="flex items-center justify-end h-10 hover:bg-blue-800 border-b-2 border-slate-400">
 					<TableHead className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center text-white ">
 						# <span className="hidden sm:block">Pos</span>
@@ -324,50 +324,51 @@ const ResultTable = ({ results }: ResultTableProps) => {
 					</TableHead>
 				</TableRow>
 			</TableHeader>
-			<TableBody>
-				{results.map((result, index) => (
-					<TableRow
-						key={result.id}
-						className="flex items-center justify-start h-10 hover:bg-blue-800 border-b-[1.5px] border-slate-400">
-						<TableCell className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center">
-							<span>{++index}</span>
-						</TableCell>
-						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-17.5` flex justify-center items-center sm:gap-x-1">
-							<div className="relative min-w-6 min-h-6">
-								<Image
-									src={result.homeTeamBadgeUrl}
-									alt="home-team-logo"
-									fill
-									className="object-fit"
-								/>
-							</div>
-							<div className="flex justify-center items-center">
-								<EllipsisVertical className="h-3 w-3" />
-							</div>
-							<div className="relative min-w-6 min-h-6">
-								<Image
-									src={result.awayTeamBadgeUrl}
-									alt="home-team-logo"
-									fill
-									className="object-fit"
-								/>
-							</div>
-						</TableCell>
-						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10  flex justify-center items-center">
-							<span className="text-lg">{result.homeTeamScoreResult}</span>
-							<div className="flex justify-center items-center">
-								<EllipsisVertical className="h-3 w-3" />
-							</div>
-							<span className="text-lg">{result.awayTeamScoreResult}</span>
-						</TableCell>
-						<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center">
-							<span className="text-lg">{result.homeTeamScorePrediction}</span>
-							<div className="flex justify-center items-center">
-								<EllipsisVertical className="h-3 w-3" />
-							</div>
-							<span className="text-lg">{result.awayTeamScorePrediction}</span>
-						</TableCell>
-						{/* <TableCell
+			<ScrollArea className="h-[25vh]">
+				<TableBody>
+					{results.map((result, index) => (
+						<TableRow
+							key={result.id}
+							className="flex items-center justify-start h-10 hover:bg-blue-800 border-b-[1.5px] border-slate-400">
+							<TableCell className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center">
+								<span>{++index}</span>
+							</TableCell>
+							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-17.5` flex justify-center items-center sm:gap-x-1">
+								<div className="relative min-w-6 min-h-6">
+									<Image
+										src={result.homeTeamBadgeUrl}
+										alt="home-team-logo"
+										fill
+										className="object-fit"
+									/>
+								</div>
+								<div className="flex justify-center items-center">
+									<EllipsisVertical className="h-3 w-3" />
+								</div>
+								<div className="relative min-w-6 min-h-6">
+									<Image
+										src={result.awayTeamBadgeUrl}
+										alt="home-team-logo"
+										fill
+										className="object-fit"
+									/>
+								</div>
+							</TableCell>
+							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10  flex justify-center items-center">
+								<span className="text-lg">{result.homeTeamScoreResult}</span>
+								<div className="flex justify-center items-center">
+									<EllipsisVertical className="h-3 w-3" />
+								</div>
+								<span className="text-lg">{result.awayTeamScoreResult}</span>
+							</TableCell>
+							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center">
+								<span className="text-lg">{result.homeTeamScorePrediction}</span>
+								<div className="flex justify-center items-center">
+									<EllipsisVertical className="h-3 w-3" />
+								</div>
+								<span className="text-lg">{result.awayTeamScorePrediction}</span>
+							</TableCell>
+							{/* <TableCell
                                 className={cn(
                                     'w-[17%] h-10 flex justify-center items-center',
                                     fouls < 0 ? 'text-slate-500' : 'text-gray-500',
@@ -381,23 +382,24 @@ const ResultTable = ({ results }: ResultTableProps) => {
                                 )}
                                 {fouls <= 0 ? <span className="text-lg">{Math.abs(fouls)}</span> : <></>}
                             </TableCell> */}
-						<TableCell
-							className={cn(
-								'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',
-								result.point! > 0
-									? 'text-green-500'
-									: result.point! < 0
-										? 'text-red-500'
-										: 'text-gray-500',
-							)}>
-							{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
-							{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
-							{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
-							<span className="text-lg">{Math.abs(result.point!)}</span>
-						</TableCell>
-					</TableRow>
-				))}
-			</TableBody>
+							<TableCell
+								className={cn(
+									'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',
+									result.point! > 0
+										? 'text-green-500'
+										: result.point! < 0
+											? 'text-red-500'
+											: 'text-gray-500',
+								)}>
+								{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
+								{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
+								{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
+								<span className="text-lg">{Math.abs(result.point!)}</span>
+							</TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</ScrollArea>
 		</Table>
 	);
 };

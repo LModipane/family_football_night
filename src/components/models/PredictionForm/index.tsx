@@ -239,7 +239,7 @@ const Form = ({
 						<AvatarImage src={match.homeTeamBadgeUrl} className="w-full h-full" />
 						<AvatarFallback />
 					</Avatar>
-					<h3 className="mt-2">{match.homeTeamName}</h3>
+					<h3 className="mt-2 font-semibold text-lg">{match.homeTeamName}</h3>
 				</div>
 				<div className="h-full w-fit flex flex-col justify-center items-center mb-8">
 					<p className="text-md mb-0.5">{formatDate(match.kickOff.toDateString())}</p>
@@ -252,7 +252,7 @@ const Form = ({
 									<input
 										min={0}
 										required
-										autoFocus
+										autoFocus={predictionMode !== 'DELETE'}
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}
@@ -307,7 +307,7 @@ const Form = ({
 						<AvatarImage src={match.awayTeamBadgeUrl} className="w-full h-full" />
 						<AvatarFallback />
 					</Avatar>
-					<h3 className="mt-2">{match.awayTeamName}</h3>
+					<h3 className="mt-2 font-semibold text-lg">{match.awayTeamName}</h3>
 				</div>
 			</div>
 			<div className="flex justify-end mt-auto">

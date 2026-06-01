@@ -235,7 +235,7 @@ const Form = ({
 		<form
 			className="h-fit w-full flex flex-col mx-auto"
 			onSubmit={form.handleSubmit(submitPrediction, handleError)}>
-			<div className="flex flex-row md:h-full w-full h-[200px] justify-between items-center">
+			<div className="flex flex-row md:h-full w-full h-50 justify-between items-center">
 				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
 					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 ">
 						<AvatarImage src={match.homeTeamBadgeUrl} className="w-full h-full" />

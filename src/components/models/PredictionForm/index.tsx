@@ -65,16 +65,14 @@ const PredictionFormModel = () => {
 					/>
 				)}
 				{predictionMode === 'EDIT' && groupId && leagueTagId && match ? (
-					<div className="h-75 p-3">
-						<Form
-							match={match}
-							groupId={groupId}
-							close={() => onClose()}
-							leagueTagId={leagueTagId}
-							prevPrediction={prevPrediction}
-							predictionMode={predictionMode}
-						/>
-					</div>
+					<Form
+						match={match}
+						groupId={groupId}
+						close={() => onClose()}
+						leagueTagId={leagueTagId}
+						prevPrediction={prevPrediction}
+						predictionMode={predictionMode}
+					/>
 				) : null}
 				{predictionMode === 'DELETE' && match && groupId && leagueTagId && prevPrediction ? (
 					<div className="h-75 p-3">

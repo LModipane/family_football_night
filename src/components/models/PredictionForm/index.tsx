@@ -233,7 +233,7 @@ const Form = ({
 		<form
 			className="h-fit w-full flex flex-col mx-auto"
 			onSubmit={form.handleSubmit(submitPrediction, handleError)}>
-			<div className="flex flex-row md:h-full w-full h-50 justify-between items-center">
+			<div className="flex flex-row w-full h-50 md:h-55 justify-between items-center">
 				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
 					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 ">
 						<AvatarImage src={match.homeTeamBadgeUrl} className="w-full h-full" />
@@ -241,8 +241,8 @@ const Form = ({
 					</Avatar>
 					<h3 className="mt-2">{match.homeTeamName}</h3>
 				</div>
-				<div className="h-full w-fit flex flex-col justify-center items-center">
-					<p className="text-sm -mb-3">{formatDate(match.kickOff.toDateString())}</p>
+				<div className="h-full w-fit flex flex-col justify-center items-center mb-8">
+					<p className="text-md mb-0.5">{formatDate(match.kickOff.toDateString())}</p>
 					<div className="flex flex-row justify-center items-center h-fit w-full md:mx-4 mx-2 my-3 mb-5">
 						<Controller
 							name="homeTeamScore"
@@ -252,6 +252,7 @@ const Form = ({
 									<input
 										min={0}
 										required
+										autoFocus
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}
@@ -262,7 +263,7 @@ const Form = ({
 											if (event.target.value === '') return field.onChange(undefined);
 											field.onChange(+event.target.value);
 										}}
-										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
+										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 p-2 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
 									/>
 									{fieldState.invalid ? (
 										<FieldError className="text-[10px]" errors={[{ message: 'Invalid Score' }]} />
@@ -291,7 +292,7 @@ const Form = ({
 											if (event.target.value === '') return field.onChange(undefined);
 											field.onChange(+event.target.value);
 										}}
-										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
+										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 p-2 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
 									/>
 									{fieldState.invalid ? (
 										<FieldError className="text-[10px]" errors={[{ message: 'Invalid Score' }]} />

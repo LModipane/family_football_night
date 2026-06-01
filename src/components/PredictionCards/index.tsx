@@ -17,6 +17,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuShortcut,
 } from '../ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 type Props = {
 	groupId: string;
@@ -29,6 +30,15 @@ const PredictionCards = ({ groupId, predictions, currentProfileId }: Props) => {
 	const filteredPredictions = selectedMatchEventId
 		? predictions.filter(prediction => prediction.matchEventId === `${selectedMatchEventId}`)
 		: predictions;
+	filteredPredictions.sort((a, b) => {
+		// If 'a' matches the target ID, move it to the front (-1)
+		if (a.profile.id === currentProfileId) return -1;
+		// If 'b' matches the target ID, move it to the front (1)
+		if (b.profile.id === currentProfileId) return 1;
+
+		// Otherwise, sort alphabetically by 'letter'
+		return a.profile.name.localeCompare(b.profile.name);
+	});
 
 	return (
 		<ScrollArea className="flex flex-col gap-2 overflow-scroll no-scrollbar">
@@ -74,7 +84,7 @@ const PredictionCard = ({
 			</div>
 
 			{/* Match Details Section */}
-			<div className="flex items-center gap-1 ml-auto">
+			<div className={cn('flex items-center gap-1 ml-auto', currentProfileId === profile.id ? 'mr-4' : 'mr-11.5')}>
 				{/* Home Team Badge */}
 				<Image
 					src={matchEvent.homeTeamBadgeUrl}

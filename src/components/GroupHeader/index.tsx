@@ -48,7 +48,8 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 
 		router.replace(`?${params.toString()}`);
 	};
-	const currentLeague = leagues.find(league => league.id === searchParams.get('leagueId'))
+	const currentLeague = leagues.find(league => league.id === searchParams.get('leagueId'));
+	console.log(groupId, inviteCode);
 
 	return (
 		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50 overflow-hidden">
@@ -117,7 +118,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 							<div
 								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
 								// Note: Add Edit Prediction model in root layout page
-								onClick={() => onOpen('GroupForm', {})}>
+								onClick={() => { }}>
 								<Plus size={17} />
 								Delete Group
 								<DropdownMenuShortcut className="text-gray-400">Ctrl+G</DropdownMenuShortcut>
@@ -129,7 +130,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 							<div
 								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
 								// Note: Add Edit Prediction model in root layout page
-								onClick={() => onOpen('Invite-Member', {})}>
+								onClick={() => onOpen('Invite-Member', { inviteCode, groupId })}>
 								<UserPlus size={17} />
 								Invite Member
 								<DropdownMenuShortcut className="text-gray-400">Ctrl+I</DropdownMenuShortcut>
@@ -137,7 +138,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 							<div
 								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
 								// Note: Add Edit Prediction model in root layout page
-								onClick={() => onOpen('Invite-Member', {})}>
+								onClick={() => {}}>
 								<UserPlus size={17} />
 								Remove Member
 								<DropdownMenuShortcut className="text-gray-400">Ctrl+I</DropdownMenuShortcut>

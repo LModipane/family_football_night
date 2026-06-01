@@ -21,6 +21,7 @@ const PredictionContextProvider = ({
 	const [carouselIndex, setCarouselIndex] = useState<number>(0);
 
 	const selectedMatchEventId = useMemo(() => {
+		if (fixtures.length === 0) return null;
 		return +fixtures[carouselIndex].id;
 	}, [carouselIndex, fixtures]);
 

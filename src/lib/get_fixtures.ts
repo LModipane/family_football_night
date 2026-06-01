@@ -42,6 +42,6 @@ export default async function getFixtures(leagueTagId: string) {
 		return fixtures;
 	} catch (error) {
 		console.error('Failed to fetch fixtures', error);
-		return null;
+		return [];
 	}
 }

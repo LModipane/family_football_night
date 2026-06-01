@@ -86,7 +86,6 @@ export default async function Home({
 		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
 
 	const fixtures = await getFixtures(targetLeagueId);
-	if (!fixtures) throw new Error('Failed to load fixtures');
 
 	const predictions: PredictionWithProfileMatchEvent[] = await db.query.predictionTable.findMany({
 		with: { profile: true, matchEvent: true },

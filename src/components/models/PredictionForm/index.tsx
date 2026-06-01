@@ -23,6 +23,7 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 const PredictionFormModel = () => {
 	const {
@@ -44,12 +45,14 @@ const PredictionFormModel = () => {
 
 	return (
 		<Dialog open={isModelOpen} onOpenChange={() => onClose()}>
-			<DialogContent className="text-black w-screen">
+			<DialogContent className="text-black w-screen p-2 md:p-4">
 				<DialogHeader className="flex flex-col items-center">
 					<DialogTitle>Football Match Prediction Submission</DialogTitle>
 					<DialogDescription>
-						Share your match prediction by choosing the final scores for each team. Your submission
-						will be locked once the match starts, so make your best call!
+						<p className="text-center text-sm">
+							Share your match prediction by choosing the final scores for each team. Your
+							submission will be locked once the match starts, so make your best call!
+						</p>
 					</DialogDescription>
 				</DialogHeader>
 				{predictionMode === 'CREATE' && (
@@ -128,7 +131,7 @@ const CreatePredictionForm = ({
 	return (
 		<div className="w-full overflow-hidden">
 			{fixtures && fixtures.length > 0 ? (
-				<div className="flex flex-col gap-y-3">
+				<div className="flex flex-col gap-y-3 ">
 					<div className="w-full flex gap-x-3 justify-end">
 						<button onClick={prevForm}>
 							<ArrowLeft className="h-5 w-5" />
@@ -138,18 +141,16 @@ const CreatePredictionForm = ({
 						</button>
 					</div>
 					<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
-						<CarouselContent className="mx-1 flex gap-x-3 ">
+						<CarouselContent className="flex gap-x-3 ">
 							{fixtures.map(match => (
 								<CarouselItem key={match.id}>
 									{groupId && leagueTagId ? (
-										<div className="h-75 p-3">
-											<Form
-												match={match}
-												groupId={groupId}
-												predictionMode="CREATE"
-												leagueTagId={leagueTagId}
-											/>
-										</div>
+										<Form
+											match={match}
+											groupId={groupId}
+											predictionMode="CREATE"
+											leagueTagId={leagueTagId}
+										/>
 									) : (
 										<div>Missing Group ID or League Tag Id!!!</div>
 									)}
@@ -232,19 +233,19 @@ const Form = ({
 
 	return (
 		<form
-			className="h-full w-full flex flex-col"
+			className="h-fit w-full flex flex-col mx-auto"
 			onSubmit={form.handleSubmit(submitPrediction, handleError)}>
-			<div className="flex flex-row h-full w-full justify-center items-center ">
-				<div className="flex flex-col items-center">
-					<Avatar className="w-28 h-28">
+			<div className="flex flex-row md:h-full w-full h-[200px] justify-between items-center">
+				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
+					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 ">
 						<AvatarImage src={match.homeTeamBadgeUrl} className="w-full h-full" />
 						<AvatarFallback />
 					</Avatar>
-					<h3>{match.homeTeamName}</h3>
+					<h3 className="mt-2">{match.homeTeamName}</h3>
 				</div>
-				<div className="flex flex-col justify-center items-center mx-1">
+				<div className="h-full w-fit flex flex-col justify-center items-center">
 					<p className="text-sm -mb-3">{formatDate(match.kickOff.toDateString())}</p>
-					<div className="flex flex-row justify-center items-center mx-4 my-3 mb-10 ">
+					<div className="flex flex-row justify-center items-center h-fit w-full md:mx-4 mx-2 my-3 mb-5">
 						<Controller
 							name="homeTeamScore"
 							control={form.control}
@@ -263,7 +264,7 @@ const Form = ({
 											if (event.target.value === '') return field.onChange(undefined);
 											field.onChange(+event.target.value);
 										}}
-										className="min-w-16 h-16 border-2 border-gray-500 rounded-xl p-1 text-black font-bold text-[40px] text-center placeholder:text-gray-700/30 no-toggle"
+										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
 									/>
 									{fieldState.invalid ? (
 										<FieldError className="text-[10px]" errors={[{ message: 'Invalid Score' }]} />
@@ -271,8 +272,8 @@ const Form = ({
 								</Field>
 							)}
 						/>
-						<h4 className="mx-3">
-							<Asterisk className="h-5 w-5" />
+						<h4 className="p-1">
+							<Asterisk size={20} />
 						</h4>
 						<Controller
 							name="awayTeamScore"
@@ -292,7 +293,7 @@ const Form = ({
 											if (event.target.value === '') return field.onChange(undefined);
 											field.onChange(+event.target.value);
 										}}
-										className="min-w-16 h-16 border-2 border-gray-500 rounded-xl p-1 text-black font-bold text-[40px] text-center placeholder:text-gray-700/30 no-toggle"
+										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
 									/>
 									{fieldState.invalid ? (
 										<FieldError className="text-[10px]" errors={[{ message: 'Invalid Score' }]} />
@@ -302,16 +303,16 @@ const Form = ({
 						/>
 					</div>
 				</div>
-				<div className="flex flex-col items-center">
-					<Avatar className="w-28 h-28">
+				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
+					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 ">
 						<AvatarImage src={match.awayTeamBadgeUrl} className="w-full h-full" />
 						<AvatarFallback />
 					</Avatar>
-					<h3>{match.awayTeamName}</h3>
+					<h3 className="mt-2">{match.awayTeamName}</h3>
 				</div>
 			</div>
-			<div className="flex justify-end">
-				<button>{predictionMode === 'EDIT' ? 'Edit' : 'Submit'}</button>
+			<div className="flex justify-end mt-auto">
+				<Button>{predictionMode === 'EDIT' ? 'Edit' : 'Submit'}</Button>
 			</div>
 		</form>
 	);

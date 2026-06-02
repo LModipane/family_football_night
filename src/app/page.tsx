@@ -1,9 +1,9 @@
 import { db } from '@/lib/db';
 import { redirect, RedirectType } from 'next/navigation';
-import { isUserAuthenticated } from '@/lib/nextAuth/is_user_authenticated';
+import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
 
 export default async function Home() {
-	const profile = await isUserAuthenticated();
+	const profile = await authenticateUser();
 	if (!profile) return redirect('/landing', RedirectType.replace);
 
 	const userGroups = await db.query.groupProfileTable.findMany({
@@ -21,7 +21,8 @@ export default async function Home() {
 	});
 
 	const targetGroupId = userGroups[0].group.id;
-	if (targetGroupId || targetGroupId !== '') redirect(`/group/${targetGroupId}`, RedirectType.replace);
-	
-	throw new Error("Group Not Found")
+	if (targetGroupId || targetGroupId !== '')
+		redirect(`/group/${targetGroupId}`, RedirectType.replace);
+
+	throw new Error('Group Not Found');
 }

@@ -3,7 +3,7 @@ import nextAuth from 'next-auth';
 import { redirect } from 'next/navigation';
 import { Metadata, ResolvingMetadata } from 'next';
 import { groupProfileTable } from '@/lib/db/schema';
-import { isUserAuthenticated } from '@/lib/nextAuth/is_user_authenticated';
+import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
 
 export async function generateMetadata(
 	{ params }: { params: { id: string; inviteCode: string } },
@@ -36,7 +36,7 @@ export default async function InviteMemberPage({
 }) {
 	const { groupId, inviteCode } = await params;
 
-	const profile = await isUserAuthenticated();
+	const profile = await authenticateUser();
 	if (!profile)
 		return redirect(`/api/auth/signin?callbackUrl=/group/${groupId}/invite/${inviteCode}`); // Redirect end-user to default sign-in page. Note: create proper login page to redirect end-user to it instead of default one.
 

@@ -4,7 +4,7 @@ import { authOptions } from './options';
 import { getServerSession } from 'next-auth/next';
 import { Profile } from '@/types';
 
-export const isUserAuthenticated = async (): Promise<Profile  | null> => {
+export const authenticateUser = async (): Promise<Profile | null> => {
 	'use server';
 
 	try {
@@ -16,7 +16,7 @@ export const isUserAuthenticated = async (): Promise<Profile  | null> => {
 		});
 		if (!profile) return null;
 
-		return profile ;
+		return profile;
 	} catch (error) {
 		console.error('Authentication check failed:', error);
 		return null;

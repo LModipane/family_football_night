@@ -2,12 +2,12 @@ import { db } from '@/lib/db';
 import { ZodError } from 'zod';
 import { groupLeagueTable, groupProfileTable, groupTable } from '@/lib/db/schema';
 import { createGroupSchema } from '@/types/formSchema';
-import { isUserAuthenticated } from '@/lib/nextAuth/is_user_authenticated';
+import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
 
 export async function POST(req: Request) {
 	try {
-		// check if request is authentic 
-		const profile = await isUserAuthenticated();
+		// check if request is authentic
+		const profile = await authenticateUser();
 		if (!profile) return new Response('Unauthenticated', { status: 401 });
 
 		// parse request body
@@ -20,11 +20,9 @@ export async function POST(req: Request) {
 		await db
 			.insert(groupProfileTable)
 			.values({ profileId: profile.id!, groupId: res[0].id, role: 'admin' });
-		// add selected leagues 
-		await db
-			.insert(groupLeagueTable)
-			.values({ groupId: res[0].id, leagueId: body.leagueTagId });
-		
+		// add selected leagues
+		await db.insert(groupLeagueTable).values({ groupId: res[0].id, leagueId: body.leagueTagId });
+
 		//send successful post request
 		return new Response('Group created successfully', { status: 201 });
 	} catch (error) {

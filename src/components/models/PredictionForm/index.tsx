@@ -257,7 +257,6 @@ const Form = ({
 									<input
 										min={0}
 										required
-										autoFocus={predictionMode !== 'DELETE' && selectedMatchEventId === match.id}
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}

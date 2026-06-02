@@ -6,7 +6,7 @@ import { desc, eq, sql, and } from 'drizzle-orm';
 import { redirect, RedirectType } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Diff, EllipsisVertical, Minus, Plus } from 'lucide-react';
-import { isUserAuthenticated } from '@/lib/nextAuth/is_user_authenticated';
+import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
 import { LeaderBoard, PredictionWithProfileMatchEvent, ResultTableElement } from '@/types';
 import { matchResultTable, profileTable, predictionTable, matchEventTable } from '@/lib/db/schema';
 
@@ -43,7 +43,7 @@ export default async function Home({
 	params: Promise<{ groupId: string }>;
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-	const profile = await isUserAuthenticated();
+	const profile = await authenticateUser();
 	if (!profile) return redirect('/landing', RedirectType.replace);
 
 	const { groupId } = await params;

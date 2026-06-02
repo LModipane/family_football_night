@@ -145,13 +145,13 @@ export default async function Home({
 		.orderBy(desc(totalScore));
 
 	return (
-		<main className="h-full w-full flex flex-col-reverse sm:flex-row">
-			<section className="bg-purple-900 h-full sm:max-w-[35%] flex-1 p-2 text-white flex flex-col gap-4">
+		<main className="h-full w-full flex flex-col-reverse sm:flex-row ">
+			<section className="bg-purple-900 h-full sm:max-w-[35%] min-w-87.5 flex-1 p-2 text-white flex flex-col gap-4">
 				<PredictionContextProvider fixtures={fixtures}>
 					<FixturesCarousel fixtures={fixtures} />
 					<CreatePredictionModelButton
-						fixtures={fixtures}
 						groupId={groupId}
+						fixtures={fixtures}
 						leagueTagId={targetLeagueId}
 					/>
 
@@ -168,7 +168,7 @@ export default async function Home({
 				</PredictionContextProvider>
 			</section>
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
-			<section className="bg-blue-950 h-full min-h-1/4 max-h-1/2 md:max-h-full  w-full text-white flex flex-col gap-4 justify-start items-center">
+			<section className="bg-blue-950 h-full min-h-1/4 max-h-1/2 md:max-h-full flex-1 w-full text-white flex flex-col gap-4 justify-start items-center">
 				<GroupHeader
 					name={currentGroup.name}
 					groupId={currentGroup.id}

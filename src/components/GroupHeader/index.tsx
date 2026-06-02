@@ -48,6 +48,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 
 		router.replace(`?${params.toString()}`);
 	};
+
 	const currentLeague = leagues.find(league => league.id === searchParams.get('leagueId'));
 
 	return (
@@ -165,7 +166,7 @@ const GroupsNav = ({ otherGroups }: GroupsNavProp) => {
 			<PopoverTrigger className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer">
 				<BookUser size={30} />
 			</PopoverTrigger>
-			<PopoverContent align="end">
+			<PopoverContent align="start" side="bottom" className="w-68.75 h-fit max-h-50 p-2 m-1 rounded-lg shadow-lg bg-white">
 				<PopoverHeader className="text-blue-600">Other Family Groups</PopoverHeader>
 				<hr />
 				<ul className="mt-2 py-2">

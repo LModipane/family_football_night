@@ -53,11 +53,14 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 	return (
 		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50 overflow-hidden">
 			<div className="flex items-center">
+				<GroupsNav otherGroups={otherGroups} />
+
 				{imageUrl ? (
 					<div className="relative w-10 h-10 rounded-full overflow-hidden mr-2">
 						<Image src={imageUrl} alt="Group Icon" className="mr-2" fill />
 					</div>
 				) : null}
+
 				<h2 className="text-white md:text-xl text-sm font-bold truncate ">{name}</h2>
 			</div>
 			<Select onValueChange={onSelectLeague} value={searchParams.get('leagueId') || undefined}>
@@ -95,12 +98,10 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 				</SelectContent>
 			</Select>
 			<div className="flex">
-				<GroupsNav otherGroups={otherGroups} />
-
 				{/* Group Header menu */}
 				<DropdownMenu>
 					<DropdownMenuTrigger>
-						<EllipsisVertical size={20} />
+						<EllipsisVertical size={30} />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="bg-white rounded-md shadow-lg p-2">
 						<DropdownMenuGroup>
@@ -117,7 +118,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 							<div
 								className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
 								// Note: Add Edit Prediction model in root layout page
-								onClick={() => { }}>
+								onClick={() => {}}>
 								<Plus size={17} />
 								Delete Group
 								<DropdownMenuShortcut className="text-gray-400">Ctrl+G</DropdownMenuShortcut>
@@ -162,7 +163,7 @@ const GroupsNav = ({ otherGroups }: GroupsNavProp) => {
 	return (
 		<Popover>
 			<PopoverTrigger className="text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer">
-				<BookUser className="w-7 h-7" />
+				<BookUser size={30} />
 			</PopoverTrigger>
 			<PopoverContent align="end">
 				<PopoverHeader className="text-blue-600">Other Family Groups</PopoverHeader>

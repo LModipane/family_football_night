@@ -28,7 +28,7 @@ type Props = {
 const PredictionCards = ({ groupId, predictions, currentProfileId }: Props) => {
 	const { selectedMatchEventId } = usePredictionContext();
 	const filteredPredictions = selectedMatchEventId
-		? predictions.filter(prediction => prediction.matchEventId === `${selectedMatchEventId}`)
+		? predictions.filter(prediction => prediction.matchEventId === selectedMatchEventId)
 		: predictions;
 	filteredPredictions.sort((a, b) => {
 		// If 'a' matches the target ID, move it to the front (-1)

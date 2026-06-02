@@ -7,10 +7,11 @@ import { useModel } from '@/hooks';
 import { MatchEvent } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Field, FieldError } from '@/components/ui/field';
 import { PredictionSchema } from '@/types/formSchema';
+import { Field, FieldError } from '@/components/ui/field';
 import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
@@ -23,7 +24,6 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 
 const PredictionFormModel = () => {
 	const {
@@ -39,6 +39,7 @@ const PredictionFormModel = () => {
 			predictionMode,
 			prevPrediction,
 			setCarouselIndex,
+			selectedMatchEventId,
 		},
 	} = useModel();
 	const isModelOpen = type === 'Prediction' && isOpen; // Replace with actual logic to determine if the model should be open
@@ -62,6 +63,7 @@ const PredictionFormModel = () => {
 						carouselIndex={carouselIndex}
 						groupId={groupId}
 						leagueTagId={leagueTagId}
+						selectedMatchEventId={selectedMatchEventId}
 					/>
 				)}
 				{predictionMode === 'EDIT' && groupId && leagueTagId && match ? (
@@ -97,6 +99,7 @@ type CreatePredictionFormProps = {
 	carouselIndex: number | null | undefined;
 	groupId: string | undefined;
 	leagueTagId: string | undefined;
+	selectedMatchEventId?: string | null;
 };
 
 const CreatePredictionForm = ({
@@ -105,6 +108,7 @@ const CreatePredictionForm = ({
 	carouselIndex,
 	groupId,
 	leagueTagId,
+	selectedMatchEventId
 }: CreatePredictionFormProps) => {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 
@@ -120,6 +124,7 @@ const CreatePredictionForm = ({
 
 	useEffect(() => {
 		if (!carouselApi || !setCarouselIndex) return;
+
 
 		carouselApi.on('select', () => {
 			setCarouselIndex(carouselApi.selectedScrollSnap());
@@ -139,19 +144,17 @@ const CreatePredictionForm = ({
 						</button>
 					</div>
 					<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
-						<CarouselContent className="flex gap-x-3 ">
+						<CarouselContent className="flex gap-x-3">
 							{fixtures.map(match => (
 								<CarouselItem key={match.id}>
-									{groupId && leagueTagId ? (
-										<Form
-											match={match}
-											groupId={groupId}
-											predictionMode="CREATE"
-											leagueTagId={leagueTagId}
-										/>
-									) : (
-										<div>Missing Group ID or League Tag Id!!!</div>
-									)}
+									<Form
+										match={match}
+										groupId={groupId ?? ''}
+										leagueTagId={leagueTagId ?? ''}
+										predictionMode="CREATE"
+										selectedMatchEventId={selectedMatchEventId}
+									/>
+									{/* {match.awayTeamName} */}
 								</CarouselItem>
 							))}
 						</CarouselContent>
@@ -176,6 +179,7 @@ type FormProps = {
 		awayTeamScore: number;
 	};
 	predictionMode: 'CREATE' | 'EDIT' | 'DELETE' | null;
+	selectedMatchEventId?: string | null;
 	close?: () => void;
 };
 
@@ -186,6 +190,7 @@ const Form = ({
 	prevPrediction,
 	predictionMode = 'CREATE',
 	close,
+	selectedMatchEventId = "Na",
 }: FormProps) => {
 	const router = useRouter();
 
@@ -252,7 +257,7 @@ const Form = ({
 									<input
 										min={0}
 										required
-										autoFocus={predictionMode !== 'DELETE'}
+										autoFocus={predictionMode !== 'DELETE' && selectedMatchEventId === match.id}
 										{...field}
 										type="number"
 										aria-invalid={fieldState.invalid}

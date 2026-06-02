@@ -5,7 +5,7 @@ import { createContext, useState, useMemo, type Dispatch, type SetStateAction } 
 
 type PredictionStore = {
 	carouselIndex: number;
-	selectedMatchEventId: number | null;
+	selectedMatchEventId: string | null;
 	setCarouselIndex: Dispatch<SetStateAction<number>>;
 };
 
@@ -22,7 +22,7 @@ const PredictionContextProvider = ({
 
 	const selectedMatchEventId = useMemo(() => {
 		if (fixtures.length === 0) return null;
-		return +fixtures[carouselIndex].id;
+		return fixtures[carouselIndex].id;
 	}, [carouselIndex, fixtures]);
 
 	return (

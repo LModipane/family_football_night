@@ -13,11 +13,11 @@ type Props = {
 const CreatePredictionModelButton = ({ fixtures, groupId, leagueTagId }: Props) => {
 	const { onOpen } = useModel();
 	const { status } = useSession();
-	const { carouselIndex, setCarouselIndex } = usePredictionContext();
+	const { carouselIndex, setCarouselIndex, selectedMatchEventId } = usePredictionContext();
 
 	const openModel = () => {
 		if (status !== 'authenticated') return;
-		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex, groupId, leagueTagId, predictionMode: 'CREATE' });
+		onOpen('Prediction', { fixtures, carouselIndex, setCarouselIndex, groupId, leagueTagId, predictionMode: 'CREATE', selectedMatchEventId });
 	};
 
 	return (

@@ -20,6 +20,7 @@ type ModelData = {
 		awayTeamScore: number;
 	};
 	match?: MatchEvent;
+	selectedMatchEventId?: string | null;
 };
 
 type ModelStore = {

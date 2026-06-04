@@ -38,7 +38,7 @@ const CreatePredictionModelButton = ({
 	return (
 		<div className="w-full" onClick={openModel}>
 			<button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-				Create Prediction Model
+				Create Prediction
 			</button>
 		</div>
 	);

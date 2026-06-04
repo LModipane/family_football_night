@@ -97,11 +97,18 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 				/>
 
 				{/* Prediction Section */}
-				<div className="flex items-center ml-auto gap-2 font-semibold text-xl">
+				{prediction.hide && prediction.profile.id === currentProfileId ? (
+					<div className="flex items-center ml-auto gap-2 font-semibold text-xl animate-pulse text-yellow-400">
+						<span className="text-right">Hidden</span>
+					</div>
+				): (
+					<div className="flex items-center ml-auto gap-2 font-semibold text-xl">
 					<span className="text-right">{prediction.homeTeamScore}</span>
 					<span>-</span>
 					<span className="text-left">{prediction.awayTeamScore}</span>
 				</div>
+				)}
+				
 
 				{/* Away Team Badge */}
 				<Image

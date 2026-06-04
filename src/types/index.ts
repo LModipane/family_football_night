@@ -6,18 +6,20 @@ export type Prediction = InferInsertModel<typeof predictionTable>;
 export type MatchEvent = InferInsertModel<typeof matchEventTable>;
 export type MatchResult = InferInsertModel<typeof matchResultTable>;
 
-export type PredictionWithProfileMatchEvent = {
-	id: string;
-	matchEventId: string;
-	homeTeamScore: number;
-	awayTeamScore: number;
-	profile: {
-		id: string;
-		name: string;
-		imageUrl: string | null;
-	};
-	matchEvent: MatchEvent;
-};
+// export type PredictionWithProfileMatchEvent = {
+// 	id: string;
+// 	matchEventId: string;
+// 	homeTeamScore: number;
+// 	awayTeamScore: number;
+// 	profile: {
+// 		id: string;
+// 		name: string;
+// 		imageUrl: string | null;
+// 	};
+// 	matchEvent: MatchEvent;
+// };
+
+export type PredictionWithProfileMatchEvent = Prediction & { profile: Profile; matchEvent: MatchEvent };
 
 export type LeaderBoard = {
 	profileId: string;

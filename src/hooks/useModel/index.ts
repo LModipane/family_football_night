@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Dispatch, SetStateAction } from 'react';
-import { MatchEvent, PredictionWithProfileMatchEvent } from '@/types';
+import { MatchEvent, Prediction, PredictionWithProfileMatchEvent } from '@/types';
 
 type PredectionMode = 'CREATE' | 'EDIT' | 'DELETE' | null;
 type Model = 'SIGN-IN' | 'GroupForm' | 'Prediction' | 'Invite-Member' | 'AddLeagueForm' | null;
@@ -14,11 +14,7 @@ type ModelData = {
 	leagueTagId?: string;
 	inviteCode?: string;
 	predictionMode?: PredectionMode;
-	prevPrediction?: {
-		id: string;
-		homeTeamScore: number;
-		awayTeamScore: number;
-	};
+	prevPrediction?: Prediction;
 	match?: MatchEvent;
 	selectedMatchEventId?: string | null;
 	userPredictions?: PredictionWithProfileMatchEvent[];

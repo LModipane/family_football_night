@@ -44,10 +44,10 @@ const PredictionCards = ({ groupId, predictions, currentProfileId }: Props) => {
 		<ScrollArea className="flex flex-col gap-2 overflow-scroll no-scrollbar">
 			{filteredPredictions.map(prediction => (
 				<PredictionCard
-					key={prediction.id}
-					{...prediction}
-					currentProfileId={currentProfileId}
 					groupId={groupId}
+					key={prediction.id}
+					prediction={prediction}
+					currentProfileId={currentProfileId}
 				/>
 			))}
 		</ScrollArea>
@@ -59,17 +59,10 @@ export default PredictionCards;
 type PredictionCardProps = {
 	groupId: string;
 	currentProfileId?: string;
-} & PredictionWithProfileMatchEvent;
+	prediction: PredictionWithProfileMatchEvent;
+};
 
-const PredictionCard = ({
-	id,
-	profile,
-	groupId,
-	matchEvent,
-	homeTeamScore,
-	awayTeamScore,
-	currentProfileId,
-}: PredictionCardProps) => {
+const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCardProps) => {
 	const { onOpen } = useModel();
 
 	return (
@@ -77,42 +70,51 @@ const PredictionCard = ({
 			{/* Profile Section */}
 			<div className="flex items-center gap-3 flex-1 min-w-7">
 				<Avatar className="size-9">
-					<AvatarImage src={profile.imageUrl || undefined} alt={profile.name || 'User Avatar'} />
-					<AvatarFallback>{profile.name ? profile.name[0] : 'U'}</AvatarFallback>
+					<AvatarImage
+						src={prediction.profile.imageUrl || undefined}
+						alt={prediction.profile.name || 'User Avatar'}
+					/>
+					<AvatarFallback>
+						{prediction.profile.name ? prediction.profile.name[0] : 'U'}
+					</AvatarFallback>
 				</Avatar>
-				<span className="font-medium text-md w-full truncate">{profile.name}</span>
+				<span className="font-medium text-md w-full truncate">{prediction.profile.name}</span>
 			</div>
 
 			{/* Match Details Section */}
-			<div className={cn('flex items-center gap-1 ml-auto', currentProfileId === profile.id ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5')}>
+			<div
+				className={cn(
+					'flex items-center gap-1 ml-auto',
+					currentProfileId === prediction.profile.id ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5',
+				)}>
 				{/* Home Team Badge */}
 				<Image
-					src={matchEvent.homeTeamBadgeUrl}
-					alt={`${matchEvent.homeTeamName} badge`}
 					width={32}
 					height={32}
 					className="rounded-full"
+					src={prediction.matchEvent.homeTeamBadgeUrl}
+					alt={`${prediction.matchEvent.homeTeamName} badge`}
 				/>
 
 				{/* Prediction Section */}
 				<div className="flex items-center ml-auto gap-2 font-semibold text-xl">
-					<span className="text-right">{homeTeamScore}</span>
+					<span className="text-right">{prediction.homeTeamScore}</span>
 					<span>-</span>
-					<span className="text-left">{awayTeamScore}</span>
+					<span className="text-left">{prediction.awayTeamScore}</span>
 				</div>
 
 				{/* Away Team Badge */}
 				<Image
-					src={matchEvent.awayTeamBadgeUrl}
-					alt={`${matchEvent.awayTeamName} badge`}
 					width={32}
 					height={32}
 					className="rounded-full"
+					src={prediction.matchEvent.awayTeamBadgeUrl}
+					alt={`${prediction.matchEvent.awayTeamName} badge`}
 				/>
 			</div>
 
 			{/* Action Menu */}
-			{currentProfileId === profile.id && (
+			{currentProfileId === prediction.profile.id && (
 				<DropdownMenu>
 					<DropdownMenuTrigger className="cursor-pointer hover:bg-purple-600 p-1 rounded">
 						<EllipsisVertical size={24} />
@@ -129,15 +131,11 @@ const PredictionCard = ({
 								// Note: Add Edit Prediction model in root layout page
 								onClick={() =>
 									onOpen('Prediction', {
-										predictionMode: 'EDIT',
-										match: matchEvent,
 										groupId,
-										leagueTagId: matchEvent.leagueTagId,
-										prevPrediction: {
-											id,
-											homeTeamScore,
-											awayTeamScore,
-										},
+										predictionMode: 'EDIT',
+										prevPrediction: prediction,
+										match: prediction.matchEvent,
+										leagueTagId: prediction.matchEvent.leagueTagId,
 									})
 								}>
 								<PenLine size={17} />
@@ -153,11 +151,11 @@ const PredictionCard = ({
 								className="hover:bg-red-900 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"
 								onClick={() =>
 									onOpen('Prediction', {
-										predictionMode: 'DELETE',
-										match: matchEvent,
 										groupId,
-										leagueTagId: matchEvent.leagueTagId,
-										prevPrediction: { id, homeTeamScore, awayTeamScore },
+										predictionMode: 'DELETE',
+										prevPrediction: prediction,
+										match: prediction.matchEvent,
+										leagueTagId: prediction.matchEvent.leagueTagId,
 									})
 								}>
 								<Trash2 size={17} />

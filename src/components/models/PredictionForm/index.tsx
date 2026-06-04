@@ -4,15 +4,15 @@ import * as z from 'zod';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useModel } from '@/hooks';
-import { MatchEvent, PredictionWithProfileMatchEvent } from '@/types';
-import { formatDate } from '@/lib/utils';
+import { MatchEvent, Prediction, PredictionWithProfileMatchEvent } from '@/types';
+import { cn, formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PredictionSchema } from '@/types/formSchema';
 import { Field, FieldError } from '@/components/ui/field';
-import { ArrowRight, ArrowLeft, Asterisk } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Asterisk, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { Carousel, CarouselApi, CarouselItem, CarouselContent } from '@/components/ui/carousel';
@@ -24,6 +24,8 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const PredictionFormModel = () => {
 	const {
@@ -72,7 +74,6 @@ const PredictionFormModel = () => {
 					<Form
 						match={match}
 						groupId={groupId}
-						close={() => onClose()}
 						leagueTagId={leagueTagId}
 						prevPrediction={prevPrediction}
 						predictionMode={predictionMode}
@@ -83,7 +84,6 @@ const PredictionFormModel = () => {
 						<Form
 							match={match}
 							groupId={groupId}
-							close={() => onClose()}
 							leagueTagId={leagueTagId}
 							prevPrediction={prevPrediction}
 							predictionMode={predictionMode}
@@ -137,7 +137,7 @@ const CreatePredictionForm = ({
 	return (
 		<div className="w-full overflow-hidden">
 			{fixtures && fixtures.length > 0 ? (
-				<div className="flex flex-col gap-y-3 ">
+				<div className="relative flex flex-col gap-y-3 ">
 					<div className="w-full flex gap-x-3 justify-end">
 						<button onClick={prevForm}>
 							<ArrowLeft className="h-5 w-5" />
@@ -164,7 +164,6 @@ const CreatePredictionForm = ({
 												prediction => prediction.matchEvent.id === match.id,
 											)}
 										/>
-										{/* {match.awayTeamName} */}
 									</CarouselItem>
 								);
 							})}
@@ -181,17 +180,13 @@ const CreatePredictionForm = ({
 export default PredictionFormModel;
 
 type FormProps = {
-	match: MatchEvent;
 	groupId: string;
-	leagueTagId: string;
-	prevPrediction?: {
-		id: string;
-		homeTeamScore: number;
-		awayTeamScore: number;
-	};
-	predictionMode: 'CREATE' | 'EDIT' | 'DELETE' | null;
-	selectedMatchEventId?: string | null;
+	match: MatchEvent;
 	close?: () => void;
+	leagueTagId: string;
+	prevPrediction?: Prediction;
+	selectedMatchEventId?: string | null;
+	predictionMode: 'CREATE' | 'EDIT' | 'DELETE' | null;
 };
 
 const Form = ({
@@ -201,39 +196,56 @@ const Form = ({
 	prevPrediction,
 	predictionMode = 'CREATE',
 	close,
-	selectedMatchEventId = 'Na',
 }: FormProps) => {
 	const router = useRouter();
+	const { onClose } = useModel();
+	const [isLoading, setIsLoading] = useState(false)
 
 	const form = useForm<z.infer<typeof PredictionSchema>>({
 		defaultValues: {
 			groupId,
 			leagueTagId,
 			matchEventId: match.id,
-			predictionId: prevPrediction?.id,
+			predictionId: prevPrediction?.id!,
 			homeTeamScore: predictionMode === 'DELETE' ? prevPrediction?.homeTeamScore : undefined,
 			awayTeamScore: predictionMode === 'DELETE' ? prevPrediction?.awayTeamScore : undefined,
+			hide: prevPrediction ? prevPrediction.hide : false,
 		},
 		resolver: zodResolver(PredictionSchema),
 	});
 
 	const submitPrediction = async (value: z.infer<typeof PredictionSchema>) => {
 		try {
-			if (predictionMode === 'DELETE' && prevPrediction && close) {
-				await axios.delete(`/api/delete-prediction`, { data: value });
-				toast.success('Successfully deleted Prediction');
-				close();
-			}
-			if (predictionMode === 'EDIT' && prevPrediction && close) {
-				await axios.put(`/api/edit-prediction`, value);
-				toast.success('Successfully edited Prediction');
-				close();
-			}
-			if (predictionMode === 'CREATE') {
-				await axios.post('/api/create-prediction', value);
-				toast.success('Successfully submitted Prediction');
+			setIsLoading(true);
+			switch (predictionMode) {
+				case 'DELETE':
+					if (prevPrediction) {
+						await axios.delete('/api/delete-prediction', { data: value });
+						toast.success('Successfully deleted Prediction');
+					}
+					onClose!();
+					break;
+
+				case 'EDIT':
+					console.log('Editing Prediction with values: ');
+					if (prevPrediction) {
+						await axios.put('/api/edit-prediction', value);
+						toast.success('Successfully edited Prediction');
+					}
+					onClose!();
+					break;
+
+				case 'CREATE':
+					await axios.post('/api/create-prediction', value);
+					toast.success('Successfully submitted Prediction');
+					break;
+
+				default:
+					// Optional: Add handling for unsupported modes
+					break;
 			}
 		} catch (error) {
+			setIsLoading(false);
 			console.error('Failed to submit Prediction: ', error);
 			toast.error(`Opps, failed to ${predictionMode === 'EDIT' ? 'edit' : 'submit'} Prediction!!!`);
 		} finally {
@@ -249,6 +261,18 @@ const Form = ({
 		<form
 			className="h-fit w-full flex flex-col mx-auto"
 			onSubmit={form.handleSubmit(submitPrediction, handleError)}>
+			<Controller
+				name="hide"
+				control={form.control}
+				render={({ field }) => (
+					<div className="flex items-center space-x-2 mb-4">
+						<Switch checked={field.value} onCheckedChange={field.onChange} id="hide-prediction" />
+						<Label htmlFor="hide-prediction" className="text-sm">
+							Hide Prediction
+						</Label>
+					</div>
+				)}
+			/>
 			<div className="flex flex-row w-full h-50 md:h-55 justify-between items-center">
 				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
 					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 ">
@@ -328,6 +352,7 @@ const Form = ({
 			<div className="flex justify-end mt-auto">
 				<Button>
 					{predictionMode === 'EDIT' ? 'Edit' : predictionMode === 'DELETE' ? 'Delete' : 'Submit'}
+					<Loader2 className={cn('ml-2', isLoading ? 'animate-spin' : 'hidden')} />
 				</Button>
 			</div>
 		</form>

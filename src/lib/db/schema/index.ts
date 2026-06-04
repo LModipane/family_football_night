@@ -155,6 +155,7 @@ export const predictionTable = pgTable(
 		leagueTagId: varchar('league_tag_id').notNull(),
 		homeTeamScore: integer('home_team_score').notNull(),
 		awayTeamScore: integer('away_team_score').notNull(),
+		hide: boolean('hide').default(false).notNull(),
 		status: predictionStatusEnum('status').default('unsettled').notNull(),
 		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),

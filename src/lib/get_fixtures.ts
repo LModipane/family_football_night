@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
-import { Match, MatchEvent, SummaryItem } from '@/types';
+import { DrizzleError, sql } from 'drizzle-orm';
+import { MatchEvent, SummaryItem } from '@/types';
 import { matchEventTable } from './db/schema';
-import { formatDate } from './utils';
 
 export default async function getFixtures(leagueTagId: string) {
 	try {
@@ -26,20 +26,34 @@ export default async function getFixtures(leagueTagId: string) {
 			},
 		);
 		const data = (await response.json()) as { Summary: SummaryItem[] };
+
 		const fixtures: MatchEvent[] = data.Summary.map((item: SummaryItem) => ({
-			id: String(item.eventId),
 			leagueTagId,
+			id: String(item.eventId),
 			matchStatus: item.status.name,
 			homeTeamName: item.teams.home.name,
 			awayTeamName: item.teams.away.name,
-			kickOff: new Date(item.eventDateEnd),
+			kickOff: new Date(item.eventDateStart),
 			isKnockoutStage: item.isKnockoutFixture,
 			awayTeamBadgeUrl: `https://images.supersport.com${item.teams.away.icon}`,
 			homeTeamBadgeUrl: `https://images.supersport.com${item.teams.home.icon}`,
 		}));
-		console.log('Fetched fixtures:', fixtures[0].kickOff.toString());
 
-		await db.insert(matchEventTable).values(fixtures).onConflictDoNothing();
+		await db
+			.insert(matchEventTable)
+			.values(fixtures)
+			.onConflictDoUpdate({
+				// 1. Specify the unique column or constraint that causes the conflict
+				target: matchEventTable.id,
+
+				// 2. Define which columns to overwrite with the new data
+				set: {
+					kickOff: sql`EXCLUDED.kick_off`,
+					// status: sql`EXCLUDED.status`,
+					// Add any other fields you want updated on conflict
+				},
+			});
+
 
 		return fixtures;
 	} catch (error) {

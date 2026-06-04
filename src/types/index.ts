@@ -54,7 +54,7 @@ export type ResultTableElement = {
 
 export type SummaryItem = {
 	eventId: number;
-	eventDateEnd: string;
+	eventDateStart: string;
 	status: { name: string };
 	isKnockoutFixture: boolean;
 	teams: {

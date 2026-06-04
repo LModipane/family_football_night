@@ -2,6 +2,7 @@
 
 import { MatchEvent } from '@/types';
 import { useEffect, useState } from 'react';
+import { usePredictionContext } from '@/hooks';
 import { formatDate, trancateName } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
@@ -13,7 +14,6 @@ import {
 	CarouselContent,
 	CarouselPrevious,
 } from '@/components/ui/carousel';
-import { usePredictionContext } from '@/hooks';
 
 type Props = {
 	fixtures: MatchEvent[];

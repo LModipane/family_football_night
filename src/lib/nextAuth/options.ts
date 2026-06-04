@@ -23,6 +23,7 @@ export const authOptions: AuthOptions = {
 	},
 	callbacks: {
 		async signIn({ user }) {
+			console.log('SignIn callback triggered for user:', user);
 			try {
 				const existingProfile = await db.query.profileTable.findFirst({
 					where: (table, { eq, or }) =>

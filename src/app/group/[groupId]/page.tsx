@@ -92,6 +92,8 @@ export default async function Home({
 		where: (table, { eq, and }) => and(eq(table.status, 'unsettled'), eq(table.groupId, groupId)),
 	});
 
+	const userPredictions = predictions.filter(prediction => prediction.profile.id === profile.id!);
+
 	const totalScore = sql<number>`sum(${matchResultTable.point})`;
 
 	const leaderboard = await db
@@ -153,6 +155,7 @@ export default async function Home({
 						groupId={groupId}
 						fixtures={fixtures}
 						leagueTagId={targetLeagueId}
+						userPredictions={userPredictions}
 					/>
 
 					{/* Prediction Cards: */}

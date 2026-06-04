@@ -4,7 +4,7 @@ import * as z from 'zod';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useModel } from '@/hooks';
-import { MatchEvent } from '@/types';
+import { MatchEvent, PredictionWithProfileMatchEvent } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,7 @@ const PredictionFormModel = () => {
 			carouselIndex,
 			predictionMode,
 			prevPrediction,
+			userPredictions,
 			setCarouselIndex,
 			selectedMatchEventId,
 		},
@@ -58,11 +59,12 @@ const PredictionFormModel = () => {
 				</DialogHeader>
 				{predictionMode === 'CREATE' && (
 					<CreatePredictionForm
-						setCarouselIndex={setCarouselIndex}
-						fixtures={fixtures}
-						carouselIndex={carouselIndex}
 						groupId={groupId}
+						fixtures={fixtures}
 						leagueTagId={leagueTagId}
+						carouselIndex={carouselIndex}
+						userPredictions={userPredictions}
+						setCarouselIndex={setCarouselIndex}
 						selectedMatchEventId={selectedMatchEventId}
 					/>
 				)}
@@ -94,21 +96,23 @@ const PredictionFormModel = () => {
 };
 
 type CreatePredictionFormProps = {
-	setCarouselIndex: Dispatch<SetStateAction<number>> | undefined;
-	fixtures: MatchEvent[] | undefined;
-	carouselIndex: number | null | undefined;
 	groupId: string | undefined;
 	leagueTagId: string | undefined;
+	fixtures: MatchEvent[] | undefined;
 	selectedMatchEventId?: string | null;
+	carouselIndex: number | null | undefined;
+	userPredictions?: PredictionWithProfileMatchEvent[];
+	setCarouselIndex: Dispatch<SetStateAction<number>> | undefined;
 };
 
 const CreatePredictionForm = ({
-	setCarouselIndex,
-	fixtures,
-	carouselIndex,
 	groupId,
+	fixtures,
 	leagueTagId,
-	selectedMatchEventId
+	carouselIndex,
+	userPredictions,
+	setCarouselIndex,
+	selectedMatchEventId,
 }: CreatePredictionFormProps) => {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
 
@@ -124,7 +128,6 @@ const CreatePredictionForm = ({
 
 	useEffect(() => {
 		if (!carouselApi || !setCarouselIndex) return;
-
 
 		carouselApi.on('select', () => {
 			setCarouselIndex(carouselApi.selectedScrollSnap());
@@ -145,18 +148,26 @@ const CreatePredictionForm = ({
 					</div>
 					<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
 						<CarouselContent className="flex gap-x-3">
-							{fixtures.map(match => (
-								<CarouselItem key={match.id}>
-									<Form
-										match={match}
-										groupId={groupId ?? ''}
-										leagueTagId={leagueTagId ?? ''}
-										predictionMode="CREATE"
-										selectedMatchEventId={selectedMatchEventId}
-									/>
-									{/* {match.awayTeamName} */}
-								</CarouselItem>
-							))}
+							{fixtures.map(match => {
+								const userMatchPredictionIds =
+									userPredictions?.map(prediction => prediction.matchEvent.id) ?? [];
+								const isPredictionMode = !userMatchPredictionIds.includes(match.id);
+								return (
+									<CarouselItem key={match.id}>
+										<Form
+											match={match}
+											groupId={groupId ?? ''}
+											leagueTagId={leagueTagId ?? ''}
+											predictionMode={isPredictionMode ? 'CREATE' : 'EDIT'}
+											selectedMatchEventId={selectedMatchEventId}
+											prevPrediction={userPredictions?.find(
+												prediction => prediction.matchEvent.id === match.id,
+											)}
+										/>
+										{/* {match.awayTeamName} */}
+									</CarouselItem>
+								);
+							})}
 						</CarouselContent>
 					</Carousel>
 				</div>
@@ -190,7 +201,7 @@ const Form = ({
 	prevPrediction,
 	predictionMode = 'CREATE',
 	close,
-	selectedMatchEventId = "Na",
+	selectedMatchEventId = 'Na',
 }: FormProps) => {
 	const router = useRouter();
 
@@ -315,7 +326,9 @@ const Form = ({
 				</div>
 			</div>
 			<div className="flex justify-end mt-auto">
-				<Button>{predictionMode === 'EDIT' ? 'Edit' : 'Submit'}</Button>
+				<Button>
+					{predictionMode === 'EDIT' ? 'Edit' : predictionMode === 'DELETE' ? 'Delete' : 'Submit'}
+				</Button>
 			</div>
 		</form>
 	);

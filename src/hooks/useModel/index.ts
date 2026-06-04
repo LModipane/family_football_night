@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { MatchEvent } from '@/types';
 import type { Dispatch, SetStateAction } from 'react';
+import { MatchEvent, PredictionWithProfileMatchEvent } from '@/types';
 
 type PredectionMode = 'CREATE' | 'EDIT' | 'DELETE' | null;
 type Model = 'SIGN-IN' | 'GroupForm' | 'Prediction' | 'Invite-Member' | 'AddLeagueForm' | null;
@@ -21,6 +21,7 @@ type ModelData = {
 	};
 	match?: MatchEvent;
 	selectedMatchEventId?: string | null;
+	userPredictions?: PredictionWithProfileMatchEvent[];
 };
 
 type ModelStore = {

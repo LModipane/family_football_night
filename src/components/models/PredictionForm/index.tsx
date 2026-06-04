@@ -275,7 +275,7 @@ const Form = ({
 			/>
 			<div className="flex flex-row w-full h-50 md:h-55 justify-between items-center">
 				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
-					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 ">
+					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 shadow-2xl border-none">
 						<AvatarImage src={match.homeTeamBadgeUrl} className="w-full h-full" />
 						<AvatarFallback />
 					</Avatar>
@@ -342,8 +342,8 @@ const Form = ({
 					</div>
 				</div>
 				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
-					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 ">
-						<AvatarImage src={match.awayTeamBadgeUrl} className="w-full h-full" />
+					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 shadow-xl">
+						<AvatarImage src={match.awayTeamBadgeUrl} className="w-full h-full " />
 						<AvatarFallback />
 					</Avatar>
 					<h3 className="mt-2 font-semibold text-lg">{match.awayTeamName}</h3>

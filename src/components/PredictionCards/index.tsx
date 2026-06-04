@@ -5,12 +5,11 @@ import { useModel } from '@/hooks';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PredictionWithProfileMatchEvent } from '@/types';
 import usePredictionContext from '@/hooks/usePredictionContext';
-import { EllipsisVertical, Eye, EyeOff, PenLine, Trash2 } from 'lucide-react';
+import { EllipsisVertical, Eye, EyeOff, Loader2, PenLine, Trash2 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 import {
 	DropdownMenu,
-	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuGroup,
 	DropdownMenuTrigger,
@@ -19,6 +18,10 @@ import {
 } from '../ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
+import { toast } from 'sonner';
+import axios from 'axios';
+import { useRouter } from 'next/dist/client/components/navigation';
+import { useState } from 'react';
 
 type Props = {
 	groupId: string;
@@ -64,20 +67,44 @@ type PredictionCardProps = {
 };
 
 const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCardProps) => {
+	const [isHiding, setIsHiding] = useState(false);
 	const { onOpen } = useModel();
+	const router = useRouter();
+
 	const isCurrentUserPrediction = currentProfileId === prediction.profile.id;
+
+	const hidePrediction = async () => {
+		try {
+			setIsHiding(true);
+			await axios.post(`/api/hide-prediction/${prediction.id}`, {
+				hide: !prediction.hide,
+			});
+			toast.success(prediction.hide ? 'Prediction Unhidden' : 'Prediction Hidden');
+		} catch (error) {
+			console.error('Error hiding prediction:', error);
+			toast.error('Failed to hide prediction. Please try again.');
+		} finally {
+			router.refresh();
+			setIsHiding(false);
+		}
+	};
+
 	return (
 		<div className="flex items-center w-full max-w-full justify-between p-2 text-white ">
 			{/* Profile Section */}
 			<div className="flex items-center gap-3 flex-1 min-w-7">
 				{isCurrentUserPrediction && (
 					<Button
+						onClick={hidePrediction}
 						size={'icon'}
-						className={cn(
-							'bg-white/10 hover:bg-white/20',
-							prediction.hide ? 'text-yellow-400' : 'text-green-400',
-						)}>
-						{prediction.hide ? <EyeOff size={18} className="text-yellow-400" /> : <Eye size={18} className="text-green-400" />}
+						className={cn('bg-white/10 hover:bg-white/20 cursor-pointer')}>
+						{isHiding ? (
+							<Loader2 size={18} className="animate-spin text-yellow-400" />
+						) : prediction.hide && !isHiding ? (
+							<EyeOff size={18} className="text-red-400" />
+						) : (
+							<Eye size={18} className="text-green-400" />
+						)}
 					</Button>
 				)}
 				<Avatar className="size-9">
@@ -158,11 +185,6 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 								<PenLine size={17} />
 								edit prediction
 								<DropdownMenuShortcut className="text-gray-400">Ctrl+P</DropdownMenuShortcut>
-							</div>
-							<div className="hover:bg-purple-600 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize">
-								<EyeOff size={17} />
-								hide prediction
-								<DropdownMenuShortcut className="text-gray-400">Ctrl+H</DropdownMenuShortcut>
 							</div>
 							<div
 								className="hover:bg-red-900 ml-2 p-2 flex items-center gap-x-4 rounded cursor-pointer capitalize"

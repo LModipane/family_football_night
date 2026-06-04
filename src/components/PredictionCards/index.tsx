@@ -5,7 +5,7 @@ import { useModel } from '@/hooks';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PredictionWithProfileMatchEvent } from '@/types';
 import usePredictionContext from '@/hooks/usePredictionContext';
-import { EllipsisVertical, EyeOff, PenLine, Trash2 } from 'lucide-react';
+import { EllipsisVertical, Eye, EyeOff, PenLine, Trash2 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 import {
@@ -18,6 +18,7 @@ import {
 	DropdownMenuShortcut,
 } from '../ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
 
 type Props = {
 	groupId: string;
@@ -64,11 +65,21 @@ type PredictionCardProps = {
 
 const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCardProps) => {
 	const { onOpen } = useModel();
-
+	const isCurrentUserPrediction = currentProfileId === prediction.profile.id;
 	return (
 		<div className="flex items-center w-full max-w-full justify-between p-2 text-white ">
 			{/* Profile Section */}
 			<div className="flex items-center gap-3 flex-1 min-w-7">
+				{isCurrentUserPrediction && (
+					<Button
+						size={'icon'}
+						className={cn(
+							'bg-white/10 hover:bg-white/20',
+							prediction.hide ? 'text-yellow-400' : 'text-green-400',
+						)}>
+						{prediction.hide ? <EyeOff size={18} className="text-yellow-400" /> : <Eye size={18} className="text-green-400" />}
+					</Button>
+				)}
 				<Avatar className="size-9">
 					<AvatarImage
 						src={prediction.profile.imageUrl || undefined}
@@ -101,14 +112,13 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 					<div className="flex items-center ml-auto gap-2 font-semibold text-xl animate-pulse text-yellow-400">
 						<span className="text-right">Hidden</span>
 					</div>
-				): (
+				) : (
 					<div className="flex items-center ml-auto gap-2 font-semibold text-xl">
-					<span className="text-right">{prediction.homeTeamScore}</span>
-					<span>-</span>
-					<span className="text-left">{prediction.awayTeamScore}</span>
-				</div>
+						<span className="text-right">{prediction.homeTeamScore}</span>
+						<span>-</span>
+						<span className="text-left">{prediction.awayTeamScore}</span>
+					</div>
 				)}
-				
 
 				{/* Away Team Badge */}
 				<Image

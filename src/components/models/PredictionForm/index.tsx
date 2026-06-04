@@ -258,7 +258,7 @@ const Form = ({
 					<h3 className="mt-2 font-semibold text-lg">{match.homeTeamName}</h3>
 				</div>
 				<div className="h-full w-fit flex flex-col justify-center items-center mb-15">
-					<p className="text-md mb-0.5">{formatDate(match.kickOff.toDateString())}</p>
+					<p className="text-md mb-0.5">{formatDate(match.kickOff)}</p>
 					<div className="flex flex-row justify-center items-center h-fit w-full md:mx-4 mx-2 my-3 mb-5">
 						<Controller
 							name="homeTeamScore"

@@ -23,30 +23,35 @@ export const authOptions: AuthOptions = {
 	},
 	callbacks: {
 		async signIn({ user }) {
-			console.log('SignIn callback triggered for user:', user);
 			try {
+				// 1. Generate a fallback email if none is provided by Facebook
+				const safeEmail = user.email ?? `${user.id}@facebook-no-email.com`;
+
 				const existingProfile = await db.query.profileTable.findFirst({
-					where: (table, { eq, or }) =>
-						or(eq(table.userId, user.id), eq(table.email, user.email ?? 'NA')),
+					where: (table, { eq, or }) => or(eq(table.userId, user.id), eq(table.email, safeEmail)),
 				});
+
 				if (existingProfile) return true;
 
-				if (!user.email || !user.name || !user.id) return false;
+				// Remove email check from requirements since it can be missing
+				if (!user.name || !user.id) return false;
 
+				// 2. Use the safe email when creating the record
 				const profile = await db
 					.insert(profileTable)
 					.values({
 						userId: user.id,
 						name: user.name,
-						email: user.email,
+						email: safeEmail,
 						imageUrl: user.image ?? null,
 					})
 					.returning({ id: profileTable.id });
 
+				// The rest of your profile/group creation logic remains unchanged
 				const group = await db
 					.insert(groupTable)
 					.values({
-						name: 'untitle Group',
+						name: 'Untitled Group',
 					})
 					.returning({ id: groupTable.id });
 
@@ -58,7 +63,7 @@ export const authOptions: AuthOptions = {
 
 				await db.insert(groupLeagueTable).values({
 					groupId: group[0].id,
-					leagueId: '882fc52f-14b7-4e7c-a259-5ff5d18bde67', // Betway Premier League as default league for new groups
+					leagueId: '882fc52f-14b7-4e7c-a259-5ff5d18bde67', // Betway Premier League as default league
 				});
 
 				return true;

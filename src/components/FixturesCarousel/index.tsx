@@ -36,13 +36,13 @@ function FixturesCarousel({ fixtures }: Props) {
 	) : (
 		<Carousel
 			setApi={setCarouselAPI}
-			className="w-full rounded-md p-2"
+			className="w-full rounded-md"
 			opts={{ startIndex: carouselIndex ?? 0 }}>
 			<CarouselContent>
 				{fixtures.map(match => (
 					<CarouselItem key={match.id} className="flex flex-col justify-center items-center">
 						<div className="flex flex-row justify-center items-center">
-							<div className="flex flex-col justify-center items-center mb-2 h-full">
+							<div className="flex flex-col justify-center items-center h-full">
 								<Avatar className="w-13 h-13">
 									<AvatarImage
 										src={match.homeTeamBadgeUrl}
@@ -57,7 +57,7 @@ function FixturesCarousel({ fixtures }: Props) {
 								<p className="text-sm -mb-3">{formatDate(match.kickOff.toDateString())}</p>
 								<h4 className="mx-3">vs</h4>
 							</div>
-							<div className="flex flex-col justify-center items-center mb-2 h-full">
+							<div className="flex flex-col justify-center items-center h-full">
 								<Avatar className="w-13 h-13">
 									<AvatarImage
 										src={match.awayTeamBadgeUrl}
@@ -72,7 +72,7 @@ function FixturesCarousel({ fixtures }: Props) {
 					</CarouselItem>
 				))}
 			</CarouselContent>
-			<div className="relative h-10 mt-4 flex justify-center items-center rounded-md px-2 py-2">
+			<div className="relative h-10 mt-1 flex justify-center items-center rounded-md px-2 py-2">
 				<CarouselNext className="bg-gray-700 text-white px-2 py-1 rounded-md mr-14" />
 				<CarouselPrevious className="bg-gray-700 text-white px-2 py-1 rounded-md ml-14" />
 			</div>

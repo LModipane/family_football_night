@@ -84,7 +84,7 @@ const PredictionCard = ({
 			</div>
 
 			{/* Match Details Section */}
-			<div className={cn('flex items-center gap-1 ml-auto', currentProfileId === profile.id ? 'mr-4' : 'mr-11.5')}>
+			<div className={cn('flex items-center gap-1 ml-auto', currentProfileId === profile.id ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5')}>
 				{/* Home Team Badge */}
 				<Image
 					src={matchEvent.homeTeamBadgeUrl}

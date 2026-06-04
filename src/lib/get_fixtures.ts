@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { Match, MatchEvent, SummaryItem } from '@/types';
 import { matchEventTable } from './db/schema';
+import { formatDate } from './utils';
 
 export default async function getFixtures(leagueTagId: string) {
 	try {
@@ -36,6 +37,7 @@ export default async function getFixtures(leagueTagId: string) {
 			awayTeamBadgeUrl: `https://images.supersport.com${item.teams.away.icon}`,
 			homeTeamBadgeUrl: `https://images.supersport.com${item.teams.home.icon}`,
 		}));
+		console.log('Fetched fixtures:', fixtures[0].kickOff.toString());
 
 		await db.insert(matchEventTable).values(fixtures).onConflictDoNothing();
 

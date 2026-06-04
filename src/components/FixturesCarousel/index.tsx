@@ -54,7 +54,7 @@ function FixturesCarousel({ fixtures }: Props) {
 								<h3 className="uppercase">{trancateName(match.homeTeamName)}</h3>
 							</div>
 							<div className="flex flex-col justify-center items-center gap-3 mx-3">
-								<p className="text-sm -mb-3">{formatDate(match.kickOff.toDateString())}</p>
+								<span className="text-sm -mb-3">{formatDate(match.kickOff)}</span>
 								<h4 className="mx-3">vs</h4>
 							</div>
 							<div className="flex flex-col justify-center items-center h-full">

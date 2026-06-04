@@ -20,8 +20,9 @@ import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
 import axios from 'axios';
-import { useRouter } from 'next/dist/client/components/navigation';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type Props = {
 	groupId: string;
@@ -94,18 +95,25 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 			{/* Profile Section */}
 			<div className="flex items-center gap-3 flex-1 min-w-7">
 				{isCurrentUserPrediction && (
-					<Button
-						onClick={hidePrediction}
-						size={'icon'}
-						className={cn('bg-white/10 hover:bg-white/20 cursor-pointer')}>
-						{isHiding ? (
-							<Loader2 size={18} className="animate-spin text-yellow-400" />
-						) : prediction.hide && !isHiding ? (
-							<EyeOff size={18} className="text-red-400" />
-						) : (
-							<Eye size={18} className="text-green-400" />
-						)}
-					</Button>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Button
+								onClick={hidePrediction}
+								size={'icon'}
+								className={cn('bg-white/10 hover:bg-white/20 cursor-pointer')}>
+								{isHiding ? (
+									<Loader2 size={18} className="animate-spin text-yellow-400" />
+								) : prediction.hide && !isHiding ? (
+									<EyeOff size={18} className="text-red-400" />
+								) : (
+									<Eye size={18} className="text-green-400" />
+								)}
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent className="bg-gray-800 text-white" align="start" side="right">
+							<p className="text-sm">{prediction.hide ? 'Your prediction is hidden' : 'Your prediction is visible'}</p>
+						</TooltipContent>
+					</Tooltip>
 				)}
 				<Avatar className="size-9">
 					<AvatarImage
@@ -123,7 +131,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 			<div
 				className={cn(
 					'flex items-center gap-1 ml-auto',
-					currentProfileId === prediction.profile.id ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5',
+					isCurrentUserPrediction ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5',
 				)}>
 				{/* Home Team Badge */}
 				<Image
@@ -135,7 +143,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 				/>
 
 				{/* Prediction Section */}
-				{prediction.hide && prediction.profile.id !== currentProfileId ? (
+				{prediction.hide && !isCurrentUserPrediction ? (
 					<div className="flex items-center ml-auto gap-2 font-semibold text-xl animate-pulse text-yellow-400">
 						<span className="text-right">Hidden</span>
 					</div>
@@ -158,7 +166,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 			</div>
 
 			{/* Action Menu */}
-			{currentProfileId === prediction.profile.id && (
+			{isCurrentUserPrediction && (
 				<DropdownMenu>
 					<DropdownMenuTrigger className="cursor-pointer hover:bg-purple-600 p-1 rounded">
 						<EllipsisVertical size={24} />

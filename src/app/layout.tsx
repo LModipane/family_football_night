@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/nextAuth/options';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from '@/components/Providers';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 import {
 	SignUpModel,
@@ -41,9 +42,11 @@ export default async function RootLayout({
 			<html lang="en">
 				<body
 					className={`${geistSans.variable} ${geistMono.variable} antialiased w-screen h-screen bg-gray-100`}>
-					<ModelProvider />
-					{children}
-					<Toaster position="bottom-left" />
+					<TooltipProvider>
+						<ModelProvider />
+						{children}
+						<Toaster position="bottom-left" />
+					</TooltipProvider>
 				</body>
 			</html>
 		</AuthProvider>

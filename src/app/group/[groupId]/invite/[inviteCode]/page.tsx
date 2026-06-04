@@ -37,6 +37,7 @@ export default async function InviteMemberPage({
 	const { groupId, inviteCode } = await params;
 
 	const profile = await authenticateUser();
+
 	if (!profile)
 		return redirect(`/api/auth/signin?callbackUrl=/group/${groupId}/invite/${inviteCode}`); // Redirect end-user to default sign-in page. Note: create proper login page to redirect end-user to it instead of default one.
 

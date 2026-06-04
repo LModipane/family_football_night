@@ -24,19 +24,14 @@ export const authOptions: AuthOptions = {
 	callbacks: {
 		async signIn({ user }) {
 			try {
-				// 1. Generate a fallback email if none is provided by Facebook
 				const safeEmail = user.email ?? `${user.id}@facebook-no-email.com`;
 
 				const existingProfile = await db.query.profileTable.findFirst({
 					where: (table, { eq, or }) => or(eq(table.userId, user.id), eq(table.email, safeEmail)),
 				});
 
-				if (existingProfile) return true;
+				if (existingProfile || !user.name || !user.id) return true;
 
-				// Remove email check from requirements since it can be missing
-				if (!user.name || !user.id) return false;
-
-				// 2. Use the safe email when creating the record
 				const profile = await db
 					.insert(profileTable)
 					.values({
@@ -47,7 +42,6 @@ export const authOptions: AuthOptions = {
 					})
 					.returning({ id: profileTable.id });
 
-				// The rest of your profile/group creation logic remains unchanged
 				const group = await db
 					.insert(groupTable)
 					.values({
@@ -72,11 +66,17 @@ export const authOptions: AuthOptions = {
 				return false;
 			}
 		},
-		async session({ session }) {
+		async jwt({ token, user }) {
+			if (user) {
+				token.id = user.id;
+			}
+			return token;
+		},
+		async session({ session, token }) {
 			const existingProfile = await db.query.profileTable.findFirst({
 				where: (table, { eq, or }) =>
 					or(
-						eq(table.userId, session.user.id ?? 'NA'),
+						eq(table.userId, (token.id as string) ?? 'NA'),
 						eq(table.email, session.user.email ?? 'NA'),
 					),
 			});

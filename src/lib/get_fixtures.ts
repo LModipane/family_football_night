@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
-import { DrizzleError, sql } from 'drizzle-orm';
+import { and, eq, not, sql } from 'drizzle-orm';
 import { MatchEvent, SummaryItem } from '@/types';
-import { matchEventTable } from './db/schema';
+import { leagueTable, matchEventTable } from './db/schema';
 
 export default async function getFixtures(leagueTagId: string) {
 	try {
@@ -25,8 +25,21 @@ export default async function getFixtures(leagueTagId: string) {
 				credentials: 'include',
 			},
 		);
+		const isOffSeason = response.status === 204;
+
+		await db
+			.update(leagueTable)
+			.set({ isOffSeason })
+			.where(
+				and(
+					eq(leagueTable.id, leagueTagId),
+					not(eq(leagueTable.isOffSeason, isOffSeason)), // Only write if value changes
+				),
+			);
+
+		if (isOffSeason || response.status !== 200) return [];
+
 		const data = (await response.json()) as { Summary: SummaryItem[] };
-		console.log('Fetched fixtures data:', data);
 
 		const fixtures: MatchEvent[] = data.Summary.map((item: SummaryItem) => ({
 			leagueTagId,
@@ -37,7 +50,7 @@ export default async function getFixtures(leagueTagId: string) {
 			kickOff: new Date(item.eventDateStart),
 			isKnockoutStage: item.isKnockoutFixture,
 			venue: item.venueName,
-			// Add end of match, match status, 
+			// Add end of match, match status,
 			awayTeamBadgeUrl: `https://images.supersport.com${item.teams.away.icon}`,
 			homeTeamBadgeUrl: `https://images.supersport.com${item.teams.home.icon}`,
 		}));
@@ -57,7 +70,6 @@ export default async function getFixtures(leagueTagId: string) {
 					// Add any other fields you want updated on conflict
 				},
 			});
-
 
 		return fixtures;
 	} catch (error) {

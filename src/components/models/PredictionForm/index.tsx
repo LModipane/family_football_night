@@ -4,17 +4,19 @@ import * as z from 'zod';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useModel } from '@/hooks';
-import { MatchEvent, Prediction, PredictionWithProfileMatchEvent } from '@/types';
-import { cn, formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { cn, formatDate } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PredictionSchema } from '@/types/formSchema';
 import { Field, FieldError } from '@/components/ui/field';
-import { ArrowRight, ArrowLeft, Asterisk, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ArrowRight, ArrowLeft, Asterisk, Loader2, MapPin } from 'lucide-react';
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { MatchEvent, Prediction, PredictionWithProfileMatchEvent } from '@/types';
 import { Carousel, CarouselApi, CarouselItem, CarouselContent } from '@/components/ui/carousel';
 
 import {
@@ -24,9 +26,6 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { ConsoleLogWriter } from 'drizzle-orm';
 
 const PredictionFormModel = () => {
 	const {
@@ -46,7 +45,8 @@ const PredictionFormModel = () => {
 			selectedMatchEventId,
 		},
 	} = useModel();
-	const isModelOpen = type === 'Prediction' && isOpen; // Replace with actual logic to determine if the model should be open
+
+	const isModelOpen = type === 'Prediction' && isOpen;
 
 	return (
 		<Dialog open={isModelOpen} onOpenChange={() => onClose()}>
@@ -60,7 +60,7 @@ const PredictionFormModel = () => {
 						</p>
 					</DialogDescription>
 				</DialogHeader>
-				{predictionMode === 'CREATE' && (
+				{predictionMode === 'CREATE' ? (
 					<CreatePredictionForm
 						groupId={groupId}
 						fixtures={fixtures}
@@ -70,7 +70,7 @@ const PredictionFormModel = () => {
 						setCarouselIndex={setCarouselIndex}
 						selectedMatchEventId={selectedMatchEventId}
 					/>
-				)}
+				) : null}
 				{predictionMode === 'EDIT' && groupId && leagueTagId && match ? (
 					<Form
 						match={match}
@@ -286,7 +286,14 @@ const Form = ({
 					<h3 className="mt-2 font-semibold text-lg">{match.homeTeamName}</h3>
 				</div>
 				<div className="h-full w-fit flex flex-col justify-center items-center mb-15">
-					<p className="text-md mb-0.5">{formatDate(match.kickOff)}</p>
+					<div className="flex flex-col items-center justify-center w-full">
+						<p className="text-lg mb-0.5">{formatDate(match.kickOff)}</p>
+						{match.venue ? (
+							<span className="text-sm flex items-center gap-1 text-center line-clamp-1 truncate">
+								<MapPin size={16} /> {match.venue}
+							</span>
+						) : null}
+					</div>
 					<div className="flex flex-row justify-center items-center h-fit w-full md:mx-4 mx-2 my-3 mb-5">
 						<Controller
 							name="homeTeamScore"
@@ -355,7 +362,9 @@ const Form = ({
 			</div>
 			<div className="flex justify-end mt-auto">
 				{isLateSubmission ? (
-					<Button variant={'destructive'} className="cursor-not-allowed">Late Submission</Button>
+					<Button variant={'destructive'} className="cursor-not-allowed">
+						Late Submission
+					</Button>
 				) : (
 					<Button>
 						{predictionMode === 'EDIT' ? 'Edit' : predictionMode === 'DELETE' ? 'Delete' : 'Submit'}

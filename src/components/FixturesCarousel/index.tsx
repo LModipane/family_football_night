@@ -57,11 +57,7 @@ function FixturesCarousel({ fixtures }: Props) {
 							<div className="flex flex-col justify-center items-center mx-3 gap-0.px">
 								<span className="text-sm">{formatDate(match.kickOff)}</span>
 								<span className="mx-3">vs</span>
-								{/* {match.venue ? (
-									<span className="text-xs flex items-center gap-1">
-										<MapPin size={10} /> {match.venue}
-									</span>
-								) : null} */}
+								
 							</div>
 							<div className="flex flex-col justify-center items-center h-full">
 								<Avatar className="w-13 h-13">

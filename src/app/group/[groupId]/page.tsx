@@ -43,33 +43,49 @@ export default async function Home({
 	params: Promise<{ groupId: string }>;
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+	// 1) Check if user is authenticated:
 	const profile = await authenticateUser();
 	if (!profile) return redirect('/landing', RedirectType.replace);
 
-	const { groupId } = await params;
-	const { leagueId } = await searchParams;
+	// 2) Parallise request params:
+	const [resolvedParams, resolvedSearchParams] = await Promise.all([params, searchParams]);
+	const { groupId } = resolvedParams;
+	const { leagueId } = resolvedSearchParams;
 
-	const currentGroup = await db.query.groupTable.findFirst({
-		where: (table, { eq }) => eq(table.id, groupId),
+	// 3) Check if user is member and fetch essential group details:
+	const userGroupMembership = await db.query.groupProfileTable.findFirst({
+		where: (table, { eq, and }) =>
+			and(eq(table.profileId, profile.id!), eq(table.groupId, groupId)),
 		with: {
-			leagues: {
-				with: { league: { columns: { id: true, name: true, iconUrl: true } } },
-				columns: { leagueId: true, id: false, createAt: false, groupId: false, updateAt: false },
+			group: {
+				with: {
+					leagues: {
+						with: { league: { columns: { id: true, name: true, iconUrl: true } } },
+						columns: { leagueId: true },
+					},
+				},
 			},
 		},
 	});
+
+	if (!userGroupMembership) {
+		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
+	}
+
+	const currentGroup = userGroupMembership.group;
 	if (!currentGroup) throw new Error('Group Is Not Found');
+	if (currentGroup.leagues.length === 0) {
+		throw new Error(
+			'No league is associated with this group. Please ask for group Admin to add league!!!',
+		);
+	}
 
 	const targetLeagueId = leagueId?.toString() || currentGroup.leagues[0].leagueId;
-	if (
-		currentGroup.leagues.length === 0 ||
-		!currentGroup.leagues.some(league => league.leagueId === targetLeagueId)
-	)
-		throw new Error(
-			'No league is associated with this group or inValid league ID, Please ask for group Admin to add league!!!',
-		);
+	const isLeagueValid = currentGroup.leagues.some(obj => obj.leagueId === targetLeagueId);
+	if (!isLeagueValid) throw new Error('Invalid league ID context for this group.');
 
-	const otherGroups = await db.query.groupProfileTable
+	// 5) Run remaining tasks concurrently
+	const otherGroupsPromise = db.query.groupProfileTable
 		.findMany({
 			where: (table, { eq, not, and }) =>
 				and(eq(table.profileId, profile.id!), not(eq(table.groupId, groupId))),
@@ -78,30 +94,25 @@ export default async function Home({
 		})
 		.then(res => res.map(item => item.group));
 
-	const isMember = await db.query.groupProfileTable.findFirst({
-		where: (table, { eq, and }) =>
-			and(eq(table.profileId, profile.id!), eq(table.groupId, groupId)),
-	});
-	if (!isMember)
-		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
+	const fixturesPromise = getFixtures(targetLeagueId);
 
-	const fixtures = await getFixtures(targetLeagueId);
-
-	const predictions: PredictionWithProfileMatchEvent[] = await db.query.predictionTable.findMany({
+	const predictionsPromise = db.query.predictionTable.findMany({
 		with: { profile: true, matchEvent: true },
 		where: (table, { eq, and }) => and(eq(table.status, 'unsettled'), eq(table.groupId, groupId)),
 	});
 
-	const userPredictions = predictions.filter(prediction => prediction.profile.id === profile.id!);
-
 	const totalScore = sql<number>`sum(${matchResultTable.point})`;
-
-	const leaderboard = await db
+	const leaderboardPromise = db
 		.select({
+			// 📊 Basic user profile mapping for the leaderboard row
 			profileId: matchResultTable.profileId,
 			name: profileTable.name,
 			imageUrl: profileTable.imageUrl,
+
+			// 🧮 Aggregate total calculated score for this user
 			score: totalScore.as('score'),
+
+			// 🛠️ Advanced JSON aggregation to pack all historic match data into a single array per user
 			results: sql<ResultTableElement[]>`
 						json_agg(
 							json_build_object(
@@ -128,23 +139,31 @@ export default async function Home({
 		})
 
 		.from(matchResultTable)
-
 		// 🔗 join prediction (needed for group + prediction scores)
 		.innerJoin(predictionTable, eq(matchResultTable.predictionId, predictionTable.id))
-
 		// 🔗 join match_event (needed for badge URLs)
 		.innerJoin(matchEventTable, eq(matchResultTable.matchEventId, matchEventTable.id))
-
+		// 🔗 Join profile table (Required to match the score results back to a human name and avatar)
 		.innerJoin(profileTable, eq(matchResultTable.profileId, profileTable.id))
-
 		// 🎯 scope to specific group aand league
 		.where(
 			and(eq(predictionTable.groupId, groupId), eq(matchEventTable.leagueTagId, targetLeagueId)),
 		)
-
+		// 👥 Group by user identity fields so the sum() and json_agg() calculations execute cleanly per person
 		.groupBy(matchResultTable.profileId, profileTable.name, profileTable.imageUrl)
-
+		// 🏆 Rank the leaderboard with the highest total scores placed at the top
 		.orderBy(desc(totalScore));
+
+
+	// 
+	const [otherGroups, fixtures, predictions, leaderboard] = await Promise.all([
+		otherGroupsPromise,
+		fixturesPromise,
+		predictionsPromise,
+		leaderboardPromise,
+	]);
+
+	const userPredictions = predictions.filter(p => p.profile.id === profile.id!);
 
 	return (
 		<main className="h-full w-full flex flex-col-reverse sm:flex-row">

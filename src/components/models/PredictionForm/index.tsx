@@ -51,10 +51,10 @@ const PredictionFormModel = () => {
 	return (
 		<Dialog open={isModelOpen} onOpenChange={() => onClose()}>
 			<DialogContent className="text-black w-screen p-2 md:p-4">
-				<DialogHeader className="flex flex-col items-center">
+				<DialogHeader className="flex flex-col items-center mt-10">
 					<DialogTitle>Football Match Prediction Submission</DialogTitle>
 					<DialogDescription>
-						<p className="text-center text-sm">
+						<p className="text-center text-xs md:text-sm">
 							Share your match prediction by choosing the final scores for each team. Your
 							submission will be locked once the match starts, so make your best call!
 						</p>
@@ -116,6 +116,8 @@ const CreatePredictionForm = ({
 	selectedMatchEventId,
 }: CreatePredictionFormProps) => {
 	const [carouselApi, setCarouselApi] = useState<CarouselApi | null>(null);
+	const [canScrollPrev, setCanScrollPrev] = useState(false);
+	const [canScrollNext, setCanScrollNext] = useState(true);
 
 	const nextForm = () => {
 		if (!carouselApi) return;
@@ -127,10 +129,15 @@ const CreatePredictionForm = ({
 		carouselApi.scrollPrev();
 	};
 
+	// sync with fixtures carouse
 	useEffect(() => {
 		if (!carouselApi || !setCarouselIndex) return;
 
+		setCarouselIndex(carouselApi.selectedScrollSnap());
+
 		carouselApi.on('select', () => {
+			setCanScrollPrev(carouselApi.canScrollPrev());
+			setCanScrollNext(carouselApi.canScrollNext());
 			setCarouselIndex(carouselApi.selectedScrollSnap());
 		});
 	}, [carouselApi, setCarouselIndex]);
@@ -140,12 +147,22 @@ const CreatePredictionForm = ({
 			{fixtures && fixtures.length > 0 ? (
 				<div className="relative flex flex-col gap-y-3 ">
 					<div className="w-full flex gap-x-3 justify-end">
-						<button onClick={prevForm}>
+						<Button
+							variant="outline"
+							onClick={prevForm}
+							disabled={!canScrollPrev}
+							className="flex items-center justify-center gap-2">
 							<ArrowLeft className="h-5 w-5" />
-						</button>
-						<button onClick={nextForm}>
+							Back
+						</Button>
+						<Button
+							variant="outline"
+							onClick={nextForm}
+							disabled={!canScrollNext}
+							className="flex items-center justify-center gap-2">
+							Next
 							<ArrowRight className="h-5 w-5" />
-						</button>
+						</Button>
 					</div>
 					<Carousel setApi={setCarouselApi} opts={{ startIndex: carouselIndex ?? 0 }}>
 						<CarouselContent className="flex gap-x-3">

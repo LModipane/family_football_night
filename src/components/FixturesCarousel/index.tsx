@@ -15,30 +15,19 @@ import {
 	CarouselPrevious,
 } from '@/components/ui/carousel';
 import { MapPin } from 'lucide-react';
+import { ConsoleLogWriter } from 'drizzle-orm';
 
 type Props = {
 	fixtures: MatchEvent[];
 };
 
 function FixturesCarousel({ fixtures }: Props) {
-	const [carouselAPI, setCarouselAPI] = useState<CarouselApi | null>(null);
-	const { setCarouselIndex, carouselIndex } = usePredictionContext();
-
-	useEffect(() => {
-		if (!carouselAPI) return;
-
-		carouselAPI.on('select', () => {
-			setCarouselIndex(carouselAPI.selectedScrollSnap());
-		});
-	}, [carouselAPI, setCarouselIndex]);
+	const { carouselIndex } = usePredictionContext();
 
 	return fixtures.length === 0 ? (
 		<p>No fixtures available</p>
 	) : (
-		<Carousel
-			setApi={setCarouselAPI}
-			className="w-full rounded-md"
-			opts={{ startIndex: carouselIndex ?? 0 }}>
+		<Carousel className="w-full rounded-md" opts={{startIndex: carouselIndex}}>
 			<CarouselContent>
 				{fixtures.map(match => (
 					<CarouselItem key={match.id} className="flex flex-col justify-center items-center">
@@ -57,7 +46,6 @@ function FixturesCarousel({ fixtures }: Props) {
 							<div className="flex flex-col justify-center items-center mx-3 gap-0.px">
 								<span className="text-sm">{formatDate(match.kickOff)}</span>
 								<span className="mx-3">vs</span>
-								
 							</div>
 							<div className="flex flex-col justify-center items-center h-full">
 								<Avatar className="w-13 h-13">

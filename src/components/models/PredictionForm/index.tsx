@@ -302,11 +302,14 @@ const Form = ({
 				</div>
 				<div className="h-full w-fit flex flex-col justify-center items-center mb-15">
 					<div className="flex flex-col items-center justify-center w-full">
-						<p className="text-lg mb-0.5">{formatDate(match.kickOff)}</p>
+						<p className="md:text-lg text-sm mb-0.5">{formatDate(match.kickOff)}</p>
 						{match.venue ? (
-							<span className="text-sm flex items-center gap-1 text-center line-clamp-1 truncate">
-								<MapPin size={16} /> {match.venue}
-							</span>
+							<div className="flex items-center text-center">
+								<MapPin size={16} className='min-w-5'/>
+								<span className="md:text-sm text-xs text-center ">
+									{match.venue}
+								</span>
+							</div>
 						) : null}
 					</div>
 					<div className="flex flex-row justify-center items-center h-fit w-full md:mx-4 mx-2 my-3 mb-5">

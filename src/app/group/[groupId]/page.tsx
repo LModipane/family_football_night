@@ -68,19 +68,17 @@ export default async function Home({
 		},
 	});
 
-	if (!userGroupMembership) {
+	if (!userGroupMembership)
 		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
-	}
 
 	const currentGroup = userGroupMembership.group;
 	if (!currentGroup) throw new Error('Group Is Not Found');
-	if (currentGroup.leagues.length === 0) {
+	if (currentGroup.leagues.length === 0)
 		throw new Error(
 			'No league is associated with this group. Please ask for group Admin to add league!!!',
 		);
-	}
 
-	const targetLeagueId = leagueId?.toString() || currentGroup.leagues[0].leagueId;
+	const targetLeagueId = leagueId?.toString() || currentGroup.leagues[0].leagueId; // rrefactor to select recent viewed legaue
 	const isLeagueValid = currentGroup.leagues.some(obj => obj.leagueId === targetLeagueId);
 	if (!isLeagueValid) throw new Error('Invalid league ID context for this group.');
 
@@ -154,8 +152,7 @@ export default async function Home({
 		// 🏆 Rank the leaderboard with the highest total scores placed at the top
 		.orderBy(desc(totalScore));
 
-
-	// 
+	//
 	const [otherGroups, fixtures, predictions, leaderboard] = await Promise.all([
 		otherGroupsPromise,
 		fixturesPromise,

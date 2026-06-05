@@ -189,6 +189,7 @@ export default async function Home({
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
 			<section className="bg-blue-950 h-full min-w-87.5 text-white flex flex-col flex-1 gap-4 justify-start items-center">
 				<GroupHeader
+					currentLegaueId={targetLeagueId}
 					name={currentGroup.name}
 					groupId={currentGroup.id}
 					otherGroups={otherGroups}

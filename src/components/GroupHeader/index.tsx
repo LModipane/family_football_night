@@ -29,9 +29,10 @@ type Props = {
 		name: string;
 		iconUrl: string | null;
 	}[];
+	currentLegaueId: string
 };
 
-const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues }: Props) => {
+const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues, currentLegaueId }: Props) => {
 	const { onOpen } = useModel();
 
 	const router = useRouter();
@@ -49,7 +50,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 		router.replace(`?${params.toString()}`);
 	};
 
-	const currentLeague = leagues.find(league => league.id === searchParams.get('leagueId'));
+	const currentLeague = leagues.find(league => league.id === currentLegaueId);
 
 	return (
 		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50 overflow-hidden">
@@ -64,7 +65,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 
 				<h2 className="text-white md:text-xl text-sm font-bold truncate ">{name}</h2>
 			</div>
-			<Select onValueChange={onSelectLeague} value={searchParams.get('leagueId') || undefined}>
+			<Select onValueChange={onSelectLeague} value={currentLegaueId}>
 				<SelectTrigger className=" text-white font-bold py-2 px-4 rounded transition-colors cursor-pointer border-none text-xl">
 					{currentLeague?.iconUrl ? (
 						<div className="relative w-10 h-10 rounded-full overflow-hidden">

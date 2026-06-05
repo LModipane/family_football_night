@@ -26,6 +26,7 @@ export default async function getFixtures(leagueTagId: string) {
 			},
 		);
 		const data = (await response.json()) as { Summary: SummaryItem[] };
+		console.log('Fetched fixtures data:', data);
 
 		const fixtures: MatchEvent[] = data.Summary.map((item: SummaryItem) => ({
 			leagueTagId,
@@ -35,6 +36,8 @@ export default async function getFixtures(leagueTagId: string) {
 			awayTeamName: item.teams.away.name,
 			kickOff: new Date(item.eventDateStart),
 			isKnockoutStage: item.isKnockoutFixture,
+			venue: item.venueName,
+			// Add end of match, match status, 
 			awayTeamBadgeUrl: `https://images.supersport.com${item.teams.away.icon}`,
 			homeTeamBadgeUrl: `https://images.supersport.com${item.teams.home.icon}`,
 		}));
@@ -49,6 +52,7 @@ export default async function getFixtures(leagueTagId: string) {
 				// 2. Define which columns to overwrite with the new data
 				set: {
 					kickOff: sql`EXCLUDED.kick_off`,
+					venue: sql`EXCLUDED.match_venue`,
 					// status: sql`EXCLUDED.status`,
 					// Add any other fields you want updated on conflict
 				},

@@ -14,6 +14,7 @@ import {
 	CarouselContent,
 	CarouselPrevious,
 } from '@/components/ui/carousel';
+import { MapPin } from 'lucide-react';
 
 type Props = {
 	fixtures: MatchEvent[];
@@ -53,9 +54,14 @@ function FixturesCarousel({ fixtures }: Props) {
 								</Avatar>
 								<h3 className="uppercase">{trancateName(match.homeTeamName)}</h3>
 							</div>
-							<div className="flex flex-col justify-center items-center gap-3 mx-3">
-								<span className="text-sm -mb-3">{formatDate(match.kickOff)}</span>
-								<h4 className="mx-3">vs</h4>
+							<div className="flex flex-col justify-center items-center mx-3 gap-0.px">
+								<span className="text-sm">{formatDate(match.kickOff)}</span>
+								<span className="mx-3">vs</span>
+								{/* {match.venue ? (
+									<span className="text-xs flex items-center gap-1">
+										<MapPin size={10} /> {match.venue}
+									</span>
+								) : null} */}
 							</div>
 							<div className="flex flex-col justify-center items-center h-full">
 								<Avatar className="w-13 h-13">

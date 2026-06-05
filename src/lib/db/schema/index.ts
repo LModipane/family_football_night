@@ -121,6 +121,7 @@ export const matchEventTable = pgTable('match_event', {
 		.notNull()
 		.references(() => leagueTable.id, { onDelete: 'cascade' }),
 	kickOff: timestamp('kick_off', { mode: 'date' }).notNull(),
+	venue: varchar("match_venue"),
 	isKnockoutStage: boolean('is_knockout_stage').default(false),
 	homeTeamName: varchar('home_team_name', { length: 128 }).notNull(),
 	awayTeamName: varchar('away_team_name', { length: 128 }).notNull(),

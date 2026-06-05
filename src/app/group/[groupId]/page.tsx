@@ -148,7 +148,7 @@ export default async function Home({
 
 	return (
 		<main className="h-full w-full flex flex-col-reverse sm:flex-row">
-			<section className="bg-purple-900 h-full max-h-[50%] md:max-h-full md:max-w-[35%] min-w-87.5 p-2 text-white flex flex-col gap-4">
+			<section className="bg-purple-900 h-full max-h-[50%] md:max-h-full md:max-w-[35%] min-w-87.5 min-h-80 p-2 text-white flex flex-col gap-4">
 				<PredictionContextProvider fixtures={fixtures}>
 					<FixturesCarousel fixtures={fixtures} />
 					<CreatePredictionModelButton

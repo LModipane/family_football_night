@@ -63,4 +63,5 @@ export type SummaryItem = {
 		home: { name: string; icon: string };
 		away: { name: string; icon: string };
 	};
+	venueName: string;
 };

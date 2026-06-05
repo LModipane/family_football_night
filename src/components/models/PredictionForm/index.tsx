@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { ConsoleLogWriter } from 'drizzle-orm';
 
 const PredictionFormModel = () => {
 	const {
@@ -199,7 +200,7 @@ const Form = ({
 }: FormProps) => {
 	const router = useRouter();
 	const { onClose } = useModel();
-	const [isLoading, setIsLoading] = useState(false)
+	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm<z.infer<typeof PredictionSchema>>({
 		defaultValues: {
@@ -214,7 +215,10 @@ const Form = ({
 		resolver: zodResolver(PredictionSchema),
 	});
 
+	const isLateSubmission = Math.abs(+new Date() - +new Date(match.kickOff)) < 30 * 60 * 1000; // submission is late if kickoff is 30 minutes away
+
 	const submitPrediction = async (value: z.infer<typeof PredictionSchema>) => {
+		if (isLateSubmission) return;
 		try {
 			setIsLoading(true);
 			switch (predictionMode) {
@@ -350,10 +354,14 @@ const Form = ({
 				</div>
 			</div>
 			<div className="flex justify-end mt-auto">
-				<Button>
-					{predictionMode === 'EDIT' ? 'Edit' : predictionMode === 'DELETE' ? 'Delete' : 'Submit'}
-					<Loader2 className={cn('ml-2', isLoading ? 'animate-spin' : 'hidden')} />
-				</Button>
+				{isLateSubmission ? (
+					<Button variant={'destructive'}>Late Submission</Button>
+				) : (
+					<Button>
+						{predictionMode === 'EDIT' ? 'Edit' : predictionMode === 'DELETE' ? 'Delete' : 'Submit'}
+						<Loader2 className={cn('ml-2', isLoading ? 'animate-spin' : 'hidden')} />
+					</Button>
+				)}
 			</div>
 		</form>
 	);

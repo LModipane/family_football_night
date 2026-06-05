@@ -14,20 +14,32 @@ import {
 	CarouselContent,
 	CarouselPrevious,
 } from '@/components/ui/carousel';
-import { MapPin } from 'lucide-react';
-import { ConsoleLogWriter } from 'drizzle-orm';
 
 type Props = {
 	fixtures: MatchEvent[];
+	leagueName: string;
 };
 
-function FixturesCarousel({ fixtures }: Props) {
-	const { carouselIndex } = usePredictionContext();
+function FixturesCarousel({ fixtures, leagueName }: Props) {
+	const [carouselAPI, setCarouselAPI] = useState<CarouselApi | null>(null);
+	const { setCarouselIndex, carouselIndex } = usePredictionContext();
+
+	useEffect(() => {
+		if (!carouselAPI) return;
+
+		setCarouselIndex(carouselAPI.selectedScrollSnap());
+		carouselAPI.on('select', () => {
+			setCarouselIndex(carouselAPI.selectedScrollSnap());
+		});
+	}, [carouselAPI, setCarouselIndex]);
 
 	return fixtures.length === 0 ? (
-		<p>No fixtures available</p>
+		<p className="w-full flex items-center justify-center">{leagueName} is off season</p>
 	) : (
-		<Carousel className="w-full rounded-md" opts={{startIndex: carouselIndex}}>
+		<Carousel
+			setApi={setCarouselAPI}
+			className="w-full rounded-md"
+			opts={{ startIndex: carouselIndex ?? 0 }}>
 			<CarouselContent>
 				{fixtures.map(match => (
 					<CarouselItem key={match.id} className="flex flex-col justify-center items-center">

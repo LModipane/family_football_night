@@ -5,10 +5,11 @@ import { matchResultTable, predictionTable } from '@/lib/db/schema';
 
 export async function POST(req: Request) {
 	try {
-		// Let's check if this is a valid cron-job request 
-		if (!isCronJobAuthorized(req)) return new Response('Unauthenticated!!!', { status: 401 });
+		// Let's check if this is a valid cron-job request
+		if (process.env.NODE_ENV === 'production' && !isCronJobAuthorized(req))
+			return new Response('Unauthenticated!!!', { status: 401 });
 
-		// let's fetch all the prediction that needs to calculate results from 
+		// let's fetch all the prediction that needs to calculate results from
 		const predictions = await db.query.predictionTable.findMany({
 			where: (table, { eq }) => eq(table.status, 'unsettled'),
 		});
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
 		if (!predictions || predictions.length === 0)
 			return new Response('No unsettled predictions', { status: 200 });
 
-		// Let's group the predictions by leagues to reduce the number of time we make requests 
+		// Let's group the predictions by leagues to reduce the number of time we make requests
 		const leaguePredictionsMap = new Map<string, Prediction[]>();
 
 		// For every prediction, push the prediction in group only if it is in the same league else create a new group within the intial prediction
@@ -29,17 +30,18 @@ export async function POST(req: Request) {
 			}
 		}
 
-		// let's batch all request to 
+		// let's batch all request into:
 		const matchResultsToInsert = [];
 		const predictionIdsToUpdate: string[] = [];
 
-		// For each league group, let's fetch match results 
+		// For each league group, let's fetch match results
 		for (const [leagueTagId, leaguePredictions] of leaguePredictionsMap) {
 			const data = await fetchMatchSummary(leagueTagId);
-			
+			if (!data) continue;
+
 			// For each prediction in league group, find the match results, calculate points finally push it to batch array else just skip prediction
 			for (const prediction of leaguePredictions) {
-				const match = data.Summary.find(obj => obj.eventId === prediction.matchEventId)
+				const match = data.Summary.find(obj => obj.eventId === prediction.matchEventId);
 				if (!match) continue;
 
 				const awayTeamScoreResult = match.score.total.away;
@@ -65,12 +67,12 @@ export async function POST(req: Request) {
 			}
 		}
 
-		// If batch size is greater than zero, let's insert the results 
-		if (matchResultsToInsert.length)
+		// If batch size is greater than zero, let's insert the results
+		if (matchResultsToInsert.length > 0)
 			await db.insert(matchResultTable).values(matchResultsToInsert).onConflictDoNothing();
 
 		// if batch size i greater than zero, let's update predictions to be settled
-		if (predictionIdsToUpdate.length)
+		if (predictionIdsToUpdate.length > 0)
 			await db
 				.update(predictionTable)
 				.set({
@@ -130,11 +132,18 @@ type MatchSummaryResponse = {
 	}[];
 };
 
-async function fetchMatchSummary(league: string): Promise<MatchSummaryResponse> {
-	const res = await fetch(
-		`https://supersport.com/apix/football/v5.1/feed/score/summary?top=25&eventStatusIds=3&entityTagIds=${league}&orderAscending=false&region=za&platform=indaleko-web`,
-	);
-	if (!res.ok) throw new Error('Failed to fetch match summary');
+async function fetchMatchSummary(league: string): Promise<MatchSummaryResponse | null> {
+	try {
+		const res = await fetch(
+			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=150&eventStatusIds=3&entityTagIds=${league}&orderAscending=false&region=za&platform=indaleko-web`,
+		);
+		if (!res.ok) throw new Error(res.statusText);
 
-	return res.json();
+		const data = await res.json();
+		console.log('Data:', data);
+		return data;
+	} catch (error) {
+		console.error('Failed to fetch match Summary', error);
+		return null;
+	}
 }

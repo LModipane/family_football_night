@@ -355,7 +355,7 @@ const Form = ({
 			</div>
 			<div className="flex justify-end mt-auto">
 				{isLateSubmission ? (
-					<Button variant={'destructive'}>Late Submission</Button>
+					<Button variant={'destructive'} className="cursor-not-allowed">Late Submission</Button>
 				) : (
 					<Button>
 						{predictionMode === 'EDIT' ? 'Edit' : predictionMode === 'DELETE' ? 'Delete' : 'Submit'}

@@ -183,7 +183,6 @@ export default PredictionFormModel;
 type FormProps = {
 	groupId: string;
 	match: MatchEvent;
-	close?: () => void;
 	leagueTagId: string;
 	prevPrediction?: Prediction;
 	selectedMatchEventId?: string | null;
@@ -196,7 +195,6 @@ const Form = ({
 	leagueTagId,
 	prevPrediction,
 	predictionMode = 'CREATE',
-	close,
 }: FormProps) => {
 	const router = useRouter();
 	const { onClose } = useModel();
@@ -208,16 +206,16 @@ const Form = ({
 			leagueTagId,
 			matchEventId: match.id,
 			predictionId: prevPrediction?.id!,
+			hide: prevPrediction ? prevPrediction.hide : false,
 			homeTeamScore: predictionMode === 'DELETE' ? prevPrediction?.homeTeamScore : undefined,
 			awayTeamScore: predictionMode === 'DELETE' ? prevPrediction?.awayTeamScore : undefined,
-			hide: prevPrediction ? prevPrediction.hide : false,
 		},
 		resolver: zodResolver(PredictionSchema),
 	});
 
 	const isLateSubmission = Math.abs(+new Date() - +new Date(match.kickOff)) < 30 * 60 * 1000; // submission is late if kickoff is 30 minutes away
 
-	const submitPrediction = async (value: z.infer<typeof PredictionSchema>) => {
+	const submitHandler = async (value: z.infer<typeof PredictionSchema>) => {
 		if (isLateSubmission) return;
 		try {
 			setIsLoading(true);
@@ -249,10 +247,10 @@ const Form = ({
 					break;
 			}
 		} catch (error) {
-			setIsLoading(false);
 			console.error('Failed to submit Prediction: ', error);
 			toast.error(`Opps, failed to ${predictionMode === 'EDIT' ? 'edit' : 'submit'} Prediction!!!`);
 		} finally {
+			setIsLoading(false);
 			router.refresh();
 		}
 	};
@@ -264,7 +262,7 @@ const Form = ({
 	return (
 		<form
 			className="h-fit w-full flex flex-col mx-auto"
-			onSubmit={form.handleSubmit(submitPrediction, handleError)}>
+			onSubmit={form.handleSubmit(submitHandler, handleError)}>
 			<Controller
 				name="hide"
 				control={form.control}

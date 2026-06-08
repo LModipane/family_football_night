@@ -3,6 +3,7 @@ import { ZodError } from 'zod';
 import { groupLeagueTable, groupProfileTable, groupTable } from '@/lib/db/schema';
 import { createGroupSchema } from '@/types/formSchema';
 import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
+import posthogClient from '@/lib/posthog';
 
 export async function POST(req: Request) {
 	try {
@@ -22,6 +23,16 @@ export async function POST(req: Request) {
 			.values({ profileId: profile.id!, groupId: res[0].id, role: 'admin' });
 		// add selected leagues
 		await db.insert(groupLeagueTable).values({ groupId: res[0].id, leagueId: body.leagueTagId });
+
+		const posthog = posthogClient();
+
+		posthog.capture({
+			distinctId: profile.id,
+			event: 'group_created',
+			properties: {
+				message: 'user created group successfully',
+			},
+		});
 
 		//send successful post request
 		return new Response('Group created successfully', { status: 201 });

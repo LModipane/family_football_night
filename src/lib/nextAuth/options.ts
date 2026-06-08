@@ -1,9 +1,9 @@
 import { db } from '../db';
 import { AuthOptions } from 'next-auth';
+import posthogClient from '@/lib/posthog';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
 import { profileTable, groupTable, groupProfileTable, groupLeagueTable } from '../db/schema';
-import posthog from 'posthog-js';
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)
 	throw new Error('Google OAuth environment variables are not set');
@@ -33,7 +33,7 @@ export const authOptions: AuthOptions = {
 
 				if (existingProfile || !user.name || !user.id) return true;
 
-				const profile = await db
+				const [{ id: profileId }] = await db
 					.insert(profileTable)
 					.values({
 						userId: user.id,
@@ -43,7 +43,7 @@ export const authOptions: AuthOptions = {
 					})
 					.returning({ id: profileTable.id });
 
-				const group = await db
+				const [{ id: groupId }] = await db
 					.insert(groupTable)
 					.values({
 						name: 'Untitled Group',
@@ -51,21 +51,25 @@ export const authOptions: AuthOptions = {
 					.returning({ id: groupTable.id });
 
 				await db.insert(groupProfileTable).values({
-					groupId: group[0].id,
-					profileId: profile[0].id,
+					groupId,
+					profileId,
 					role: 'admin',
 				});
 
 				await db.insert(groupLeagueTable).values({
-					groupId: group[0].id,
+					groupId,
 					leagueId: '882fc52f-14b7-4e7c-a259-5ff5d18bde67', // Betway Premier League as default league
 				});
 
-				posthog.identify(profile[0].id, {
-					email: user.email,
-					name: user.name,
-					
-				})
+				const posthog = posthogClient();
+
+				posthog.capture({
+					distinctId: profileId,
+					event: 'user_signed_up',
+					properties: {
+						message: 'New user has signed in successfully',
+					},
+				});
 
 				return true;
 			} catch (error) {

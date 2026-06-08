@@ -1,9 +1,10 @@
 import { db } from '@/lib/db';
+import { ZodError } from 'zod';
+import posthogClient from '@/lib/posthog';
 import { getServerSession } from 'next-auth';
 import { predictionTable } from '@/lib/db/schema';
 import { authOptions } from '@/lib/nextAuth/options';
 import { PredictionSchema } from '@/types/formSchema';
-import { ZodError } from 'zod';
 
 export async function POST(req: Request) {
 	try {
@@ -21,6 +22,16 @@ export async function POST(req: Request) {
 		await db.insert(predictionTable).values({
 			...parsedData,
 			profileId: profile.id,
+		});
+
+		const posthog = posthogClient();
+
+		posthog.capture({
+			distinctId: profile.id,
+			event: 'prediction_created',
+			properties: {
+				message: 'user has created prediction',
+			},
 		});
 
 		return new Response('Success Created Predictions', { status: 200 });

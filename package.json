@@ -28,6 +28,7 @@
 		"next": "16.1.6",
 		"next-auth": "^4.24.13",
 		"posthog-js": "^1.382.0",
+		"posthog-node": "^5.36.4",
 		"radix-ui": "^1.4.3",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { Metadata, ResolvingMetadata } from 'next';
 import { groupProfileTable } from '@/lib/db/schema';
 import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
+import posthogClient from '@/lib/posthog';
 
 export async function generateMetadata(
 	{ params }: { params: { id: string; inviteCode: string } },
@@ -40,6 +41,16 @@ export default async function InviteMemberPage({
 
 	if (!profile)
 		return redirect(`/api/auth/signin?callbackUrl=/group/${groupId}/invite/${inviteCode}`); // Redirect end-user to default sign-in page. Note: create proper login page to redirect end-user to it instead of default one.
+
+	const posthog = posthogClient();
+
+	posthog.capture({
+		distinctId: profile.id,
+		event: 'group_joined',
+		properties: {
+			message: 'user has joined group',
+		},
+	});
 
 	const isMember = await db.query.groupProfileTable.findFirst({
 		where: (profileToGroup, { eq, and }) =>

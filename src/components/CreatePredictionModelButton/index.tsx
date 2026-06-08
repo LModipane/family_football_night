@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useModel, usePredictionContext } from '@/hooks';
 import { MatchEvent, PredictionWithProfileMatchEvent } from '@/types';
+import posthog from 'posthog-js';
 
 type Props = {
 	groupId: string;
@@ -22,6 +23,7 @@ const CreatePredictionModelButton = ({
 	const { carouselIndex, setCarouselIndex, selectedMatchEventId } = usePredictionContext();
 
 	const openModel = () => {
+		posthog.capture("open-model")
 		if (status !== 'authenticated') return;
 		onOpen('Prediction', {
 			groupId,

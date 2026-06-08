@@ -3,6 +3,7 @@ import { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
 import { profileTable, groupTable, groupProfileTable, groupLeagueTable } from '../db/schema';
+import posthog from 'posthog-js';
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)
 	throw new Error('Google OAuth environment variables are not set');
@@ -59,6 +60,12 @@ export const authOptions: AuthOptions = {
 					groupId: group[0].id,
 					leagueId: '882fc52f-14b7-4e7c-a259-5ff5d18bde67', // Betway Premier League as default league
 				});
+
+				posthog.identify(profile[0].id, {
+					email: user.email,
+					name: user.name,
+					
+				})
 
 				return true;
 			} catch (error) {

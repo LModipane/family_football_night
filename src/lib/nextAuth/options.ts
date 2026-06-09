@@ -33,7 +33,7 @@ export const authOptions: AuthOptions = {
 
 				if (existingProfile || !user.name || !user.id) return true;
 
-				const [{ id: profileId }] = await db
+				const [{ id: profileId, email, name }] = await db
 					.insert(profileTable)
 					.values({
 						userId: user.id,
@@ -41,7 +41,7 @@ export const authOptions: AuthOptions = {
 						email: safeEmail,
 						imageUrl: user.image ?? null,
 					})
-					.returning({ id: profileTable.id });
+					.returning({ id: profileTable.id, name: profileTable.name, email: profileTable.email });
 
 				const [{ id: groupId }] = await db
 					.insert(groupTable)
@@ -62,6 +62,13 @@ export const authOptions: AuthOptions = {
 				});
 
 				const posthog = posthogClient();
+
+				posthog.identify({
+					distinctId: profileId,
+					properties: {
+						$set: { name, email },
+					},
+				});
 
 				posthog.capture({
 					distinctId: profileId,

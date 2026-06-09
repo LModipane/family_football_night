@@ -44,6 +44,13 @@ export default async function InviteMemberPage({
 
 	const posthog = posthogClient();
 
+	posthog.identify({
+		distinctId: profile.id!,
+		properties: {
+			$set: { name: profile.name, email: profile.email },
+		},
+	});
+
 	posthog.capture({
 		distinctId: profile.id,
 		event: 'group_joined',

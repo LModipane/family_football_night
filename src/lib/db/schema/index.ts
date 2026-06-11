@@ -45,7 +45,7 @@ export const leagueTable = pgTable('leauge', {
 });
 
 export const leagueRelations = relations(leagueTable, ({ many }) => ({
-	events: many(matchEventTable,),
+	events: many(matchEventTable),
 	groups: many(groupLeagueTable),
 }));
 
@@ -121,7 +121,7 @@ export const matchEventTable = pgTable('match_event', {
 		.notNull()
 		.references(() => leagueTable.id, { onDelete: 'cascade' }),
 	kickOff: timestamp('kick_off', { mode: 'date' }).notNull(),
-	venue: varchar("match_venue"),
+	venue: varchar('match_venue'),
 	isKnockoutStage: boolean('is_knockout_stage').default(false),
 	homeTeamName: varchar('home_team_name', { length: 128 }).notNull(),
 	awayTeamName: varchar('away_team_name', { length: 128 }).notNull(),
@@ -139,6 +139,7 @@ export const matchEventRelation = relations(matchEventTable, ({ one }) => ({
 }));
 
 export const predictionStatusEnum = pgEnum('prediction_status', ['settled', 'unsettled', 'review']);
+export const winningSideEnum = pgEnum('winning', ['home', 'away', 'draw']);
 
 export const predictionTable = pgTable(
 	'prediction',
@@ -157,14 +158,19 @@ export const predictionTable = pgTable(
 		homeTeamScore: integer('home_team_score').notNull(),
 		awayTeamScore: integer('away_team_score').notNull(),
 		hide: boolean('hide').default(false).notNull(),
+		winningSide: winningSideEnum('winning_side').default('home').notNull(),
 		status: predictionStatusEnum('status').default('unsettled').notNull(),
 		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 	},
 	table => [
-		index('prediction_match_idx').on(table.matchEventId),
+		// index('prediction_match_idx').on(table.matchEventId),
 		index('prediction_status_idx').on(table.status),
-		uniqueIndex('uniq_prediction_profile_match').on(table.profileId, table.matchEventId),
+		// uniqueIndex('uniq_prediction_profile_group_match').on(
+		// 	table.groupId,
+		// 	table.profileId,
+		// 	table.matchEventId,
+		// ),
 	],
 );
 
@@ -199,6 +205,7 @@ export const matchResultTable = pgTable(
 				onDelete: 'cascade',
 			}),
 		point: integer('point').default(0).notNull(),
+		winningSide: winningSideEnum('winning_side').default('home').notNull(),
 		homeTeamScoreResult: integer('home_team_score_result').notNull(),
 		awayTeamScoreResult: integer('away_team_score_result').notNull(),
 		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),

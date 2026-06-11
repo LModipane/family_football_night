@@ -1,7 +1,8 @@
 import { db } from '@/lib/db';
-import { Prediction } from '@/types';
-import { inArray } from 'drizzle-orm';
+import { MatchResult, Prediction } from '@/types';
+import { inArray, sql } from 'drizzle-orm';
 import { matchResultTable, predictionTable } from '@/lib/db/schema';
+import { point } from 'drizzle-orm/pg-core';
 
 export async function POST(req: Request) {
 	try {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
 		}
 
 		// let's batch all request into:
-		const matchResultsToInsert = [];
+		const matchResultsToInsert = [] as MatchResult[];
 		const predictionIdsToUpdate: string[] = [];
 
 		// For each league group, let's fetch match results
@@ -47,12 +48,15 @@ export async function POST(req: Request) {
 				const awayTeamScoreResult = match.score.total.away;
 				const homeTeamScoreResult = match.score.total.home;
 
-				const point = calculatePoints(
-					awayTeamScoreResult,
-					homeTeamScoreResult,
-					prediction.awayTeamScore,
-					prediction.homeTeamScore,
-				);
+				const point = calculatePoints({
+					awayResult: awayTeamScoreResult,
+					homeResult: homeTeamScoreResult,
+					winningSide: match.score.winner.side,
+					homePrediction: prediction.homeTeamScore,
+					awayPrediction: prediction.awayTeamScore,
+					winningPrediction: prediction.winningSide,
+					isKnockoutFixture: match.isKnockoutFixture,
+				});
 
 				matchResultsToInsert.push({
 					point,
@@ -60,6 +64,7 @@ export async function POST(req: Request) {
 					homeTeamScoreResult,
 					predictionId: prediction.id!,
 					profileId: prediction.profileId,
+					winningSide: match.score.winner.side,
 					matchEventId: prediction.matchEventId,
 				});
 
@@ -69,7 +74,10 @@ export async function POST(req: Request) {
 
 		// If batch size is greater than zero, let's insert the results
 		if (matchResultsToInsert.length > 0)
-			await db.insert(matchResultTable).values(matchResultsToInsert).onConflictDoNothing();
+			await db
+				.insert(matchResultTable)
+				.values(matchResultsToInsert)
+				.onConflictDoNothing();
 
 		// if batch size i greater than zero, let's update predictions to be settled
 		if (predictionIdsToUpdate.length > 0)
@@ -92,13 +100,32 @@ export async function POST(req: Request) {
 /*                             POINT CALCULATION                              */
 /* -------------------------------------------------------------------------- */
 
-function calculatePoints(
-	awayResult: number,
-	homeResult: number,
-	awayPrediction: number,
-	homePrediction: number,
-): number {
-	if (awayPrediction === awayResult && homePrediction === homeResult) return 2; // perfect
+type Args = {
+	awayResult: number;
+	homeResult: number;
+	awayPrediction: number;
+	homePrediction: number;
+	isKnockoutFixture: boolean;
+	winningSide: WinningSide;
+	winningPrediction?: WinningSide;
+};
+
+function calculatePoints({
+	awayResult,
+	homeResult,
+	winningSide,
+	homePrediction,
+	awayPrediction,
+	isKnockoutFixture,
+	winningPrediction = 'home',
+}: Args): number {
+	const predictedDraw = awayPrediction === homePrediction;
+	const isPerfectPrediction = awayPrediction === awayResult && homePrediction === homeResult;
+	const isPerfectKnockoutPrediction =
+		isKnockoutFixture && predictedDraw && isPerfectPrediction && winningSide === winningPrediction;
+
+	if (isPerfectKnockoutPrediction) return 4;
+	if (isPerfectPrediction) return 3; 
 
 	const correctOutcome =
 		(awayResult > homeResult && awayPrediction > homePrediction) ||
@@ -120,6 +147,8 @@ function isCronJobAuthorized(req: Request): boolean {
 	return token === process.env.CRON_JOB_SECRET!;
 }
 
+type WinningSide = 'home' | 'away' | 'draw';
+
 type MatchSummaryResponse = {
 	Summary: {
 		eventId: string;
@@ -128,19 +157,22 @@ type MatchSummaryResponse = {
 				away: number;
 				home: number;
 			};
+			shootout: {} | null;
+			winner: { side: WinningSide };
 		};
+		isKnockoutFixture: boolean;
 	}[];
 };
 
-async function fetchMatchSummary(league: string): Promise<MatchSummaryResponse | null> {
+async function fetchMatchSummary(leagueId: string): Promise<MatchSummaryResponse | null> {
 	try {
 		const res = await fetch(
-			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=150&eventStatusIds=3&entityTagIds=${league}&orderAscending=false&region=za&platform=indaleko-web`,
+			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=150&eventStatusIds=3&entityTagIds=${leagueId}&orderAscending=false&region=za&platform=indaleko-web`,
 		);
+		console.log(res);
 		if (!res.ok) throw new Error(res.statusText);
 
-		const data = await res.json();
-		console.log('Data:', data);
+		const data = (await res.json()) as MatchSummaryResponse;
 		return data;
 	} catch (error) {
 		console.error('Failed to fetch match Summary', error);

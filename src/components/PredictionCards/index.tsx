@@ -111,7 +111,9 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 							</Button>
 						</TooltipTrigger>
 						<TooltipContent className="bg-gray-800 text-white" align="start" side="right">
-							<p className="text-sm">{prediction.hide ? 'Your prediction is hidden' : 'Your prediction is visible'}</p>
+							<p className="text-sm">
+								{prediction.hide ? 'Your prediction is hidden' : 'Your prediction is visible'}
+							</p>
 						</TooltipContent>
 					</Tooltip>
 				)}
@@ -128,42 +130,42 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 			</div>
 
 			{/* Match Details Section */}
-			<div
-				className={cn(
-					'flex items-center gap-1 ml-auto',
-					isCurrentUserPrediction ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5',
-				)}>
-				{/* Home Team Badge */}
-				<Image
-					width={32}
-					height={32}
-					className="rounded-full"
-					src={prediction.matchEvent.homeTeamBadgeUrl}
-					alt={`${prediction.matchEvent.homeTeamName} badge`}
-				/>
+			{prediction.hide && !isCurrentUserPrediction ? (
+				<div className="flex items-center ml-auto gap-2 font-semibold text-xl animate-pulse text-yellow-400 md:mr-11.5 mr-8.5 ">
+					<span className="text-right">Hidden</span>
+				</div>
+			) : (
+				<div
+					className={cn(
+						'flex items-center gap-1 ml-auto',
+						isCurrentUserPrediction ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5',
+					)}>
+					{/* Home Team Badge */}
+					<Image
+						width={32}
+						height={32}
+						className="rounded-full"
+						src={prediction.matchEvent.homeTeamBadgeUrl}
+						alt={`${prediction.matchEvent.homeTeamName} badge`}
+					/>
 
-				{/* Prediction Section */}
-				{prediction.hide && !isCurrentUserPrediction ? (
-					<div className="flex items-center ml-auto gap-2 font-semibold text-xl animate-pulse text-yellow-400">
-						<span className="text-right">Hidden</span>
-					</div>
-				) : (
+					{/* Prediction Section */}
 					<div className="flex items-center ml-auto gap-2 font-semibold text-xl">
 						<span className="text-right">{prediction.homeTeamScore}</span>
 						<span>-</span>
 						<span className="text-left">{prediction.awayTeamScore}</span>
 					</div>
-				)}
 
-				{/* Away Team Badge */}
-				<Image
-					width={32}
-					height={32}
-					className="rounded-full"
-					src={prediction.matchEvent.awayTeamBadgeUrl}
-					alt={`${prediction.matchEvent.awayTeamName} badge`}
-				/>
-			</div>
+					{/* Away Team Badge */}
+					<Image
+						width={32}
+						height={32}
+						className="rounded-full"
+						src={prediction.matchEvent.awayTeamBadgeUrl}
+						alt={`${prediction.matchEvent.awayTeamName} badge`}
+					/>
+				</div>
+			)}
 
 			{/* Action Menu */}
 			{isCurrentUserPrediction && (

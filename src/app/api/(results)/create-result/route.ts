@@ -169,7 +169,6 @@ async function fetchMatchSummary(leagueId: string): Promise<MatchSummaryResponse
 		const res = await fetch(
 			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=25&eventStatusIds=3&entityTagIds=${leagueId}&orderAscending=false&region=za&platform=indaleko-web`,
 		);
-		console.log(res);
 		if (!res.ok) throw new Error(res.statusText);
 
 		const data = (await res.json()) as MatchSummaryResponse;

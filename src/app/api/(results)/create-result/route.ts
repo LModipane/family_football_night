@@ -167,7 +167,7 @@ type MatchSummaryResponse = {
 async function fetchMatchSummary(leagueId: string): Promise<MatchSummaryResponse | null> {
 	try {
 		const res = await fetch(
-			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=150&eventStatusIds=3&entityTagIds=${leagueId}&orderAscending=false&region=za&platform=indaleko-web`,
+			`https://supersport.com/apix/football/v5.1/feed/score/summary?top=25&eventStatusIds=3&entityTagIds=${leagueId}&orderAscending=false&region=za&platform=indaleko-web`,
 		);
 		console.log(res);
 		if (!res.ok) throw new Error(res.statusText);

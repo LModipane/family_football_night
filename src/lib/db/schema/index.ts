@@ -211,7 +211,10 @@ export const matchResultTable = pgTable(
 		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 	},
-	table => [index('match_result_prediction_idx').on(table.predictionId)],
+	table => [
+		index('match_result_prediction_idx').on(table.predictionId),
+		uniqueIndex('uniq_profile_matchEvent').on(table.profileId, table.matchEventId),
+	],
 );
 
 export const matchResultRelation = relations(matchResultTable, ({ one }) => ({

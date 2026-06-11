@@ -233,7 +233,7 @@ const Form = ({
 	const isLateSubmission = Math.abs(+new Date() - +new Date(match.kickOff)) < 30 * 60 * 1000; // submission is late if kickoff is 30 minutes away
 
 	const submitHandler = async (value: z.infer<typeof PredictionSchema>) => {
-		if (isLateSubmission) return;
+		if (isLateSubmission || isLoading) return;
 		try {
 			setIsLoading(true);
 			switch (predictionMode) {
@@ -276,22 +276,42 @@ const Form = ({
 		console.error(error);
 	};
 
+	// const showWinningSideField =
+	// 	!match.isKnockoutStage && form.getValues('awayTeamScore') === form.getValues('homeTeamScore');
+
+	// useEffect(() => {
+	// 	const subscription = form.watch(value => {
+	// 		console.log(value);
+	// 	});
+
+	// 	return () => subscription.unsubscribe();
+	// }, [form.watch]);
+
 	return (
 		<form
 			className="h-fit w-full flex flex-col mx-auto"
 			onSubmit={form.handleSubmit(submitHandler, handleError)}>
-			<Controller
-				name="hide"
-				control={form.control}
-				render={({ field }) => (
-					<div className="flex items-center space-x-2 mb-4">
-						<Switch checked={field.value} onCheckedChange={field.onChange} id="hide-prediction" />
-						<Label htmlFor="hide-prediction" className="text-sm">
-							Hide Prediction
-						</Label>
-					</div>
-				)}
-			/>
+			<div className="flex gap-2 justify-between">
+				<Controller
+					name="hide"
+					control={form.control}
+					render={({ field }) => (
+						<div className="flex items-center space-x-2 mb-4">
+							<Switch checked={field.value} onCheckedChange={field.onChange} id="hide-prediction" />
+							<Label htmlFor="hide-prediction" className="text-sm">
+								Hide Prediction
+							</Label>
+						</div>
+					)}
+				/>
+				{/* {showWinningSideField ? (
+					<Controller
+						name="winningSide"
+						control={form.control}
+						render={({ field }) => <div className="flex items-center space-x-2 mb-4">hello</div>}
+					/>
+				) : null} */}
+			</div>
 			<div className="flex flex-row w-full h-50 md:h-55 justify-between items-center">
 				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
 					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 shadow-2xl border-none">
@@ -305,10 +325,8 @@ const Form = ({
 						<p className="md:text-lg text-sm mb-0.5">{formatDate(match.kickOff)}</p>
 						{match.venue ? (
 							<div className="flex items-center text-center">
-								<MapPin size={16} className='min-w-5'/>
-								<span className="md:text-sm text-xs text-center ">
-									{match.venue}
-								</span>
+								<MapPin size={16} className="min-w-5" />
+								<span className="md:text-sm text-xs text-center ">{match.venue}</span>
 							</div>
 						) : null}
 					</div>
@@ -380,11 +398,11 @@ const Form = ({
 			</div>
 			<div className="flex justify-end mt-auto">
 				{isLateSubmission ? (
-					<Button variant={'destructive'} className="cursor-not-allowed">
+					<Button variant={'destructive'} disabled className="cursor-not-allowed">
 						Late Submission
 					</Button>
 				) : (
-					<Button>
+					<Button disabled={isLoading}>
 						{predictionMode === 'EDIT' ? 'Edit' : predictionMode === 'DELETE' ? 'Delete' : 'Submit'}
 						<Loader2 className={cn('ml-2', isLoading ? 'animate-spin' : 'hidden')} />
 					</Button>

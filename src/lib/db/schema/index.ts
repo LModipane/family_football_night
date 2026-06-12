@@ -166,11 +166,11 @@ export const predictionTable = pgTable(
 	table => [
 		// index('prediction_match_idx').on(table.matchEventId),
 		index('prediction_status_idx').on(table.status),
-		// uniqueIndex('uniq_prediction_profile_group_match').on(
-		// 	table.groupId,
-		// 	table.profileId,
-		// 	table.matchEventId,
-		// ),
+		uniqueIndex('uniq_prediction_profile_group_match').on(
+			table.groupId,
+			table.profileId,
+			table.matchEventId,
+		),
 	],
 );
 

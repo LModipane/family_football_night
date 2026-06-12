@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { and, eq, not, sql } from 'drizzle-orm';
-import { MatchEvent, SummaryItem } from '@/types';
+import { SummaryItem, fixturesWithLiveScore } from '@/types';
 import { leagueTable, matchEventTable } from './db/schema';
 
 export default async function getFixtures(leagueTagId: string) {
@@ -40,16 +40,17 @@ export default async function getFixtures(leagueTagId: string) {
 		if (isOffSeason || response.status !== 200) return [];
 
 		const data = (await response.json()) as { Summary: SummaryItem[] };
-
-		const fixtures: MatchEvent[] = data.Summary.map((item: SummaryItem) => ({
+		const fixtures: fixturesWithLiveScore[] = data.Summary.map((item: SummaryItem) => ({
 			leagueTagId,
+			venue: item.venueName,
 			id: String(item.eventId),
 			matchStatus: item.status.name,
 			homeTeamName: item.teams.home.name,
 			awayTeamName: item.teams.away.name,
 			kickOff: new Date(item.eventDateStart),
 			isKnockoutStage: item.isKnockoutFixture,
-			venue: item.venueName,
+			awayTeamLiveScore: item.score.total.away,
+			homeTeamLiveScore: item.score.total.home,
 			// Add end of match, match status,
 			awayTeamBadgeUrl: `https://images.supersport.com${item.teams.away.icon}`,
 			homeTeamBadgeUrl: `https://images.supersport.com${item.teams.home.icon}`,

@@ -19,7 +19,10 @@ export type MatchResult = InferInsertModel<typeof matchResultTable>;
 // 	matchEvent: MatchEvent;
 // };
 
-export type PredictionWithProfileMatchEvent = Prediction & { profile: Profile; matchEvent: MatchEvent };
+export type PredictionWithProfileMatchEvent = Prediction & {
+	profile: Profile;
+	matchEvent: MatchEvent;
+};
 
 export type LeaderBoard = {
 	profileId: string;
@@ -63,5 +66,8 @@ export type SummaryItem = {
 		home: { name: string; icon: string };
 		away: { name: string; icon: string };
 	};
+	score: { total: { home: number; away: number } };
 	venueName: string;
 };
+
+export type fixturesWithLiveScore = MatchEvent & { awayTeamLiveScore: number, homeTeamLiveScore: number };

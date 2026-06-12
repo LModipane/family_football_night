@@ -53,7 +53,7 @@ const GroupHeader = ({ name, imageUrl, inviteCode, groupId, otherGroups, leagues
 	const currentLeague = leagues.find(league => league.id === currentLegaueId);
 
 	return (
-		<div className="w-full h-15 bg-green-800 p-2 flex items-center justify-between z-50 overflow-hidden">
+		<div className="w-full min-h-15 bg-green-800 p-2 flex items-center justify-between z-50 overflow-hidden">
 			<div className="flex items-center">
 				<GroupsNav otherGroups={otherGroups} />
 

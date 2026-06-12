@@ -90,6 +90,8 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 		}
 	};
 
+	const live = Math.abs(+new Date() - +new Date(prediction.matchEvent.kickOff)) < 3 * 60 * 1000;
+
 	return (
 		<div className="flex items-center w-full max-w-full justify-between p-2 text-white ">
 			{/* Profile Section */}
@@ -130,7 +132,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 			</div>
 
 			{/* Match Details Section */}
-			{prediction.hide && !isCurrentUserPrediction ? (
+			{prediction.hide && !isCurrentUserPrediction && !live ? (
 				<div className="flex items-center ml-auto gap-2 font-semibold text-xl animate-pulse text-yellow-400 md:mr-11.5 mr-8.5 ">
 					<span className="text-right">Hidden</span>
 				</div>

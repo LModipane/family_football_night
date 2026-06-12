@@ -166,7 +166,7 @@ export default async function Home({
 
 	return (
 		<main className="h-full w-full flex flex-col-reverse sm:flex-row">
-			<section className="bg-purple-900 h-full max-h-[50%] md:max-h-full md:max-w-[35%] min-w-87.5 min-h-80 p-2 text-white flex flex-col gap-4">
+			<section className="bg-purple-900 h-full md:max-w-[35%] min-w-87.5 min-h-80 p-2 text-white flex flex-col gap-4 flex-1">
 				<PredictionContextProvider fixtures={fixtures}>
 					<FixturesCarousel fixtures={fixtures} leagueName={currentLeagueName} />
 					<CreatePredictionModelButton
@@ -189,7 +189,7 @@ export default async function Home({
 				</PredictionContextProvider>
 			</section>
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
-			<section className="bg-blue-950 h-full min-w-87.5 text-white flex flex-col flex-1 gap-4 justify-start items-center overflow-y-scroll ">
+			<section className="bg-blue-950 h-full min-w-87.5 text-white flex flex-col flex-1 gap-4 justify-start items-center overflow-y-scroll no-scrollbar">
 				<GroupHeader
 					currentLegaueId={targetLeagueId}
 					name={currentGroup.name}

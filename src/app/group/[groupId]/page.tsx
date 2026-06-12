@@ -189,7 +189,7 @@ export default async function Home({
 				</PredictionContextProvider>
 			</section>
 			{/* <div className="bg-blue-950 h-full w-full  text-white p-10 ">Chat</div> */}
-			<section className="bg-blue-950 h-full min-w-87.5 text-white flex flex-col flex-1 gap-4 justify-start items-center">
+			<section className="bg-blue-950 h-full min-w-87.5 text-white flex flex-col flex-1 gap-4 justify-start items-center overflow-y-scroll ">
 				<GroupHeader
 					currentLegaueId={targetLeagueId}
 					name={currentGroup.name}
@@ -218,7 +218,7 @@ const LeaderTable = ({ leaderboard }: Props) => {
 				</h2>
 			</div>
 			{leaderboard && leaderboard.length !== 0 ? (
-				<ScrollArea className="flex flex-col justify-center items-center w-full h-full px-4">
+				<div className="flex flex-col justify-start items-center w-full h-full px-4">
 					{leaderboard.map((player, index) =>
 						index === 0 ? (
 							<FirstPlace key={player.profileId} player={player} />
@@ -226,7 +226,7 @@ const LeaderTable = ({ leaderboard }: Props) => {
 							<FollowingPlace key={player.profileId} player={player} index={index} />
 						),
 					)}
-				</ScrollArea>
+				</div>
 			) : (
 				<div className="flex justify-center items-center w-full h-full">
 					<h2 className="text-white text-lg">No score yet. Be the first to get on the board!</h2>
@@ -244,7 +244,7 @@ const FirstPlace = async ({ player }: FirstPlaceProps) => {
 	return (
 		<Accordion type="single" collapsible className="w-full">
 			<AccordionItem value="Leader Place" className="w-full">
-				<AccordionTrigger className="sm:w-full h-17.5 flex justify-between items-center bg-blue-700 text-left text-white font-bold">
+				<AccordionTrigger className="relative sm:w-full h-17.5 flex justify-between items-center bg-blue-700 text-left text-white font-bold">
 					<span className="bg-pink-700 w-8 h-8 z-40 absolute sm:-left-6 -left-4 flex justify-center items-center">
 						1
 					</span>
@@ -325,9 +325,9 @@ type ResultTableProps = {
 
 const ResultTable = ({ results }: ResultTableProps) => {
 	return (
-		<Table className="bg-blue-900 p-4 text-white w-full h-full">
+		<Table className="bg-blue-900 p-4 text-white w-full h-fit ">
 			<TableHeader className="h-full">
-				<TableRow className="flex items-center justify-end h-10 hover:bg-blue-800 border-b-2 border-slate-400">
+				<TableRow className="flex items-center justify-end h-10  hover:bg-blue-800 border-b-2 border-slate-400">
 					<TableHead className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center text-white ">
 						# <span className="hidden sm:block">Pos</span>
 					</TableHead>
@@ -345,7 +345,7 @@ const ResultTable = ({ results }: ResultTableProps) => {
 					</TableHead>
 				</TableRow>
 			</TableHeader>
-			<ScrollArea className="h-[25vh]">
+			<ScrollArea className="h-fit">
 				<TableBody>
 					{results.map((result, index) => (
 						<TableRow

@@ -230,7 +230,7 @@ const Form = ({
 		resolver: zodResolver(PredictionSchema),
 	});
 
-	const isLateSubmission = Math.abs(+new Date() - +new Date(match.kickOff)) < 30 * 60 * 1000; // submission is late if kickoff is 30 minutes away
+	const isLateSubmission = +new Date() - +new Date(match.kickOff) < 30 * 60 * 1000; // submission is late if kickoff is 30 minutes away
 
 	const submitHandler = async (value: z.infer<typeof PredictionSchema>) => {
 		if (isLateSubmission || isLoading) return;

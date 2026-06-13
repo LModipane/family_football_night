@@ -90,7 +90,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 		}
 	};
 
-	const live = Math.abs(+new Date() - +new Date(prediction.matchEvent.kickOff)) < 3 * 60 * 1000;
+	const live = +new Date() - +new Date(prediction.matchEvent.kickOff) > 3 * 60 * 1000;
 
 	return (
 		<div className="flex items-center w-full max-w-full justify-between p-2 text-white ">

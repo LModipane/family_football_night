@@ -213,7 +213,7 @@ export const matchResultTable = pgTable(
 	},
 	table => [
 		index('match_result_prediction_idx').on(table.predictionId),
-		uniqueIndex('uniq_profile_matchEvent').on(table.profileId, table.matchEventId),
+		uniqueIndex('uniq_profile_matchEvent_prediction').on(table.profileId, table.matchEventId, table.predictionId),
 	],
 );
 

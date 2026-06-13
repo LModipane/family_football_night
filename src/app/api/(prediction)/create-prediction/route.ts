@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 		});
 		if (!matchEvent) return new Response('Opps, Bad Request!!!', { status: 400 });
 
-		const isSubmissionOpen = +new Date(matchEvent.kickOff) - +new Date() < 10 * 60 * 1000;
+		const isSubmissionOpen = +new Date(matchEvent.kickOff) - +new Date() > 10 * 60 * 1000;
 		if (!isSubmissionOpen)
 			return new Response('Opps, submission for prediction are closed', { status: 422 });
 

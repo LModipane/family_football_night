@@ -8,7 +8,7 @@ export const PredictionSchema = createInsertSchema(predictionTable, {
 	awayTeamScore: schema => schema.min(0, { error: 'Invalid Score' }),
 	homeTeamScore: schema => schema.min(0, { error: 'Invalid Score' }),
 }).omit({ profileId: true }).extend({
-	predictionId: z.string().optional(), // For edit mode, we need prediction id
+	// predictionId: z.string().optional(), // For edit mode, we need prediction id
 });
 
 // For adding leagues to group, we need to validate the selected league ids and group id

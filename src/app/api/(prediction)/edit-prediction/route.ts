@@ -1,21 +1,24 @@
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
-import { PredictionSchema } from '@/types/formSchema';
 import { predictionTable } from '@/lib/db/schema';
+import { PredictionSchema } from '@/types/formSchema';
+import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
 
 export async function PUT(req: Request) {
 	try {
+		const profile = await authenticateUser();
+		if (!profile) return new Response('Opps, Unauthorised to Post Prediction', { status: 401 });
+
 		const body = await req.json();
-        const parsedData = PredictionSchema.parse(body);
-        
-		if (!parsedData.predictionId)
-			throw new Error('Prediction ID is required for editing prediction');
+		const { success, data } = PredictionSchema.safeParse(body);
+
+		if (!success || !data || !data.id) return new Response('Opps, Bad request!!!', {status: 400});
 
 		await db
 			.update(predictionTable)
-			.set(parsedData)
-            .where(eq(predictionTable.id, parsedData.predictionId));
-        
+			.set(data)
+			.where(eq(predictionTable.id, data.id));
+
 		return new Response(`Success`, { status: 200 });
 	} catch (error) {
 		console.error('Failed To Edit Prediction!!!:', error);

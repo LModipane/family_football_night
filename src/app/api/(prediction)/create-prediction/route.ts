@@ -1,26 +1,21 @@
 import { db } from '@/lib/db';
 import { ZodError } from 'zod';
 import posthogClient from '@/lib/posthog';
-import { getServerSession } from 'next-auth';
 import { predictionTable } from '@/lib/db/schema';
-import { authOptions } from '@/lib/nextAuth/options';
 import { PredictionSchema } from '@/types/formSchema';
+import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
 
 export async function POST(req: Request) {
 	try {
-		const session = await getServerSession(authOptions);
-		if (!session) return new Response('Opps, unauthorissed To Post Prediction', { status: 401 });
-
-		const profile = await db.query.profileTable.findFirst({
-			where: (table, { eq }) => eq(table.userId, session?.user.id ?? 'NA'),
-		});
-		if (!profile) return new Response('Opps, Unauthorised to Post Prediction', { status: 400 });
+		const profile = await authenticateUser();
+		if (!profile) return new Response('Opps, Unauthorised to Post Prediction', { status: 401 });
 
 		const body = await req.json();
-		const parsedData = PredictionSchema.omit({ predictionId: true }).parse(body);
+		const { success, data } = PredictionSchema.safeParse(body);
+		if(!success || !data) return new Response("Opps, Bad Request", {status: 400})
 
 		const matchEvent = await db.query.matchEventTable.findFirst({
-			where: (table, { eq }) => eq(table.id, parsedData.matchEventId),
+			where: (table, { eq }) => eq(table.id, data.matchEventId),
 		});
 		if (!matchEvent) return new Response('Opps, Bad Request!!!', { status: 400 });
 
@@ -29,8 +24,8 @@ export async function POST(req: Request) {
 			return new Response('Opps, submission for prediction are closed', { status: 422 });
 
 		await db.insert(predictionTable).values({
-			...parsedData,
-			profileId: profile.id,
+			...data,
+			profileId: profile.id!,
 		});
 
 		const posthog = posthogClient();

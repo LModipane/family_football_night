@@ -222,7 +222,7 @@ const Form = ({
 			groupId,
 			leagueTagId,
 			matchEventId: match.id,
-			predictionId: prevPrediction?.id!,
+			id: prevPrediction?.id,
 			hide: prevPrediction ? prevPrediction.hide : false,
 			homeTeamScore: predictionMode === 'DELETE' ? prevPrediction?.homeTeamScore : undefined,
 			awayTeamScore: predictionMode === 'DELETE' ? prevPrediction?.awayTeamScore : undefined,
@@ -246,7 +246,6 @@ const Form = ({
 					break;
 
 				case 'EDIT':
-					console.log('Editing Prediction with values: ');
 					if (prevPrediction) {
 						await axios.put('/api/edit-prediction', value);
 						toast.success('Successfully edited Prediction');

@@ -42,7 +42,7 @@ function FixturesCarousel({ fixtures, leagueName }: Props) {
 			opts={{ startIndex: carouselIndex ?? 0 }}>
 			<CarouselContent>
 				{fixtures.map(match => {
-					const goLive = +new Date() - +new Date(match.kickOff) < 10 * 60 * 1000;
+					const goLive =  +new Date(match.kickOff) - +new Date()  < 10 * 60 * 1000;
 					return (
 						<CarouselItem key={match.id} className="flex flex-col justify-center items-center">
 							<div className="flex flex-row justify-center items-center">

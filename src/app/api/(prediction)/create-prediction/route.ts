@@ -19,6 +19,15 @@ export async function POST(req: Request) {
 		const body = await req.json();
 		const parsedData = PredictionSchema.omit({ predictionId: true }).parse(body);
 
+		const matchEvent = await db.query.matchEventTable.findFirst({
+			where: (table, { eq }) => eq(table.id, parsedData.matchEventId),
+		});
+		if (!matchEvent) return new Response('Opps, Bad Request!!!', { status: 400 });
+
+		const isSubmissionOpen = +new Date(matchEvent.kickOff) - +new Date() < 10 * 60 * 1000;
+		if (!isSubmissionOpen)
+			return new Response('Opps, submission for prediction are closed', { status: 422 });
+
 		await db.insert(predictionTable).values({
 			...parsedData,
 			profileId: profile.id,

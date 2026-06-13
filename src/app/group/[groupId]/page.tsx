@@ -5,9 +5,9 @@ import { getFixtures } from '@/lib';
 import { desc, eq, sql, and } from 'drizzle-orm';
 import { redirect, RedirectType } from 'next/navigation';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { LeaderBoard, ResultTableElement } from '@/types';
 import { Diff, EllipsisVertical, Minus, Plus } from 'lucide-react';
 import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
-import { LeaderBoard, PredictionWithProfileMatchEvent, ResultTableElement } from '@/types';
 import { matchResultTable, profileTable, predictionTable, matchEventTable } from '@/lib/db/schema';
 
 import {
@@ -19,8 +19,8 @@ import {
 
 import {
 	GroupHeader,
-	FixturesCarousel,
 	PredictionCards,
+	FixturesCarousel,
 	PredictionContextProvider,
 	CreatePredictionModelButton,
 } from '@/components';
@@ -34,7 +34,7 @@ import {
 	TableHeader,
 } from '@/components/ui/table';
 
-export const revalidate = 0;
+export const revalidate = 5;
 
 export default async function Home({
 	params,
@@ -48,9 +48,7 @@ export default async function Home({
 	if (!profile) return redirect('/landing', RedirectType.replace);
 
 	// 2) Parallise request params:
-	const [resolvedParams, resolvedSearchParams] = await Promise.all([params, searchParams]);
-	const { groupId } = resolvedParams;
-	const { leagueId } = resolvedSearchParams;
+	const [{ groupId }, { leagueId }] = await Promise.all([params, searchParams]);
 
 	// 3) Check if user is member and fetch essential group details:
 	const userGroupMembership = await db.query.groupProfileTable.findFirst({
@@ -67,7 +65,6 @@ export default async function Home({
 			},
 		},
 	});
-
 	if (!userGroupMembership)
 		throw new Error('You are not a group member, Please ask for group Admin for invite Code!!!');
 

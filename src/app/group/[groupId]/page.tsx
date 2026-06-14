@@ -304,7 +304,7 @@ const FollowingPlace = async ({ player, index }: FollowingPlaceProps) => {
 						</div>
 					</div>
 				</AccordionTrigger>
-				<AccordionContent className="w-full h-full mx-auto text-white">
+				<AccordionContent className="w-full h-full mx-auto text-white ">
 					{player.results && player.results.length !== 0 ? (
 						<ResultTable results={player.results} />
 					) : (
@@ -322,102 +322,88 @@ type ResultTableProps = {
 
 const ResultTable = ({ results }: ResultTableProps) => {
 	return (
-		<Table className="bg-blue-900 p-4 text-white w-full h-fit ">
-			<TableHeader className="h-full">
-				<TableRow className="flex items-center justify-end h-10  hover:bg-blue-800 border-b-2 border-slate-400">
-					<TableHead className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center text-white ">
-						# <span className="hidden sm:block">Pos</span>
-					</TableHead>
-					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white">
-						Match
-					</TableHead>
-					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10 flex justify-center items-center text-white">
-						Result
-					</TableHead>
-					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white truncate">
-						Prediction
-					</TableHead>
-					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center text-white">
-						Points
-					</TableHead>
-				</TableRow>
-			</TableHeader>
-			<ScrollArea className="h-fit">
-				<TableBody>
-					{results.map((result, index) => (
-						<TableRow
-							key={result.id}
-							className="flex items-center justify-start h-10 hover:bg-blue-800 border-b-[1.5px] border-slate-400">
-							<TableCell className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center">
-								<span>{++index}</span>
-							</TableCell>
-							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-17.5` flex justify-center items-center sm:gap-x-1">
-								<div className="relative min-w-6 min-h-6">
-									<Image
-										src={result.homeTeamBadgeUrl}
-										alt="home-team-logo"
-										fill
-										className="object-fit"
-									/>
-								</div>
-								<div className="flex justify-center items-center">
-									<EllipsisVertical className="h-3 w-3" />
-								</div>
-								<div className="relative min-w-6 min-h-6">
-									<Image
-										src={result.awayTeamBadgeUrl}
-										alt="home-team-logo"
-										fill
-										className="object-fit"
-									/>
-								</div>
-							</TableCell>
-							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10  flex justify-center items-center">
-								<span className="text-lg">{result.homeTeamScoreResult}</span>
-								<div className="flex justify-center items-center">
-									<EllipsisVertical className="h-3 w-3" />
-								</div>
-								<span className="text-lg">{result.awayTeamScoreResult}</span>
-							</TableCell>
-							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center">
-								<span className="text-lg">{result.homeTeamScorePrediction}</span>
-								<div className="flex justify-center items-center">
-									<EllipsisVertical className="h-3 w-3" />
-								</div>
-								<span className="text-lg">{result.awayTeamScorePrediction}</span>
-							</TableCell>
-							{/* <TableCell
-                                className={cn(
-                                    'w-[17%] h-10 flex justify-center items-center',
-                                    fouls < 0 ? 'text-slate-500' : 'text-gray-500',
-                                )}>
-                                {fouls > 0 ? (
-                                    <span>NA</span>
-                                ) : fouls < 0 ? (
-                                    <Minus className="h-4 w-4" />
-                                ) : (
-                                    <Diff className="h-4 w-4" />
-                                )}
-                                {fouls <= 0 ? <span className="text-lg">{Math.abs(fouls)}</span> : <></>}
-                            </TableCell> */}
-							<TableCell
-								className={cn(
-									'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',
-									result.point! > 0
-										? 'text-green-500'
-										: result.point! < 0
-											? 'text-red-500'
-											: 'text-gray-500',
-								)}>
-								{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
-								{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
-								{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
-								<span className="text-lg">{Math.abs(result.point!)}</span>
-							</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
-			</ScrollArea>
-		</Table>
+			<Table className="bg-blue-900 p-4 text-white w-full h-fit">
+				<TableHeader className="h-full">
+					<TableRow className="flex items-center justify-end h-10  hover:bg-blue-800 border-b-2 border-slate-400">
+						<TableHead className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center text-white ">
+							# <span className="hidden sm:block">Pos</span>
+						</TableHead>
+						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white">
+							Match
+						</TableHead>
+						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10 flex justify-center items-center text-white">
+							Result
+						</TableHead>
+						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white truncate">
+							Prediction
+						</TableHead>
+						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center text-white">
+							Points
+						</TableHead>
+					</TableRow>
+				</TableHeader>
+				<ScrollArea className="h-fit md:max-h-[25vh] max-h-[15vh] overflow-y-scroll no-scrollbar">
+					<TableBody>
+						{results.map((result, index) => (
+							<TableRow
+								key={result.id}
+								className="flex items-center justify-start h-10 hover:bg-blue-800 border-b-[1.5px] border-slate-400">
+								<TableCell className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center">
+									<span>{results.length - index }</span>
+								</TableCell>
+								<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-17.5` flex justify-center items-center sm:gap-x-1">
+									<div className="relative min-w-6 min-h-6">
+										<Image
+											src={result.homeTeamBadgeUrl}
+											alt="home-team-logo"
+											fill
+											className="object-fit"
+										/>
+									</div>
+									<div className="flex justify-center items-center">
+										<EllipsisVertical className="h-3 w-3" />
+									</div>
+									<div className="relative min-w-6 min-h-6">
+										<Image
+											src={result.awayTeamBadgeUrl}
+											alt="home-team-logo"
+											fill
+											className="object-fit"
+										/>
+									</div>
+								</TableCell>
+								<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10  flex justify-center items-center">
+									<span className="text-lg">{result.homeTeamScoreResult}</span>
+									<div className="flex justify-center items-center">
+										<EllipsisVertical className="h-3 w-3" />
+									</div>
+									<span className="text-lg">{result.awayTeamScoreResult}</span>
+								</TableCell>
+								<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center">
+									<span className="text-lg">{result.homeTeamScorePrediction}</span>
+									<div className="flex justify-center items-center">
+										<EllipsisVertical className="h-3 w-3" />
+									</div>
+									<span className="text-lg">{result.awayTeamScorePrediction}</span>
+								</TableCell>
+								<TableCell
+									className={cn(
+										'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',
+										result.point! > 0
+											? 'text-green-500'
+											: result.point! < 0
+												? 'text-red-500'
+												: 'text-gray-500',
+									)}>
+									{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
+									{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
+									{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
+									<span className="text-lg">{Math.abs(result.point!)}</span>
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</ScrollArea>
+			</Table>
 	);
 };

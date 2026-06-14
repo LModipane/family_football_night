@@ -78,7 +78,7 @@ function FixturesCarousel({ fixtures, leagueName }: Props) {
 								{gameOn ? (
 									<div className="bg-blue-400 p-2 mx-3 mb-6 rounded-2xl animate-pulse">
 										Live: <span>{match.homeTeamLiveScore}</span>
-										{match.isGameLive ? '-' : 'HT'}
+										{match.isGameLive ? ' - ' : ' HT '}
 										<span>{match.awayTeamLiveScore}</span>
 									</div>
 								) : (

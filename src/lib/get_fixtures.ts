@@ -40,6 +40,7 @@ export default async function getFixtures(leagueTagId: string) {
 		if (isOffSeason || response.status !== 200) return [];
 
 		const data = (await response.json()) as { Summary: SummaryItem[] };
+
 		const fixtures: fixturesWithLiveScore[] = data.Summary.map((item: SummaryItem) => ({
 			leagueTagId,
 			venue: item.venueName,

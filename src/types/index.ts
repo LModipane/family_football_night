@@ -68,6 +68,11 @@ export type SummaryItem = {
 	};
 	score: { total: { home: number; away: number } };
 	venueName: string;
+	gameStatus: { isActive: string } | null;
 };
 
-export type fixturesWithLiveScore = MatchEvent & { awayTeamLiveScore: number, homeTeamLiveScore: number };
+export type fixturesWithLiveScore = MatchEvent & {
+	awayTeamLiveScore: number;
+	homeTeamLiveScore: number;
+	isGameLive: boolean;
+};

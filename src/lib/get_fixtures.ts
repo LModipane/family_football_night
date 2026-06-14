@@ -51,6 +51,7 @@ export default async function getFixtures(leagueTagId: string) {
 			isKnockoutStage: item.isKnockoutFixture,
 			awayTeamLiveScore: item.score.total.away,
 			homeTeamLiveScore: item.score.total.home,
+			isGameLive: item.gameStatus?.isActive === 'True' ? true : false,
 			// Add end of match, match status,
 			awayTeamBadgeUrl: `https://images.supersport.com${item.teams.away.icon}`,
 			homeTeamBadgeUrl: `https://images.supersport.com${item.teams.home.icon}`,

@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { inArray } from 'drizzle-orm';
-import { MatchResult, Prediction } from '@/types';
-import { matchResultTable, predictionTable } from '@/lib/db/schema';
+import { MatchResult, Points, Prediction } from '@/types';
+import { matchResultTable, predictionTable, pointTable } from '@/lib/db/schema';
 
 export async function POST(req: Request) {
 	try {
@@ -30,63 +30,93 @@ export async function POST(req: Request) {
 			}
 		}
 
-		// let's batch all request into:
-		const matchResultsToInsert = [] as MatchResult[];
+		//Define inserts values:
+		const matchResultToInsert: MatchResult[] = [];
+		const pointsToInsert: Points[] = [];
 		const predictionIdsToUpdate: string[] = [];
 
-		// For each league group, let's fetch match results
-		for (const [leagueTagId, leaguePredictions] of leaguePredictionsMap) {
-			const data = await fetchMatchSummary(leagueTagId);
-			if (!data) continue;
+		const processedMatchEvents = new Set<string>();
 
-			// For each prediction in league group, find the match results, calculate points finally push it to batch array else just skip prediction
-			for (const prediction of leaguePredictions) {
-				const match = data.Summary.find(obj => obj.eventId === prediction.matchEventId);
-				if (!match) continue;
+		//Process Each Prediction
+		for (const [leagueTagId, predictions] of leaguePredictionsMap) {
+			const matches = await fetchMatchSummary(leagueTagId);
+			if (!matches) continue;
 
-				const awayTeamScoreResult = match.score.total.away;
-				const homeTeamScoreResult = match.score.total.home;
+			for (const prediction of predictions) {
+				const matchResult = matches.Summary.find(obj => obj.eventId === prediction.matchEventId);
+				if (!matchResult) continue;
 
-				const point = calculatePoints({
+				//Fetch results value
+				const winningSide = matchResult.score.winner.side;
+				const awayTeamScoreResult = matchResult.score.total.away;
+				const homeTeamScoreResult = matchResult.score.total.home;
+
+				//Calulate points
+				const points = calculatePoints({
+					winningSide,
 					awayResult: awayTeamScoreResult,
 					homeResult: homeTeamScoreResult,
-					winningSide: match.score.winner.side,
 					homePrediction: prediction.homeTeamScore,
 					awayPrediction: prediction.awayTeamScore,
 					winningPrediction: prediction.winningSide,
-					isKnockoutFixture: match.isKnockoutFixture,
+					isKnockoutFixture: matchResult.isKnockoutFixture,
 				});
 
-				matchResultsToInsert.push({
-					point,
-					awayTeamScoreResult,
-					homeTeamScoreResult,
+				// only insert matches for each match event
+				if (!processedMatchEvents.has(prediction.matchEventId)) {
+					matchResultToInsert.push({
+						winningSide,
+						awayTeamScoreResult,
+						homeTeamScoreResult,
+						matchEventId: prediction.matchEventId,
+					});
+
+					processedMatchEvents.add(prediction.matchEventId);
+				}
+
+				// add points to insert
+				pointsToInsert.push({
+					points,
 					predictionId: prediction.id!,
-					profileId: prediction.profileId,
-					winningSide: match.score.winner.side,
-					matchEventId: prediction.matchEventId,
 				});
 
+				// Add prediction ids to update
 				predictionIdsToUpdate.push(prediction.id!);
 			}
 		}
 
-		// If batch size is greater than zero, let's insert the results
-		if (matchResultsToInsert.length > 0)
-			await db
+		const dbQueries: Promise<unknown>[] = [];
+
+		// Insert match results
+		if (matchResultToInsert.length > 0) {
+			const insertMatchResult = db
 				.insert(matchResultTable)
-				.values(matchResultsToInsert)
+				.values(matchResultToInsert)
 				.onConflictDoNothing();
 
-		// if batch size i greater than zero, let's update predictions to be settled
-		if (predictionIdsToUpdate.length > 0)
-			await db
+			dbQueries.push(insertMatchResult);
+		}
+
+		// Insert points
+		if (pointsToInsert.length > 0) {
+			const insertPoints = db.insert(pointTable).values(pointsToInsert).onConflictDoNothing();
+			dbQueries.push(insertPoints);
+		}
+
+		// Update predictions
+		if (predictionIdsToUpdate.length > 0) {
+			const updatePrediction = db
 				.update(predictionTable)
 				.set({
 					status: 'settled',
 					updateAt: new Date(),
 				})
 				.where(inArray(predictionTable.id, predictionIdsToUpdate));
+
+			dbQueries.push(updatePrediction);
+		}
+
+		await Promise.all(dbQueries);
 
 		return new Response('Match results processed successfully', { status: 201 });
 	} catch (error) {
@@ -124,7 +154,7 @@ function calculatePoints({
 		isKnockoutFixture && predictedDraw && isPerfectPrediction && winningSide === winningPrediction;
 
 	if (isPerfectKnockoutPrediction) return 4;
-	if (isPerfectPrediction) return 3; 
+	if (isPerfectPrediction) return 3;
 
 	const correctOutcome =
 		(awayResult > homeResult && awayPrediction > homePrediction) ||

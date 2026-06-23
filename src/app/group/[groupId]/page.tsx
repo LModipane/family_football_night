@@ -8,7 +8,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { LeaderBoard, ResultTableElement } from '@/types';
 import { Diff, EllipsisVertical, Minus, Plus } from 'lucide-react';
 import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
-import { matchResultTable, profileTable, predictionTable, matchEventTable } from '@/lib/db/schema';
+
+import {
+	pointTable,
+	profileTable,
+	predictionTable,
+	matchEventTable,
+	matchResultTable,
+} from '@/lib/db/schema';
 
 import {
 	Accordion,
@@ -96,57 +103,73 @@ export default async function Home({
 		where: (table, { eq, and }) => and(eq(table.status, 'unsettled'), eq(table.groupId, groupId)),
 	});
 
-	const totalScore = sql<number>`sum(${matchResultTable.point})`;
+	const totalScore = sql<number>`sum(${pointTable.points})`;
+
 	const leaderboardPromise = db
 		.select({
-			// 📊 Basic user profile mapping for the leaderboard row
-			profileId: matchResultTable.profileId,
+			// 👤 profile
+			profileId: predictionTable.profileId,
 			name: profileTable.name,
 			imageUrl: profileTable.imageUrl,
 
-			// 🧮 Aggregate total calculated score for this user
+			// 🧮 total score
 			score: totalScore.as('score'),
 
-			// 🛠️ Advanced JSON aggregation to pack all historic match data into a single array per user
+			// 📊 history per user
 			results: sql<ResultTableElement[]>`
-						json_agg(
-							json_build_object(
-							'id', ${matchResultTable.id},
-							'point', ${matchResultTable.point},
+			json_agg(
+				json_build_object(
 
-							-- ✅ actual result
-							'homeTeamScoreResult', ${matchResultTable.homeTeamScoreResult},
-							'awayTeamScoreResult', ${matchResultTable.awayTeamScoreResult},
+					-- point info
+					'points', ${pointTable.points},
+					'createAt', ${pointTable.createAt},
 
-							-- ✅ prediction score (from prediction table)
-							'homeTeamScorePrediction', ${predictionTable.homeTeamScore},
-							'awayTeamScorePrediction', ${predictionTable.awayTeamScore},
+					-- prediction
+					'homeTeamScorePrediction', ${predictionTable.homeTeamScore},
+					'awayTeamScorePrediction', ${predictionTable.awayTeamScore},
+					'winningSidePrediction', ${predictionTable.winningSide},
 
-							-- ✅ badge URLs (from match_event table)
-							'homeTeamBadgeUrl', ${matchEventTable.homeTeamBadgeUrl},
-							'awayTeamBadgeUrl', ${matchEventTable.awayTeamBadgeUrl},
+					-- match event
+					'matchEventId', ${matchEventTable.id},
+					'homeTeamName', ${matchEventTable.homeTeamName},
+					'awayTeamName', ${matchEventTable.awayTeamName},
+					'homeTeamBadgeUrl', ${matchEventTable.homeTeamBadgeUrl},
+					'awayTeamBadgeUrl', ${matchEventTable.awayTeamBadgeUrl},
+					'kickOff', ${matchEventTable.kickOff},
 
-							'createAt', ${matchResultTable.createAt}
-							)
-							ORDER BY ${matchResultTable.createAt} DESC
-						)
-						`.as('results'),
+					-- match result (joined via match_event)
+					'homeTeamScoreResult', ${matchResultTable.homeTeamScoreResult},
+					'awayTeamScoreResult', ${matchResultTable.awayTeamScoreResult},
+					'winningSideResult', ${matchResultTable.winningSide},
+
+					-- result id (optional for UI reference)
+					'matchResultId', ${matchResultTable.id}
+				)
+				ORDER BY ${pointTable.createAt} DESC
+			)
+		`.as('results'),
 		})
 
-		.from(matchResultTable)
-		// 🔗 join prediction (needed for group + prediction scores)
-		.innerJoin(predictionTable, eq(matchResultTable.predictionId, predictionTable.id))
-		// 🔗 join match_event (needed for badge URLs)
-		.innerJoin(matchEventTable, eq(matchResultTable.matchEventId, matchEventTable.id))
-		// 🔗 Join profile table (Required to match the score results back to a human name and avatar)
-		.innerJoin(profileTable, eq(matchResultTable.profileId, profileTable.id))
-		// 🎯 scope to specific group aand league
+		.from(pointTable)
+
+		// point → prediction
+		.innerJoin(predictionTable, eq(pointTable.predictionId, predictionTable.id))
+
+		// prediction → profile
+		.innerJoin(profileTable, eq(predictionTable.profileId, profileTable.id))
+
+		// prediction → match_event
+		.innerJoin(matchEventTable, eq(predictionTable.matchEventId, matchEventTable.id))
+
+		// match_event → match_result
+		.leftJoin(matchResultTable, eq(matchResultTable.matchEventId, matchEventTable.id))
+
 		.where(
 			and(eq(predictionTable.groupId, groupId), eq(matchEventTable.leagueTagId, targetLeagueId)),
 		)
-		// 👥 Group by user identity fields so the sum() and json_agg() calculations execute cleanly per person
-		.groupBy(matchResultTable.profileId, profileTable.name, profileTable.imageUrl)
-		// 🏆 Rank the leaderboard with the highest total scores placed at the top
+
+		.groupBy(predictionTable.profileId, profileTable.name, profileTable.imageUrl)
+
 		.orderBy(desc(totalScore));
 
 	//
@@ -322,88 +345,88 @@ type ResultTableProps = {
 
 const ResultTable = ({ results }: ResultTableProps) => {
 	return (
-			<Table className="bg-blue-900 p-4 text-white w-full h-fit">
-				<TableHeader className="h-full">
-					<TableRow className="flex items-center justify-end h-10  hover:bg-blue-800 border-b-2 border-slate-400">
-						<TableHead className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center text-white ">
-							# <span className="hidden sm:block">Pos</span>
-						</TableHead>
-						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white">
-							Match
-						</TableHead>
-						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10 flex justify-center items-center text-white">
-							Result
-						</TableHead>
-						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white truncate">
-							Prediction
-						</TableHead>
-						<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center text-white">
-							Points
-						</TableHead>
-					</TableRow>
-				</TableHeader>
-				<ScrollArea className="h-fit md:max-h-[25vh] max-h-[15vh] overflow-y-scroll no-scrollbar">
-					<TableBody>
-						{results.map((result, index) => (
-							<TableRow
-								key={result.id}
-								className="flex items-center justify-start h-10 hover:bg-blue-800 border-b-[1.5px] border-slate-400">
-								<TableCell className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center">
-									<span>{results.length - index }</span>
-								</TableCell>
-								<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-17.5` flex justify-center items-center sm:gap-x-1">
-									<div className="relative min-w-6 min-h-6">
-										<Image
-											src={result.homeTeamBadgeUrl}
-											alt="home-team-logo"
-											fill
-											className="object-fit"
-										/>
-									</div>
-									<div className="flex justify-center items-center">
-										<EllipsisVertical className="h-3 w-3" />
-									</div>
-									<div className="relative min-w-6 min-h-6">
-										<Image
-											src={result.awayTeamBadgeUrl}
-											alt="home-team-logo"
-											fill
-											className="object-fit"
-										/>
-									</div>
-								</TableCell>
-								<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10  flex justify-center items-center">
-									<span className="text-lg">{result.homeTeamScoreResult}</span>
-									<div className="flex justify-center items-center">
-										<EllipsisVertical className="h-3 w-3" />
-									</div>
-									<span className="text-lg">{result.awayTeamScoreResult}</span>
-								</TableCell>
-								<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center">
-									<span className="text-lg">{result.homeTeamScorePrediction}</span>
-									<div className="flex justify-center items-center">
-										<EllipsisVertical className="h-3 w-3" />
-									</div>
-									<span className="text-lg">{result.awayTeamScorePrediction}</span>
-								</TableCell>
-								<TableCell
-									className={cn(
-										'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',
-										result.point! > 0
-											? 'text-green-500'
-											: result.point! < 0
-												? 'text-red-500'
-												: 'text-gray-500',
-									)}>
-									{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
-									{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
-									{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
-									<span className="text-lg">{Math.abs(result.point!)}</span>
-								</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
-				</ScrollArea>
-			</Table>
+		<Table className="bg-blue-900 p-4 text-white w-full h-fit">
+			<TableHeader className="h-full">
+				<TableRow className="flex items-center justify-end h-10  hover:bg-blue-800 border-b-2 border-slate-400">
+					<TableHead className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center text-white ">
+						# <span className="hidden sm:block">Pos</span>
+					</TableHead>
+					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white">
+						Match
+					</TableHead>
+					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10 flex justify-center items-center text-white">
+						Result
+					</TableHead>
+					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center text-white truncate">
+						Prediction
+					</TableHead>
+					<TableHead className="border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center text-white">
+						Points
+					</TableHead>
+				</TableRow>
+			</TableHeader>
+			<ScrollArea className="h-fit md:max-h-[25vh] max-h-[15vh] overflow-y-scroll no-scrollbar">
+				<TableBody>
+					{results.map((result, index) => (
+						<TableRow
+							key={result.id}
+							className="flex items-center justify-start h-10 hover:bg-blue-800 border-b-[1.5px] border-slate-400">
+							<TableCell className="border-[1.5px] border-slate-500 sm:w-14 w-5 h-10 flex justify-center items-center">
+								<span>{results.length - index}</span>
+							</TableCell>
+							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 w-17.5` flex justify-center items-center sm:gap-x-1">
+								<div className="relative min-w-6 min-h-6">
+									<Image
+										src={result.homeTeamBadgeUrl}
+										alt="home-team-logo"
+										fill
+										className="object-fit"
+									/>
+								</div>
+								<div className="flex justify-center items-center">
+									<EllipsisVertical className="h-3 w-3" />
+								</div>
+								<div className="relative min-w-6 min-h-6">
+									<Image
+										src={result.awayTeamBadgeUrl}
+										alt="home-team-logo"
+										fill
+										className="object-fit"
+									/>
+								</div>
+							</TableCell>
+							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-10  flex justify-center items-center">
+								<span className="text-lg">{result.homeTeamScoreResult}</span>
+								<div className="flex justify-center items-center">
+									<EllipsisVertical className="h-3 w-3" />
+								</div>
+								<span className="text-lg">{result.awayTeamScoreResult}</span>
+							</TableCell>
+							<TableCell className="border-[1.5px] border-slate-500 flex-1 h-10 min-w-17.5 flex justify-center items-center">
+								<span className="text-lg">{result.homeTeamScorePrediction}</span>
+								<div className="flex justify-center items-center">
+									<EllipsisVertical className="h-3 w-3" />
+								</div>
+								<span className="text-lg">{result.awayTeamScorePrediction}</span>
+							</TableCell>
+							<TableCell
+								className={cn(
+									'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',
+									result.point! > 0
+										? 'text-green-500'
+										: result.point! < 0
+											? 'text-red-500'
+											: 'text-gray-500',
+								)}>
+								{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
+								{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
+								{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
+								<span className="text-lg">{Math.abs(result.point!)}</span>
+							</TableCell>
+						</TableRow>
+					))}
+				</TableBody>
+			</ScrollArea>
+		</Table>
 	);
 };

@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { One, relations } from 'drizzle-orm';
 
 import {
 	uuid,
@@ -136,6 +136,10 @@ export const matchEventRelation = relations(matchEventTable, ({ one }) => ({
 		fields: [matchEventTable.leagueTagId],
 		references: [leagueTable.id],
 	}),
+	result: one(matchResultTable, {
+		fields: [matchEventTable.id],
+		references: [matchResultTable.matchEventId],
+	}),
 }));
 
 export const predictionStatusEnum = pgEnum('prediction_status', ['settled', 'unsettled', 'review']);
@@ -189,41 +193,46 @@ export const predictionRelations = relations(predictionTable, ({ one }) => ({
 	}),
 }));
 
+export const pointTable = pgTable('points', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	points: integer('points').notNull(),
+	predictionId: uuid('prediction_id')
+		.notNull()
+		.unique()
+		.references(() => predictionTable.id, { onDelete: 'cascade' }),
+	createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
+	updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
+});
+
+export const pointRelation = relations(pointTable, ({ one }) => ({
+	prediction: one(predictionTable, {
+		fields: [pointTable.predictionId],
+		references: [predictionTable.id],
+	}),
+}));
+
 export const matchResultTable = pgTable(
 	'match_result',
 	{
 		id: uuid('id').primaryKey().defaultRandom(),
-		profileId: uuid('profile_id')
-			.notNull()
-			.references(() => profileTable.id, { onDelete: 'cascade' }),
-		predictionId: uuid('prediction_id')
-			.notNull()
-			.references(() => predictionTable.id, { onDelete: 'cascade' }),
 		matchEventId: varchar('match_event_id')
 			.notNull()
+			.unique()
 			.references(() => matchEventTable.id, {
 				onDelete: 'cascade',
 			}),
-		point: integer('point').default(0).notNull(),
 		winningSide: winningSideEnum('winning_side').default('home').notNull(),
 		homeTeamScoreResult: integer('home_team_score_result').notNull(),
 		awayTeamScoreResult: integer('away_team_score_result').notNull(),
 		createAt: timestamp('create_at', { mode: 'date' }).defaultNow(),
 		updateAt: timestamp('update_at', { mode: 'date' }).defaultNow(),
 	},
-	table => [
-		index('match_result_prediction_idx').on(table.predictionId),
-		uniqueIndex('uniq_profile_matchEvent_prediction').on(table.profileId, table.matchEventId, table.predictionId),
-	],
+	table => [uniqueIndex('match_event_id').on(table.matchEventId)],
 );
 
 export const matchResultRelation = relations(matchResultTable, ({ one }) => ({
-	profile: one(profileTable, {
-		fields: [matchResultTable.profileId],
-		references: [profileTable.id],
-	}),
-	prediction: one(predictionTable, {
-		fields: [matchResultTable.predictionId],
-		references: [predictionTable.id],
+	matchEvent: one(matchEventTable, {
+		fields: [matchResultTable.matchEventId],
+		references: [matchEventTable.id],
 	}),
 }));

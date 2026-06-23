@@ -1,10 +1,11 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { profileTable, predictionTable, matchResultTable, matchEventTable } from '@/lib/db/schema';
+import { profileTable, predictionTable, matchResultTable, matchEventTable, pointTable } from '@/lib/db/schema';
 
 export type Profile = InferInsertModel<typeof profileTable>;
 export type Prediction = InferInsertModel<typeof predictionTable>;
 export type MatchEvent = InferInsertModel<typeof matchEventTable>;
 export type MatchResult = InferInsertModel<typeof matchResultTable>;
+export type Points = InferInsertModel<typeof pointTable>
 
 // export type PredictionWithProfileMatchEvent = {
 // 	id: string;

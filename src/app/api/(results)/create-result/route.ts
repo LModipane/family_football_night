@@ -1,8 +1,7 @@
 import { db } from '@/lib/db';
+import { inArray } from 'drizzle-orm';
 import { MatchResult, Prediction } from '@/types';
-import { inArray, sql } from 'drizzle-orm';
 import { matchResultTable, predictionTable } from '@/lib/db/schema';
-import { point } from 'drizzle-orm/pg-core';
 
 export async function POST(req: Request) {
 	try {

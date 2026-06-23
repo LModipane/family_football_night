@@ -37,7 +37,7 @@ function FixturesCarousel({ fixtures, leagueName }: Props) {
 
 	// 1. Store the latest live status in a mutable ref
 	const isLiveRef = useRef(false);
-	isLiveRef.current = fixtures?.some(obj => obj.isGameLive || +new Date(obj.kickOff) < +new Date());
+	isLiveRef.current = fixtures.some(obj => obj.isGameLive || +new Date(obj.kickOff) < +new Date());
 
 	useEffect(() => {
 		// 2. The interval only checks the stable ref, not the changing array

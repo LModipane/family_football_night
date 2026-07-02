@@ -46,7 +46,7 @@ export type Match = {
 
 export type ResultTableElement = {
 	id: string;
-	point: number;
+	points: number;
 
 	homeTeamScoreResult: number;
 	awayTeamScoreResult: number;

@@ -344,6 +344,7 @@ type ResultTableProps = {
 };
 
 const ResultTable = ({ results }: ResultTableProps) => {
+	console.log('Results:', results); // Debugging line
 	return (
 		<Table className="bg-blue-900 p-4 text-white w-full h-fit">
 			<TableHeader className="h-full">
@@ -412,16 +413,16 @@ const ResultTable = ({ results }: ResultTableProps) => {
 							<TableCell
 								className={cn(
 									'border-[1.5px] border-slate-500 flex-1 h-10 flex justify-center items-center',
-									result.point! > 0
+									result.points! > 0
 										? 'text-green-500'
-										: result.point! < 0
+										: result.points! < 0
 											? 'text-red-500'
 											: 'text-gray-500',
 								)}>
-								{result.point! > 0 ? <Plus className="h-4 w-4" /> : <></>}
-								{result.point! < 0 ? <Minus className="h-4 w-4" /> : <></>}
-								{result.point === 0 ? <Diff className="h-4 w-4" /> : <></>}
-								<span className="text-lg">{Math.abs(result.point!)}</span>
+								{result.points! > 0 ? <Plus className="h-4 w-4" /> : <></>}
+								{result.points! < 0 ? <Minus className="h-4 w-4" /> : <></>}
+								{result.points === 0 ? <Diff className="h-4 w-4" /> : <></>}
+								<span className="text-lg">{Math.abs(result.points!)}</span>
 							</TableCell>
 						</TableRow>
 					))}

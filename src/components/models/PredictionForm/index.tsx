@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PredictionSchema } from '@/types/formSchema';
-import { Field, FieldError } from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldLabel } from '@/components/ui/field';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowRight, ArrowLeft, Asterisk, Loader2, MapPin } from 'lucide-react';
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
@@ -26,6 +26,17 @@ import {
 	DialogContent,
 	DialogDescription,
 } from '@/components/ui/dialog';
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectLabel,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const PredictionFormModel = () => {
 	const {
@@ -230,7 +241,7 @@ const Form = ({
 		resolver: zodResolver(PredictionSchema),
 	});
 
-	const isLateSubmission =  +new Date(match.kickOff) - +new Date() < 30 * 60 * 1000; // submission is late if kickoff is 30 minutes away
+	const isLateSubmission = +new Date(match.kickOff) - +new Date() < 30 * 60 * 1000; // submission is late if kickoff is 30 minutes away
 
 	const submitHandler = async (value: z.infer<typeof PredictionSchema>) => {
 		if (isLateSubmission || isLoading) return;
@@ -288,113 +299,193 @@ const Form = ({
 
 	return (
 		<form
-			className="h-fit w-full flex flex-col mx-auto"
+			className="h-full w-full flex flex-col gap-3"
 			onSubmit={form.handleSubmit(submitHandler, handleError)}>
-			<div className="flex gap-2 justify-between">
-				<Controller
-					name="hide"
-					control={form.control}
-					render={({ field }) => (
-						<div className="flex items-center space-x-2 mb-4">
-							<Switch checked={field.value} onCheckedChange={field.onChange} id="hide-prediction" />
-							<Label htmlFor="hide-prediction" className="text-sm">
-								Hide Prediction
-							</Label>
-						</div>
-					)}
-				/>
-				{/* {showWinningSideField ? (
+			<ScrollArea className="flex flex-col h-80 p-2 overflow-y-scroll no-scrollbar">
+				<div className="flex flex-col md:flex-row gap-2 m-2">
+					{/* Hide Prediction */}
 					<Controller
-						name="winningSide"
+						name="hide"
 						control={form.control}
-						render={({ field }) => <div className="flex items-center space-x-2 mb-4">hello</div>}
-					/>
-				) : null} */}
-			</div>
-			<div className="flex flex-row w-full h-50 md:h-55 justify-between items-center">
-				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
-					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 shadow-2xl border-none">
-						<AvatarImage src={match.homeTeamBadgeUrl} className="w-full h-full" />
-						<AvatarFallback />
-					</Avatar>
-					<h3 className="mt-2 font-semibold text-lg">{match.homeTeamName}</h3>
-				</div>
-				<div className="h-full w-fit flex flex-col justify-center items-center mb-15">
-					<div className="flex flex-col items-center justify-center w-full">
-						<p className="md:text-lg text-sm mb-0.5">{formatDate(match.kickOff)}</p>
-						{match.venue ? (
-							<div className="flex items-center text-center">
-								<MapPin size={16} className="min-w-5" />
-								<span className="md:text-sm text-xs text-center ">{match.venue}</span>
+						render={({ field }) => (
+							<div className="flex items-center justify-between rounded-2xl border bg-muted/40 px-2 py-1 shadow-sm transition-colors hover:bg-muted/60">
+								<div className="space-y-1">
+									<Label htmlFor="hide-prediction" className="text-sm font-semibold cursor-pointer">
+										Hide Prediction
+									</Label>
+
+									<p className="text-[10px] text-muted-foreground max-w-[70%]">
+										Keep your prediction hidden until the match starts.
+									</p>
+								</div>
+
+								<Switch
+									id="hide-prediction"
+									checked={field.value}
+									onCheckedChange={field.onChange}
+								/>
 							</div>
-						) : null}
-					</div>
-					<div className="flex flex-row justify-center items-center h-fit w-full md:mx-4 mx-2 my-3 mb-5">
+						)}
+					/>
+
+					{/* Winner Selection */}
+					{true && (
 						<Controller
-							name="homeTeamScore"
+							name="winningSide"
 							control={form.control}
 							render={({ field, fieldState }) => (
-								<Field data-invalid={fieldState.invalid}>
-									<input
-										min={0}
-										required
-										{...field}
-										type="number"
-										aria-invalid={fieldState.invalid}
-										readOnly={predictionMode === 'DELETE'}
-										placeholder={`${field.value ?? prevPrediction?.homeTeamScore ?? 0}`}
-										value={field.value || field.value === 0 ? field.value : ''}
-										onChange={event => {
-											if (event.target.value === '') return field.onChange(undefined);
-											field.onChange(+event.target.value);
-										}}
-										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 p-2 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
-									/>
-									{fieldState.invalid ? (
-										<FieldError className="text-[10px]" errors={[{ message: 'Invalid Score' }]} />
-									) : null}
+								<Field
+									aria-invalid={fieldState.invalid}
+									className="rounded-2xl border bg-muted/40 p-4 shadow-sm">
+									<div className="mb-3">
+										<FieldLabel className="text-sm font-semibold">Match Winner</FieldLabel>
+
+										<p className="mt-1 text-xs text-muted-foreground">
+											Choose who you think will win after full time.
+										</p>
+									</div>
+
+									<FieldContent>
+										<Select value={field.value} onValueChange={field.onChange}>
+											<SelectTrigger className="h-11 w-full">
+												<SelectValue placeholder="Select winning team" />
+											</SelectTrigger>
+
+											<SelectContent>
+												<SelectGroup>
+													<SelectLabel>Teams</SelectLabel>
+
+													<SelectItem value="home" className="py-3">
+														<div className="flex items-center gap-3">
+															<Avatar className="size-8 md:size-10 border shadow-sm">
+																<AvatarImage src={match.homeTeamBadgeUrl} />
+																<AvatarFallback />
+															</Avatar>
+
+															<span className="font-medium">{match.homeTeamName}</span>
+														</div>
+													</SelectItem>
+
+													<SelectItem value="away" className="py-3">
+														<div className="flex items-center gap-3">
+															<Avatar className="size-8 md:size-10 border shadow-sm">
+																<AvatarImage src={match.awayTeamBadgeUrl} />
+																<AvatarFallback />
+															</Avatar>
+
+															<span className="font-medium">{match.awayTeamName}</span>
+														</div>
+													</SelectItem>
+												</SelectGroup>
+											</SelectContent>
+										</Select>
+									</FieldContent>
 								</Field>
 							)}
 						/>
-						<h4 className="p-1">
-							<Asterisk size={20} />
-						</h4>
-						<Controller
-							name="awayTeamScore"
-							control={form.control}
-							render={({ field, fieldState }) => (
-								<Field data-invalid={fieldState.invalid}>
-									<input
-										min={0}
-										required
-										{...field}
-										type="number"
-										aria-invalid={fieldState.invalid}
-										readOnly={predictionMode === 'DELETE'}
-										value={field.value || field.value === 0 ? field.value : ''}
-										placeholder={`${field.value ?? prevPrediction?.awayTeamScore ?? 0}`}
-										onChange={event => {
-											if (event.target.value === '') return field.onChange(undefined);
-											field.onChange(+event.target.value);
-										}}
-										className="w-full h-full min-h-5 min-w-5 md:min-w-16 md:min-h-16 p-2 border-2 border-gray-500 rounded-xl text-black font-bold md:text-[40px] text-[25px] text-center placeholder:text-gray-700/30 no-toggle"
-									/>
-									{fieldState.invalid ? (
-										<FieldError className="text-[10px]" errors={[{ message: 'Invalid Score' }]} />
-									) : null}
-								</Field>
+					)}
+				</div>
+				<div className="rounded-3xl border bg-card shadow-sm p-4 md:p-3 ">
+					<div className="flex items-start justify-between gap-4">
+						{/* Home Team */}
+						<div className="flex flex-1 flex-col items-center text-center">
+							<Avatar className="size-17 md:size-28 rounded-full border bg-background shadow-md">
+								<AvatarImage src={match.homeTeamBadgeUrl} />
+								<AvatarFallback />
+							</Avatar>
+
+							<h3 className="mt-3 text-sm md:text-lg font-semibold leading-tight">
+								{match.homeTeamName}
+							</h3>
+						</div>
+
+						{/* Center */}
+						<div className="flex flex-col items-center shrink-0">
+							<div className="rounded-full bg-muted px-4 py-1">
+								<p className="text-xs md:text-sm font-medium">{formatDate(match.kickOff)}</p>
+							</div>
+
+							{match.venue && (
+								<div className="mt-2 flex items-center gap-1 text-muted-foreground max-w-30">
+									<span className="text-[11px] md:text-xs text-center">{match.venue}</span>
+								</div>
 							)}
-						/>
+
+							<div className="mt-5 flex items-center gap-3">
+								{/* Home Score */}
+								<Controller
+									name="homeTeamScore"
+									control={form.control}
+									render={({ field, fieldState }) => (
+										<Field data-invalid={fieldState.invalid} className="max-w-14">
+											<input
+												{...field}
+												type="number"
+												min={0}
+												readOnly={predictionMode === 'DELETE'}
+												value={field.value ?? ''}
+												placeholder={`${prevPrediction?.homeTeamScore ?? 0}`}
+												onChange={e =>
+													field.onChange(e.target.value === '' ? undefined : +e.target.value)
+												}
+												className="size-14 md:size-16 rounded-2xl border bg-background text-center text-2xl md:text-4xl font-bold shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none no-toggle"
+											/>
+
+											{fieldState.invalid && (
+												<FieldError
+													className="mt-1 text-[10px]"
+													errors={[{ message: 'Invalid' }]}
+												/>
+											)}
+										</Field>
+									)}
+								/>
+								<div className="text-2xl md:text-3xl font-bold text-muted-foreground">:</div>
+								{/* Away Score */}
+								<Controller
+									name="awayTeamScore"
+									control={form.control}
+									render={({ field, fieldState }) => (
+										<Field data-invalid={fieldState.invalid} className="max-w-14">
+											<input
+												{...field}
+												type="number"
+												min={0}
+												readOnly={predictionMode === 'DELETE'}
+												value={field.value ?? ''}
+												placeholder={`${prevPrediction?.awayTeamScore ?? 0}`}
+												onChange={e =>
+													field.onChange(e.target.value === '' ? undefined : +e.target.value)
+												}
+												className="size-14 md:size-16 rounded-2xl border bg-background text-center text-2xl md:text-4xl font-bold shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none no-toggle"
+											/>
+
+											{fieldState.invalid && (
+												<FieldError
+													className="mt-1 text-[10px]"
+													errors={[{ message: 'Invalid' }]}
+												/>
+											)}
+										</Field>
+									)}
+								/>
+							</div>
+						</div>
+
+						{/* Away Team */}
+						<div className="flex flex-1 flex-col items-center text-center">
+							<Avatar className="size-17 md:size-28 rounded-full border bg-background shadow-md">
+								<AvatarImage src={match.awayTeamBadgeUrl} />
+								<AvatarFallback />
+							</Avatar>
+
+							<h3 className="mt-3 text-sm md:text-lg font-semibold leading-tight">
+								{match.awayTeamName}
+							</h3>
+						</div>
 					</div>
 				</div>
-				<div className="h-full w-full flex flex-col items-center justify-center text-sm text-center">
-					<Avatar className="h-full w-full md:max-w-28 md:max-h-28 max-h-20 max-w-20 shadow-xl">
-						<AvatarImage src={match.awayTeamBadgeUrl} className="w-full h-full " />
-						<AvatarFallback />
-					</Avatar>
-					<h3 className="mt-2 font-semibold text-lg">{match.awayTeamName}</h3>
-				</div>
-			</div>
+			</ScrollArea>
 			<div className="flex justify-end mt-auto">
 				{isLateSubmission ? (
 					<Button variant={'destructive'} disabled className="cursor-not-allowed">

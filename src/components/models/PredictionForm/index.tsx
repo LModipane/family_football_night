@@ -227,6 +227,7 @@ const Form = ({
 	const router = useRouter();
 	const { onClose } = useModel();
 	const [isLoading, setIsLoading] = useState(false);
+	const [selectWinner, setSelectWinner] = useState(false);
 
 	const form = useForm<z.infer<typeof PredictionSchema>>({
 		defaultValues: {
@@ -286,22 +287,21 @@ const Form = ({
 		console.error(error);
 	};
 
-	// const showWinningSideField =
-	// 	!match.isKnockoutStage && form.getValues('awayTeamScore') === form.getValues('homeTeamScore');
+	useEffect(() => {
+		const awayTeamScoreFormValue = form.getValues('awayTeamScore');
+		const homeTeamScoreFormValue = form.getValues('homeTeamScore');
+		if (!match || !match.isKnockoutStage || !awayTeamScoreFormValue || !homeTeamScoreFormValue)
+			return;
 
-	// useEffect(() => {
-	// 	const subscription = form.watch(value => {
-	// 		console.log(value);
-	// 	});
-
-	// 	return () => subscription.unsubscribe();
-	// }, [form.watch]);
+		const predictedDraw = awayTeamScoreFormValue === homeTeamScoreFormValue;
+		setSelectWinner(match.isKnockoutStage && predictedDraw);
+	}, [form.watch(), match?.isKnockoutStage]);
 
 	return (
 		<form
 			className="h-full w-full flex flex-col gap-3"
 			onSubmit={form.handleSubmit(submitHandler, handleError)}>
-			<ScrollArea className="flex flex-col h-80 p-2 overflow-y-scroll no-scrollbar">
+			<ScrollArea className="flex flex-col md:h-80 h-50 p-2 overflow-y-scroll no-scrollbar">
 				<div className="flex flex-col md:flex-row gap-2 m-2">
 					{/* Hide Prediction */}
 					<Controller
@@ -329,7 +329,7 @@ const Form = ({
 					/>
 
 					{/* Winner Selection */}
-					{true && (
+					{selectWinner && (
 						<Controller
 							name="winningSide"
 							control={form.control}
@@ -401,7 +401,7 @@ const Form = ({
 
 						{/* Center */}
 						<div className="flex flex-col items-center shrink-0">
-							<div className="rounded-full bg-muted px-4 py-1">
+							<div className="rounded-full bg-muted px-2 py-1">
 								<p className="text-xs md:text-sm font-medium">{formatDate(match.kickOff)}</p>
 							</div>
 
@@ -417,7 +417,7 @@ const Form = ({
 									name="homeTeamScore"
 									control={form.control}
 									render={({ field, fieldState }) => (
-										<Field data-invalid={fieldState.invalid} className="max-w-14">
+										<Field data-invalid={fieldState.invalid} className="md:max-w-14 max-w-10">
 											<input
 												{...field}
 												type="number"
@@ -428,7 +428,7 @@ const Form = ({
 												onChange={e =>
 													field.onChange(e.target.value === '' ? undefined : +e.target.value)
 												}
-												className="size-14 md:size-16 rounded-2xl border bg-background text-center text-2xl md:text-4xl font-bold shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none no-toggle"
+												className="md:size-14 size-10 rounded-2xl border bg-background text-center text-2xl md:text-4xl font-bold shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none no-toggle"
 											/>
 
 											{fieldState.invalid && (
@@ -446,7 +446,7 @@ const Form = ({
 									name="awayTeamScore"
 									control={form.control}
 									render={({ field, fieldState }) => (
-										<Field data-invalid={fieldState.invalid} className="max-w-14">
+										<Field data-invalid={fieldState.invalid} className="md:max-w-14 max-w-10">
 											<input
 												{...field}
 												type="number"
@@ -457,7 +457,7 @@ const Form = ({
 												onChange={e =>
 													field.onChange(e.target.value === '' ? undefined : +e.target.value)
 												}
-												className="size-14 md:size-16 rounded-2xl border bg-background text-center text-2xl md:text-4xl font-bold shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none no-toggle"
+												className="md:size-14 size-10 rounded-2xl border bg-background text-center text-2xl md:text-4xl font-bold shadow-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none no-toggle"
 											/>
 
 											{fieldState.invalid && (

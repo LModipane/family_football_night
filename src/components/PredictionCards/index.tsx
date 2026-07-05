@@ -148,7 +148,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 							src={prediction.matchEvent.homeTeamBadgeUrl || undefined}
 							alt={prediction.matchEvent.homeTeamName || 'Home Team Avatar'}
 						/>
-						<AvatarFallback className="bg-linear-to-br from-violet-600 via-purple-600 to-blue-600 text-white">
+						<AvatarFallback className="bg-linear-to-br from-fuchsia-600 via-purple-600 to-sky-600 text-white">
 							H
 						</AvatarFallback>
 					</Avatar>
@@ -166,7 +166,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 							src={prediction.matchEvent.awayTeamBadgeUrl || undefined}
 							alt={prediction.matchEvent.awayTeamName || 'Home Team Avatar'}
 						/>
-						<AvatarFallback className="bg-linear-to-br from-violet-600 via-purple-600 to-blue-600 text-white">
+						<AvatarFallback className="bg-linear-to-br from-fuchsia-600 via-purple-600 to-sky-600 text-white">
 							A
 						</AvatarFallback>
 					</Avatar>

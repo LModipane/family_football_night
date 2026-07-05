@@ -20,6 +20,15 @@ export async function POST(req: Request) {
 		});
 		if (!matchEvent) return new Response('Opps, Bad Request!!!', { status: 400 });
 
+		const existingPrediction = await db.query.predictionTable.findFirst({
+			where: (table, { eq, and }) =>
+				and(
+					eq(table.groupId, data.groupId),
+					eq(table.profileId, profile.id!),
+					eq(table.matchEventId, data.matchEventId),
+				),
+		});
+		if (existingPrediction) return new Response('Existing Prediction', { status: 204 });
 
 		const isSubmissionOpen = +new Date(matchEvent.kickOff) - +new Date() > 10 * 60 * 1000;
 		if (!isSubmissionOpen)
@@ -53,5 +62,3 @@ export async function POST(req: Request) {
 		return new Response('Opps, Failed to Post Prediction', { status: 500 });
 	}
 }
-
-

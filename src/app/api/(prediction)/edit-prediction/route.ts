@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm';
 import { predictionTable } from '@/lib/db/schema';
 import { PredictionSchema } from '@/types/formSchema';
 import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
+import { determineWinningSide } from '../util';
 
 export async function PUT(req: Request) {
 	try {
@@ -12,11 +13,13 @@ export async function PUT(req: Request) {
 		const body = await req.json();
 		const { success, data } = PredictionSchema.safeParse(body);
 
-		if (!success || !data || !data.id) return new Response('Opps, Bad request!!!', {status: 400});
+		if (!success || !data || !data.id) return new Response('Opps, Bad request!!!', { status: 400 });
+
+		const winningSide = determineWinningSide(data);
 
 		await db
 			.update(predictionTable)
-			.set(data)
+			.set({ ...data, winningSide })
 			.where(eq(predictionTable.id, data.id));
 
 		return new Response(`Success`, { status: 200 });

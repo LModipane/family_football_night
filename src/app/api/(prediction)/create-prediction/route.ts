@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { ZodError } from 'zod';
 import posthogClient from '@/lib/posthog';
+import { determineWinningSide } from '../util';
 import { predictionTable } from '@/lib/db/schema';
 import { PredictionSchema } from '@/types/formSchema';
 import { authenticateUser } from '@/lib/nextAuth/is_user_authenticated';
@@ -12,19 +13,23 @@ export async function POST(req: Request) {
 
 		const body = await req.json();
 		const { success, data } = PredictionSchema.safeParse(body);
-		if(!success || !data) return new Response("Opps, Bad Request", {status: 400})
+		if (!success || !data) return new Response('Opps, Bad Request', { status: 400 });
 
 		const matchEvent = await db.query.matchEventTable.findFirst({
 			where: (table, { eq }) => eq(table.id, data.matchEventId),
 		});
 		if (!matchEvent) return new Response('Opps, Bad Request!!!', { status: 400 });
 
+
 		const isSubmissionOpen = +new Date(matchEvent.kickOff) - +new Date() > 10 * 60 * 1000;
 		if (!isSubmissionOpen)
 			return new Response('Opps, submission for prediction are closed', { status: 422 });
 
+		const winningSide = determineWinningSide(data);
+
 		await db.insert(predictionTable).values({
 			...data,
+			winningSide,
 			profileId: profile.id!,
 		});
 
@@ -48,3 +53,5 @@ export async function POST(req: Request) {
 		return new Response('Opps, Failed to Post Prediction', { status: 500 });
 	}
 }
+
+

@@ -344,7 +344,6 @@ type ResultTableProps = {
 };
 
 const ResultTable = ({ results }: ResultTableProps) => {
-	console.log('Results:', results); // Debugging line
 	return (
 		<Table className="bg-blue-900 p-4 text-white w-full h-fit">
 			<TableHeader className="h-full">

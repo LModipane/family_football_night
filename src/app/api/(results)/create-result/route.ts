@@ -146,7 +146,7 @@ function calculatePoints({
 	homePrediction,
 	awayPrediction,
 	isKnockoutFixture,
-	winningPrediction = 'home',
+	winningPrediction,
 }: Args): number {
 	const predictedDraw = awayPrediction === homePrediction;
 	const isPerfectPrediction = awayPrediction === awayResult && homePrediction === homeResult;

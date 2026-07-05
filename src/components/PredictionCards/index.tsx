@@ -91,7 +91,7 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 	};
 
 	const live = +new Date(prediction.matchEvent.kickOff) - +new Date() < 3 * 60 * 1000;
-
+	console.log(prediction.matchEvent.awayTeamBadgeUrl);
 	return (
 		<div className="flex items-center w-full max-w-full justify-between p-2 text-white ">
 			{/* Profile Section */}
@@ -143,13 +143,15 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 						isCurrentUserPrediction ? 'md:mr-4 mr-1' : 'md:mr-11.5 mr-8.5',
 					)}>
 					{/* Home Team Badge */}
-					<Image
-						width={32}
-						height={32}
-						className="rounded-full"
-						src={prediction.matchEvent.homeTeamBadgeUrl}
-						alt={`${prediction.matchEvent.homeTeamName} badge`}
-					/>
+					<Avatar className="size-9">
+						<AvatarImage
+							src={prediction.matchEvent.homeTeamBadgeUrl || undefined}
+							alt={prediction.matchEvent.homeTeamName || 'Home Team Avatar'}
+						/>
+						<AvatarFallback className="bg-linear-to-br from-violet-600 via-purple-600 to-blue-600 text-white">
+							H
+						</AvatarFallback>
+					</Avatar>
 
 					{/* Prediction Section */}
 					<div className="flex items-center ml-auto gap-2 font-semibold text-xl">
@@ -159,13 +161,15 @@ const PredictionCard = ({ groupId, prediction, currentProfileId }: PredictionCar
 					</div>
 
 					{/* Away Team Badge */}
-					<Image
-						width={32}
-						height={32}
-						className="rounded-full"
-						src={prediction.matchEvent.awayTeamBadgeUrl}
-						alt={`${prediction.matchEvent.awayTeamName} badge`}
-					/>
+					<Avatar className="size-9">
+						<AvatarImage
+							src={prediction.matchEvent.awayTeamBadgeUrl || undefined}
+							alt={prediction.matchEvent.awayTeamName || 'Home Team Avatar'}
+						/>
+						<AvatarFallback className="bg-linear-to-br from-violet-600 via-purple-600 to-blue-600 text-white">
+							A
+						</AvatarFallback>
+					</Avatar>
 				</div>
 			)}
 

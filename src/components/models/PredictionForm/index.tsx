@@ -346,7 +346,7 @@ const Form = ({
 									</div>
 
 									<FieldContent>
-										<Select value={field.value} onValueChange={field.onChange}>
+										<Select required value={field.value} onValueChange={field.onChange}>
 											<SelectTrigger className="h-11 w-full">
 												<SelectValue placeholder="Select winning team" />
 											</SelectTrigger>
